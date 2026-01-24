@@ -1,0 +1,91 @@
+hola puedes ayudarme a generar una pagina web que su funcional sea un cotizador en linea , tengo una imprenta y quiero dar los costos a mis clientes mas rápido , no ocupo almacenar base de datos ni nada solo es para mi el ciente no tiene aceso  ni tampoco ocupo que guarde la cotización algo sencillo, quiero que actúes como el mejor programdor 
+
+el cotizador se llamara = cotizador gran formato 
+
+primero preguntar : primero preguntar = va ROTULADO SOBRE ALGO = (si o no) poder selecciona esas opciones 
+
+si la respuespuesta es (no) : mostrar todos los materirasl son estos : Lona Brillante 13oz, Vinil Brillante 140gr , Vinil Trasparente Brillante , Vinil Trasparente Mate, Vinil Microperforado, Vinil Electroestatico Blanco, Poster 200gr, Papel Fotografico, Canvas, Vinil Metalico Aluminio de 8mm Peso 215gr, 
+SEPARAR POR CATEGORIA : LONAS, VINILES , TELAS, Y YA SELECCIONADO APRESCAN LAS OPCIONES QUE TE PASE 
+TODOS ESTOS MATERIALES MIDEN DE ANCHO 150 CM 
+
+y si la respuesta es (si): solo mostrar los VINILES QUE DEJE SELECCIONAR CUAL OCUPO DE LOS VINILES Y PREGUNTAR SOLO QUE MATERIAL SE VA ROTULAR POR FREMTE  = CORROPLAST BLANCO DE 4MM, TROVICEL(PVC ESPUMADO)BLANCO DE 3MM Y 6MM , FORAM BOARD 5MM Y 10 MM, ACRILICO TRASPARENTE DE 3MM,5MM,6MM. 
+
+LOS MATERIALES DE ROTULACION LA MEDIDA ES DE 120 X 240 CM EL PLIEGO COMPLETO ,PERO PARA SACAR EL COSTO SE SEGMENTA EN 4 PARTES : 1/4 PLIEGO 60 X 120 CM, 1/2 PLIEGO MEDIDA 120 X 120 CM , 3/4 PLIEGO MEDIDA 180 X 120 CM , Y 1 PLIEGO COMPLETO 120 X 240 CM 
+SI ES MENOS QUE ALGUNA DE ESAS MEDIDAS AGARRAR LA MEDIDA DEL PLIEGO CORRESPONDIENTE SIMPRE ENGLOBANDO ASI ARRIBA; SI ES MENOS DE 1/4 DE PLIGO , USAR EL COSTO DE 1/4 COMPLETO , 
+
+PREGUNTAR LA CANTIDA QUE NECESITAN Y LA MEDIDA 2 CAMPOS PARA ANCHO Y LARGO.PREGUNTAR SI OCUPA LA MEDIDA EN CENTIMETROS O METROS PODER ESCOJER ESA OPCIONES 
+
+YA QUE LLENEN LAS CANTIDASD Y MEDIDAS EL COSTO SE SACA POR METRO CUADRADO LO QUE QUEPA EN EL METRO SI ES MENOS DE 1 METRO COMO QUEIRA SE COBRA 1 METRO CUADRADO
+
+TE PASO LOS COSTOS DE LOS MATERIALES  
+Lona Brillante 13oz = 1-5 MT2 $ 300 , 6-10 MT2 $ 280, 11-20 MT2 $270 , 21-50 MT2 $ 260, + DE 51 MT $ 250 
+Vinil Brillante 140gr , Vinil Trasparente Brillante , Vinil Trasparente Mate , (TIENEN EL MISMO COSTO) : 1-5 MT2 $ 310 , 6-10 MT2 $ 290, 11-20 MT2 $280 , 21-50 MT2 $ 265, + DE 51 MT $ 250
+Vinil Microperforado = 1-5 MT2 $ 415 , 6-10 MT2 $390, 11-20 MT2 $368 , 21-50 MT2 $ 350, + DE 51 MT $345
+Vinil Electroestatico Blanco = 1-5 MT2 $ 350 , 6-10 MT2 $340, 11-20 MT2 $330 , 21-50 MT2 $ 320, + DE 51 MT $310
+Poster 200gr = 1-5 MT2 $ 300 , 6-10 MT2 $ 280, 11-20 MT2 $270 , 21-50 MT2 $ 260, + DE 51 MT $ 250
+Papel Fotografico = 1-5 MT2 $ 380 , 6-10 MT2 $ 370, 11-20 MT2 $360 , 21-50 MT2 $ 350, + DE 51 MT $320
+Canvas = 1-5 MT2 $ 400 , 6-10 MT2 $ 390, 11-20 MT2 $380 , 21-50 MT2 $ 370, + DE 51 MT $350
+Vinil Metalico Aluminio de 8mm Peso 215gr,= 1-5 MT2 $ 830 , 6-10 MT2 $ 770, 11-20 MT2 $750 , + DE 21 MT2 $ 700
+
+Y LOS COTOS DE MATERIALES DE ROTULACION  
+
+MATERIALES DE ROTULACION	                     120X240  180X120  120X120	  60X120
+CORROPLAST BLANCO DE 4MM				415	325	 240	   140
+TROVICEL(PVC ESPUMADO)BLANCO DE 3MM			504	416	 290	   150
+TROVICEL(PVC ESPUMADO)BLANCO DE 6MM			810	670	 446	   243
+FoamBoard (Carton espuma) 5mm				330	271	 190	   100
+FoamBoard (Carton espuma) 10mm				490	400	 280	   150
+ACRILICO TRASPARENTE DE 3MM				2090	1730	 1200	   630
+ACRILICO TRASPARENTE DE 6MM				3800	3150	 220	   1140
+
+PARA SACAR EL COSTO DE LOS MAREILES ROTULADOS , ES LO MIMSMO , CANTIDAD , MEDIDA ANCHO Y LARGO (NO PUEDE SER MAS ANCHO QUE 120CM , Y LO QUE NECESITES DE MATERIAL DEPDENDE DE LA METDIDA Y COSTO Y AGREGAS EL VINIL EL QUE SELECCIONEN 
+
+AL FINAL AGREGAR SUBTOTAL , EL IVA 16% Y EL TOTAL Y QUE TAMBIEN SALGA EL COSTO UNITARIO YA NETO 
+
+AGREGAR UN SEGRMENTO ABAJO QUE SE LLAME RESUMEN DE COSTOS ,DONDE PONGAS TODOS LOS COSTOS QUE NECEISTASTE PARA REALZIAR LA COTIZACION QUE SEA MUY EPESIFICO 
+
+AGREGAR UN BOTON AL FINAL COLOR ROJO QUE DIGA LIMPAR CAMPOS Y SU FUNCION SEA LIMPIAR TODOS LOS CAMPOS  
+
+Y AL FINAL DE TODO AGREGAR UN RESUMEN SIPLIFICADO: SU FUINCION ES UNA NOTA DE TODO LO QUE SE ESCOGIO CONTAIDAS MEDIDAS , MATERAILES CON EL PRECIO UNTARIO Y EL TOTAL YA NETO (INLUYE IVA) PARA MANDARLO AL CLINETE CON UN BOTON QUE SE LLAME COPIAR AL PORTAPAPELES DONDE COPIE TODO EL RESUMEN SIMPLIDICADO PODER COPIAR Y MANDARLO A LOS CLIENTES FACILMENTE 
+
+la categoria otros queiro que la cambies por = papeles , y el resumen queiro que lo explieques mejor si uasa un precio que pongas de que   │
+│    es (lona......), y epliques las formulas , el boton de limpiar campos que salga en grande que abarque todo lo ancho de la pagina , y el    │
+│    resumen simplificicado se todo consecutivo no en saltos asi como escribimos , y en el resumen simplificado si solo es 1 pieza no poner     │
+│    coto unitario solo poner costo neto proque solo es 1 pieza   
+
+no esta aplicado las formulas te paso un ejemplo 1 lona de 1 x 2.5 m = (1x2.5)2.5x$300 (costo de lona) subtotal $750x1.16 total $870 neto ,  │
+│    te paso la imagen donde estas aplicando las fomulas
+
+
+en el resumen simplificado quero que lo cambies asi = (cantidad)pz(material)(medida)impresos en alta resolución ,costo untario y costo neto, ejemplo 20 poster medida 20 x 40 cm impresos en alta resolución (costo unitario y costo neto)
+
+esta mal la formula ejemplo si 2 lonas de 20 x 60 cm no salen en $ 696.00 neto , la formula correcta es = 2 lona(.20x.60=0.12x2(cantidad)= 0.24 mt x$300(costo lona m2) = $72.  nisiquierea es 1 metro cuadrado , el costo es de 1 mt2 $ 300 + iva = $ 348 neto , modificas para que la formula sea asi para todos 
+
+ 
+2pz Vinil Brillante 140gr sobre CORROPLAST BLANCO DE 4MM 20x40cm impresos en alta resolución, Costo Unitario: 191.17, Costo Neto: 382.34
+
+agregar en la formula cuando se va rotular algo agregar el costo del montaje , depende de la medida 60x120 $ 85 , 120x120 $120, 180x120 $180 , 120x240 $240,si es menos que eso como queira cobrar eso
+PREGUNTAR TIPO DE DISEÑO = CLIENTE ENVIA DISEÑO (no se cobra nada), DISEÑO GUARDADO AQUI (cobrar $150) , REALIZAR DISEÑO (cobrar $250)
+
+
+puedes hacerlo mas colorido , que los campos a llenar tenga otros colores , ponerle iconos , puedes hacerla que parezca mas bonita , y   │
+│    despues del titulo agregar abajo = Creado por Joel Adrián Mtz 8341446103 
+
+ actualiza el costo del ACRILICO TRASPARENTE DE 6MM 120x120 $ 2,200
+
+puedes crear al final de la pagina , un menu desplegable que se llame costos materiales, y los dividas en secciones : materiales de     │
+│    rotulacion , materiales de impresion (todos), y me pongas el precio de cada uno  y agregar un campo de lado derecho de cada cosa para   │
+│    poder actualizar los costos
+
+
+ la web marca error: no se pudo cargar la configuracion de precios.la aplicacion no puede continuar.  lo pudes corregir 
+
+esta bien solo queiero modificar el orden , primero seria : cantidad , después medidas y después vas a rotulado sobre algo , categoría , material , tipo de diseño , no vas a mover nada mas solo que el orden (cantidad , medidas ,y todo lo demás esta bien abajo de medidas) 
+
+puedes modificar que en el costo de los mateirales no se despliegen todos al mismo tiempo que esten en secciones , lonas y se depliegen solo las lonas , viniles , telas , poster, materiales para rotulacion , costos de montaje , que sean esas las secciones 
+
+en costo de materiales , si aparecen la secciones pero no hacen nada no depligan la infromacion
+
+							
+
+

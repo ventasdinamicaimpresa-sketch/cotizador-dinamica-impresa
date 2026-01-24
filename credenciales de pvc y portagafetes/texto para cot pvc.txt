@@ -1,0 +1,65 @@
+me puedes ayudara a crear un cotizador es para mi sin almazenar base de datos solo es para darle un precio al cliente , es sobre tarjetas de pvc imrpesas , que informacion necesitas para crear el cotizador web
+con rango de precios si te paso los rangos : 
+
+1-3,4-10,11-20,21-50,50-100,101-200,201-400,401-800,801-1000,1001 +
+
+la tarjeta tiene un costo de $3 c/u , la cinta tiene un costo de $2950 y puede sacar 750 impresiones a color 1 lado y 375 impresiones a color ambos lados , y el costo de limpieza es de $1 cada tarjeta , se puede imprmir por 1 lado y ambos lados  , 
+
+quiero agregar este rango de precio , por el uso de la maquina depende la cantidad es el costo rango uso de maquina 
+
+ rango de precios 	rango uso de maquina 
+1-3	 $50.00 
+4-10	 $20.00 
+11-20	 $15.00 
+21-50	 $14.00 
+50-100	 $13.00 
+101-200	 $12.00 
+201-400	 $11.00 
+401-800	 $10.00 
+801-1000	 $9.00 
+1001 +	 $8.00 
+
+quiero que primero pregunte cantidad , tipo de impresion (color 1 lado o ambos lados) , hologramas , preguntar si lleva hologramas , si o no , si escoje si , hay 2 tipos sencillo y holograma , pruntar , frente = cual selecionar y reverso cual seleccionar , en cuestion de acabados preguntar si llevaria algun acabado perforacion ciruclar o alargada 
+
+el precio de la perforación es esta 
+rango de precios 	operforacion 
+1-3	20
+4-10	15
+11-20	12
+21-50	10
+50-100	8
+101-200	5
+201-400	3
+401-800	2
+801-1000	1
+1001 +	gratis 
+
+el costo de la tarjeta para laminar tiene un costo de $4.50 c/u , el laminado sencillo la cinta tiene un costo de $ 2,250 y puede laminar 750 credenciales por 1 lado o 375 credenciles por ambos lados 
+
+el laminado holográfico  la cinta tiene un costo de $ 3100 y puede laminar 750 credenciales por 1 lado solo frente por el reverso no hay 
+
+el siguiente apartado es el del diseño , preguntar : (cliente envia diseño listo para impresión ) se cobra solo $80 por diseño , (realizar diseño ) se cobra $250 , (diseño guardado aquí) se cobrara $150 
+si son mas de 100 tarjetas no se cobra diseño de nigun tipo es gratis 
+preguntar si lleva base de datos = si o no , si reponde no , no pasa nada, si responde si = preguntar frente cuantas bases de datos diferentes , reverso , preguntar lo mismo : 
+
+si lleva base de datos cobrar de 1-100 $250 por la base de datos , 101-300 $300 y 301-500 $350, 500-1000 $400, 1001+$500 
+también cobrar por cada variable o base de datos distinta  $2    
+
+
+y ahora cargar la utilidad de (Tarjeta Virgen ,Costo Limpieza/Manejo,Costo Cinta de Impresión,Costo Laminado, 
+actulizar la utiidad la utilidad
+1-3	 x6
+4-10	 x5
+11-20	 x4
+21-50	 x3.5 
+50-100	 x3
+101-200	 x2.8 
+201-400	 x2.5
+401-800	 x2
+801-1000 x 1.85	 
+1001 +	 x 1.65
+ la mutilicacion es el costo por esa mulitpklicacion que es la utilidad 
+
+puedes agregar una sección nueva al final de todo abajo ,  que sea cotización para cliente = que venga todos los datos que llenamos, ejemplo 100 tajeta de pvc medida 8.56x5.4 cm grosor de 30 mil. impresas a color 1 lado sin acabados, cliente envia diseño = $ c/u , total = $ 
+
+queiro que si agregan laminado el costo de la tarjeta + el laminado tanto el sencillo como el holograma carges un 50% extra mas la utilidad normal 

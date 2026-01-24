@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Etiquetas Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+                <h1 class="text-center mb-4">Cotizador de Etiquetas</h1>
+        <p class="text-center text-muted">Creado por: Joel Adrian Mtz | 8341446103</p>
+
+        <form id="cotizadorForm" class="p-4 rounded-3">
+            <!-- Cantidad y Medidas -->
+            <div class="row mb-3 g-3">
+                <div class="col-md-4">
+                    <label for="cantidad" class="form-label"><i class="fas fa-copy me-2"></i>1. Cantidad</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-copy"></i></span>
+                        <input type="number" class="form-control" id="cantidad" min="1" placeholder="Ej: 1000" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="ancho" class="form-label"><i class="fas fa-ruler-horizontal me-2"></i>2. Ancho (cm)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-ruler-horizontal"></i></span>
+                        <input type="number" class="form-control" id="ancho" step="0.1" min="0.1" placeholder="Ej: 5.5" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="largo" class="form-label"><i class="fas fa-ruler-vertical me-2"></i>3. Largo (cm)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-ruler-vertical"></i></span>
+                        <input type="number" class="form-control" id="largo" step="0.1" min="0.1" placeholder="Ej: 8.5" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material y Tipo -->
+            <div class="row mb-3 g-3">
+                <div class="col-md-6">
+                    <label for="material" class="form-label"><i class="fas fa-layer-group me-2"></i>4. Material Principal</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+                        <select class="form-select" id="material" required>
+                            <option value="" selected disabled>Seleccione un material...</option>
+                            <option value="papel">Papel Adhesivo</option>
+                            <option value="vinil">Vinil Adhesivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6" id="subMaterialContainer" style="display: none;">
+                    <label for="subMaterial" class="form-label">Tipo de Material</label>
+                    <select class="form-select" id="subMaterial"></select>
+                </div>
+            </div>
+
+            <!-- Impresión -->
+            <div class="row mb-3">
+                <div class="col-md-6" id="impresionContainer" style="display: none;">
+                    <label for="impresion" class="form-label"><i class="fas fa-print me-2"></i>5. Tipo de Impresión</label>
+                     <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-print"></i></span>
+                        <select class="form-select" id="impresion">
+                            <option value="color">Color</option>
+                            <option value="byn">Blanco y Negro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Corte -->
+            <div class="row mb-3 g-3">
+                <div class="col-md-6">
+                    <label for="corte" class="form-label"><i class="fas fa-cut me-2"></i>6. Tipo de Corte</label>
+                    <div class="input-group">
+                         <span class="input-group-text"><i class="fas fa-cut"></i></span>
+                        <select class="form-select" id="corte" required>
+                            <option value="" selected disabled>Seleccione una opción...</option>
+                            <option value="sin_corte">Sin Corte</option>
+                            <option value="recto">Corte Recto (Solo Papel)</option>
+                            <option value="registro">Corte a Registro (Contorno)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6" id="bajadasContainer" style="display: none;">
+                    <label for="bajadas" class="form-label">Cantidad de Bajadas</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-sort-numeric-down"></i></span>
+                        <input type="number" class="form-control" id="bajadas" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diseño -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="diseno" class="form-label"><i class="fas fa-paint-brush me-2"></i>7. Diseño</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-paint-brush"></i></span>
+                        <select class="form-select" id="diseno" required>
+                            <option value="envia">Cliente envía diseño</option>
+                            <option value="guardado">Diseño guardado</option>
+                            <option value="nuevo">Realizar diseño nuevo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de Errores -->
+            <div id="errorContainer" class="alert alert-danger mt-3" role="alert" style="display: none;"></div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-calculator me-2"></i>Calcular Cotización</button>
+            </div>
+        </form>
+
+        <!-- Resultados -->
+        <div id="resultado" class="mt-5" style="display: none;">
+            <h2 class="text-center">Resultado de la Cotización</h2>
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text" id="desglose" style="font-size: 0.85rem; color: #6c757d;"></p>
+                    <hr>
+                    <p class="card-text fs-5"><strong>Subtotal:</strong> <span id="subtotal"></span></p>
+                    <p class="card-text fs-5"><strong>IVA (16%):</strong> <span id="iva"></span></p>
+                    <h3 class="card-title"><strong>Total Neto:</strong> <span id="total"></span></h3>
+                    <hr>
+                    <h4 class="card-title text-end"><strong>Costo Unitario:</strong> <span id="unitario"></span></h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+             <button type="button" id="limpiar" class="btn btn-danger btn-lg" style="display: none;">LIMPIAR CAMPOS</button>
+        </div>
+
+        <!-- Resumen para Cliente -->
+        <div id="resumenCliente" class="mt-5" style="display: none;">
+            <h3 class="text-center">Resumen para Enviar al Cliente</h3>
+            <div class="card">
+                <div class="card-body">
+                    <textarea id="textoResumen" class="form-control" rows="2" readonly></textarea>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="button" id="copiarResumen" class="btn btn-success">Copiar al Portapapeles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

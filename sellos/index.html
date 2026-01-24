@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Sellos</title>
+    <!-- Incluye Tailwind CSS para estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configura Tailwind para usar la fuente Inter -->
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+    <!-- Incluye React, ReactDOM y Babel desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- DATOS INICIALES Y CONSTANTES ---
+        const initialSelloData = {
+          colop: {
+            placa: [
+              { modelo: 'SELLO COLOP PRINTER 20', medida: '1.4x3.8', precio: 65.03, cojin: 34, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 30N', medida: '1.8x4.7', precio: 79.5, cojin: 42, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 35', medida: '3x5', precio: 229.0, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 40N', medida: '2.3x5.9', precio: 94.37, cojin: 46, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 50', medida: '3x6.9', precio: 182.0, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 53 PLACA', medida: '3x4.5', precio: 163.08, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 54 PLACA', medida: '4x5', precio: 186.17, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER 55 PLACA', medida: '4x6', precio: 186.6, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER C60', medida: '3.7x7.6', precio: 168.75, cojin: 61, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER Q43 PLACA', medida: '4.3x4.3', precio: 172.16, cojin: 61, tipo: 'placa' },
+            ],
+            fechador: [
+              { modelo: 'SELLO COLOP PRINTER 35 FECHADOR', medida: '3x5', precio: 320.0, cojin: 61, tipo: 'fechador' },
+              { modelo: 'SELLO COLOP PRINTER FECHADOR 53-DATER', medida: '3x4.5', precio: 273.26, cojin: 61, tipo: 'fechador' },
+              { modelo: 'SELLO COLOP PRINTER FECHADOR 54-DATER', medida: '4x5', precio: 275.45, cojin: 61, cojin2Colores: 80, tipo: 'fechador' },
+              { modelo: 'SELLO COLOP PRINTER FECHADOR 55-DATER', medida: '4x6', precio: 310.29, cojin: 61, cojin2Colores: 80, tipo: 'fechador' },
+              { modelo: 'SELLO COLOP PRINTER Q43 DATER FECHADOR', medida: '4.3x4.3', precio: 260.57, cojin: 61, tipo: 'fechador' },
+              { modelo: 'SELLO COLOP PRINTER R50 FECHADOR', medida: '5cm diametro', precio: 410.0, cojin: 80, tipo: 'fechador' },
+            ],
+            bolsillo: [
+              { modelo: 'SELLO COLOP POCKET STAMP PLUS 30 18X47MM', medida: '1.8x4.7', precio: 95.64, cojin: null, tipo: 'bolsillo' },
+              { modelo: 'SELLO COLOP POCKET STAMP 20', medida: '1.4x3.8', precio: 69.74, cojin: null, tipo: 'bolsillo' },
+            ],
+            redondos: [
+              { modelo: 'SELLO COLOP PRINTER R50 PLACA', medida: '5cm diametro', precio: 273.27, cojin: 80, tipo: 'placa' },
+              { modelo: 'SELLO COLOP PRINTER R50 FECHADOR', medida: '5cm diametro', precio: 410.0, cojin: 80, tipo: 'fechador' },
+            ],
+            ropa: [
+              { modelo: 'SELLO MARCADOR DE ROPA/LIBROS MINE C20/1 PIEZA', medida: '1.4x3.8', precio: 214.57, cojin: 80, tipo: 'ropa' },
+              { modelo: 'SELLO COLOP PRINTER 30 TEXTIL', medida: '1.8x4.7', precio: 320, cojin: null, tipo: 'ropa', isTextil: true },
+            ],
+          },
+        };
+
+        const initialMaderaData = [
+          { ancho: 2, costoTira: 80, costoPuno: 16, costoFabricar: 20 },
+          { ancho: 2.5, costoTira: 80, costoPuno: 16, costoFabricar: 20 },
+          { ancho: 3, costoTira: 80, costoPuno: 16, costoFabricar: 20 },
+          { ancho: 3.5, costoTira: 80, costoPuno: 17, costoFabricar: 20 },
+          { ancho: 4, costoTira: 90, costoPuno: 17, costoFabricar: 20 },
+          { ancho: 4.5, costoTira: 90, costoPuno: 20, costoFabricar: 20 },
+          { ancho: 5, costoTira: 95, costoPuno: 20, costoFabricar: 20 },
+          { ancho: 5.5, costoTira: 95, costoPuno: 18, costoFabricar: 20 },
+          { ancho: 6, costoTira: 95, costoPuno: 50, costoFabricar: 30 },
+          { ancho: 6.5, costoTira: 95, costoPuno: 50, costoFabricar: 30 },
+          { ancho: 7, costoTira: 105, costoPuno: 78, costoFabricar: 30 },
+          { ancho: 7.5, costoTira: 105, costoPuno: 78, costoFabricar: 30 },
+          { ancho: 8, costoTira: 105, costoPuno: 78, costoFabricar: 30 },
+          { ancho: 8.5, costoTira: 105, costoPuno: 100, costoFabricar: 30 },
+          { ancho: 9, costoTira: 120, costoPuno: 100, costoFabricar: 30 },
+          { ancho: 9.5, costoTira: 120, costoPuno: 130, costoFabricar: 30 },
+          { ancho: 10, costoTira: 130, costoPuno: 130, costoFabricar: 40 },
+          { ancho: 10.5, costoTira: 130, costoPuno: 135, costoFabricar: 40 },
+          { ancho: 11, costoTira: 135, costoPuno: 135, costoFabricar: 40 },
+          { ancho: 11.5, costoTira: 135, costoPuno: 140, costoFabricar: 40 },
+          { ancho: 12, costoTira: 140, costoPuno: 140, costoFabricar: 40 },
+          { ancho: 12.5, costoTira: 160, costoPuno: 145, costoFabricar: 40 },
+          { ancho: 13, costoTira: 170, costoPuno: 145, costoFabricar: 50 },
+          { ancho: 13.5, costoTira: 175, costoPuno: 150, costoFabricar: 50 },
+          { ancho: 14, costoTira: 180, costoPuno: 150, costoFabricar: 50 },
+          { ancho: 14.5, costoTira: 185, costoPuno: 150, costoFabricar: 50 },
+          { ancho: 15, costoTira: 190, costoPuno: 150, costoFabricar: 80 },
+          { ancho: 20, costoTira: 250, costoPuno: 200, costoFabricar: 80 },
+        ];
+
+        const accesoriosData = [
+          { id: 'cojin1', nombre: 'COJIN PELICAN #1 MEDIANO DE PLASTICO MEDIDA 6.7 X 11 CM SECO', precio: 19.21, tipo: 'cojin' },
+          { id: 'cojin2', nombre: 'COJIN PELICAN #2 GRANDE DE PLASTICO MEDIDA 9.8 X 15.20 CM SECO', precio: 32.20, tipo: 'cojin' },
+          { id: 'tintaNegra', nombre: 'TINTA PELICAN GIRAPLICA COLOR NEGRO DE 60ML', precio: 27, tipo: 'tinta' },
+          { id: 'tintaAzul', nombre: 'TINTA PELICAN GIRAPLICA COLOR AZUL DE 60ML', precio: 27, tipo: 'tinta' },
+        ];
+        
+        const tiposDeSello = ['Madera', 'Auto-entintable', 'Gomas para sellos'];
+        const coloresDeTinta = ['Negra', 'Verde', 'Rojo', 'Azul', 'Morado'];
+        const ubicacionDeGoma = ['en aparato', 'en madera', 'solo la goma sin pegar'];
+
+        const APARATO_MARGIN = 1.4;
+        const GENERIC_MATERIAL_MARGIN = 1.4;
+        const TIRA_MADERA_LENGTH_CM = 60;
+        const INITIAL_CYREL_SHEET_COST = 1000;
+        const TINTA_MARGIN = 1.50;
+        const COJIN_MARGIN = 1.80;
+        const cyrelSheetWidth = 19;
+        const cyrelSheetHeight = 25;
+        const disenoCost = 45;
+        const savedDisenoCost = 25;
+        const AUTO_GOMA_FABRICATION_COST = 45;
+        const cambioTintaCost = 15;
+        const manoDeObraCost = 20;
+        const MAX_WIDTH = 19;
+        const MAX_HEIGHT = 25;
+        const costoPegadoAparato = 5;
+        const costoPegadoMadera = 10;
+        const expressSurchargePercentage = 0.25;
+
+        const initialSelloDetails = {
+          tipo: '', subTipo: '', modelo: '', ancho: '', alto: '', largo: '',
+          cantidad: '',
+          clienteEnviaDiseno: false,
+          realizarDiseno: false,
+          disenoGuardado: false,
+          cambioTinta: false,
+          cambioTinta2Colores: false, colorTinta: '', ubicacionGoma: '', isExpress: false,
+          isMaquila: false,
+        };
+        const initialCalculos = {
+          costoAparato: 0, costoMadera: 0, costoPuno: 0, costoFabricar: 0, costoGoma: 0,
+          costoGrabado: 0, costoDiseno: 0, costoCambioTinta: 0, costoAdicionalPegado: 0,
+          costoExpress: 0, costoFabricacionAutoGoma: 0, costoMaquila: 0, costoAccesorios: 0, 
+          subtotalBase: 0, subtotal: 0, iva: 0, total: 0,
+        };
+        const initialAccesoriosState = {
+          cojin1: 0,
+          cojin2: 0,
+          tintaNegra: 0,
+          tintaAzul: 0,
+        };
+
+        function getModelSize(selectedModel) {
+          if (!selectedModel) return { w: 0, h: 0 };
+          const m = (selectedModel.medida || '').toString();
+          if (m.includes('diametro')) {
+            const n = parseFloat(m.match(/([\d.]+)/)?.[0]) || 0;
+            return { w: n, h: n };
+          }
+          const parts = m.split('x').map(p => parseFloat(p) || 0);
+          return { w: parts[0] || 0, h: parts[1] || 0 };
+        }
+
+        const formatCurrency = (number) => {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            }).format(number);
+        };
+
+        const Header = () => (
+            <div className="text-center">
+                <h1 className="text-3xl font-bold text-gray-800 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    Cotizador de Sellos
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">Creado por Joel Adrian Mtz Meza 8341446103</p>
+            </div>
+        );
+
+        const ErrorMessage = ({ error }) => {
+            if (!error) return null;
+            return (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span className="block sm:inline">{error}</span>
+                </div>
+            );
+        };
+
+        const SelloDetailsForm = ({ selloDetails, handleSelloChange, handleCheckboxChange, editableSelloData, selectedAutoEntintableSubTipoForGoma, selectedAutoEntintableModelForGoma, handleAutoEntintableModelForGomaChange, has2ColorCojin, selectedModelData }) => {
+            return (
+                <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex-grow">
+                                        <h2 className="text-lg font-semibold mb-4 text-gray-700 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 5.232z" />
+                        </svg>
+                        Detalles del Sello
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <input name="cantidad" placeholder="Cantidad a cotizar" type="number" min="1" value={selloDetails.cantidad} onChange={(e) => handleSelloChange('cantidad', e.target.value)} className="w-full p-2 border rounded-md" />
+                        <select onChange={(e) => handleSelloChange('tipo', e.target.value)} value={selloDetails.tipo} className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled>Tipo de Sello</option>
+                            {tiposDeSello.map(tipo => <option key={tipo} value={tipo}>{tipo}</option>)}
+                        </select>
+
+                        {selloDetails.tipo === 'Madera' && (
+                            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                                <input name="ancho" placeholder={`Ancho (cm) max ${MAX_WIDTH}`} type="number" step="0.1" min="0" value={selloDetails.ancho} onChange={(e) => handleSelloChange('ancho', e.target.value)} className="w-full md:w-1/2 p-2 border rounded-md" />
+                                <input name="largo" placeholder={`Largo (cm) max ${MAX_HEIGHT}`} type="number" step="0.1" min="0" value={selloDetails.largo} onChange={(e) => handleSelloChange('largo', e.target.value)} className="w-full md:w-1/2 p-2 border rounded-md" />
+                            </div>
+                        )}
+
+                        {selloDetails.tipo === 'Gomas para sellos' && (
+                            <>
+                                <select onChange={(e) => handleAutoEntintableModelForGomaChange(e.target.value, '')} value={selectedAutoEntintableSubTipoForGoma} className="w-full p-2 border rounded-md focus:outline-none focus:ring-2">
+                                    <option value="" disabled>Subtipo de aparato (para goma)</option>
+                                    {Object.keys(editableSelloData.colop).map(subTipo => <option key={subTipo} value={subTipo}>{subTipo}</option>)}
+                                </select>
+
+                                {selectedAutoEntintableSubTipoForGoma && (
+                                    <select onChange={(e) => handleAutoEntintableModelForGomaChange(selectedAutoEntintableSubTipoForGoma, e.target.value)} value={selectedAutoEntintableModelForGoma} className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled>Modelo de aparato (para goma)</option>
+                                        {editableSelloData.colop[selectedAutoEntintableSubTipoForGoma].map(sello => <option key={sello.modelo} value={sello.modelo}>{sello.modelo}</option>)}
+                                    </select>
+                                )}
+
+                                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                                    <input name="ancho" placeholder={`Ancho (cm) max ${MAX_WIDTH}`} type="number" step="0.1" min="0" value={selloDetails.ancho} onChange={(e) => handleSelloChange('ancho', e.target.value)} className="w-full md:w-1/2 p-2 border rounded-md" disabled={!!selectedAutoEntintableModelForGoma} />
+                                    <input name="alto" placeholder={`Alto (cm) max ${MAX_HEIGHT}`} type="number" step="0.1" min="0" value={selloDetails.alto} onChange={(e) => handleSelloChange('alto', e.target.value)} className="w-full md:w-1/2 p-2 border rounded-md" disabled={!!selectedAutoEntintableModelForGoma} />
+                                </div>
+                                <select onChange={(e) => handleSelloChange('ubicacionGoma', e.target.value)} value={selloDetails.ubicacionGoma} className="w-full p-2 border rounded-md">
+                                    <option value="" disabled>Ubicación de la goma</option>
+                                    {ubicacionDeGoma.map(ubicacion => <option key={ubicacion} value={ubicacion}>{ubicacion}</option>)}
+                                </select>
+                            </>
+                        )}
+
+                        {selloDetails.tipo === 'Auto-entintable' && (
+                            <>
+                                <select onChange={(e) => handleSelloChange('subTipo', e.target.value)} value={selloDetails.subTipo} className="w-full p-2 border rounded-md focus:outline-none focus:ring-2">
+                                    <option value="" disabled>Subtipo</option>
+                                    {Object.keys(editableSelloData.colop).map(subTipo => <option key={subTipo} value={subTipo}>{subTipo}</option>)}
+                                </select>
+
+                                {selloDetails.subTipo && (
+                                    <select onChange={(e) => handleSelloChange('modelo', e.target.value)} value={selloDetails.modelo} className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled>Modelo</option>
+                                        {editableSelloData.colop[selloDetails.subTipo].map(sello => <option key={sello.modelo} value={sello.modelo}>{sello.modelo}</option>)}
+                                    </select>
+                                )}
+
+                                <div className="flex items-center space-x-2">
+                                    <input type="checkbox" id="cambioTinta" checked={selloDetails.cambioTinta} onChange={(e) => handleCheckboxChange('cambioTinta', e.target.checked)} className="rounded text-blue-500" disabled={!selectedModelData?.cojin || selectedModelData?.isTextil || selloDetails.cambioTinta2Colores} />
+                                    <label htmlFor="cambioTinta" className="text-sm">Cambio de Tinta (1 color)</label>
+                                </div>
+
+                                {selloDetails.cambioTinta && (
+                                    <select onChange={(e) => handleSelloChange('colorTinta', e.target.value)} value={selloDetails.colorTinta} className="w-full p-2 border rounded-md">
+                                        <option value="" disabled>Color de Tinta</option>
+                                        {coloresDeTinta.map(color => <option key={color} value={color}>{color}</option>)}
+                                    </select>
+                                )}
+
+                                {has2ColorCojin && (
+                                    <div className="flex items-center space-x-2">
+                                        <input type="checkbox" id="cambioTinta2Colores" checked={selloDetails.cambioTinta2Colores} onChange={(e) => handleCheckboxChange('cambioTinta2Colores', e.target.checked)} className="rounded text-blue-500" disabled={selloDetails.cambioTinta} />
+                                        <label htmlFor="cambioTinta2Colores" className="text-sm">Cambio de Tinta (2 colores)</label>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        <div className="flex flex-wrap items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="clienteEnviaDiseno" checked={selloDetails.clienteEnviaDiseno} onChange={(e) => handleCheckboxChange('clienteEnviaDiseno', e.target.checked)} className="rounded text-blue-500" disabled={selloDetails.realizarDiseno || selloDetails.disenoGuardado} />
+                                <label htmlFor="clienteEnviaDiseno" className="text-sm">Cliente envía diseño</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="realizarDiseno" checked={selloDetails.realizarDiseno} onChange={(e) => handleCheckboxChange('realizarDiseno', e.target.checked)} className="rounded text-blue-500" disabled={selloDetails.clienteEnviaDiseno || selloDetails.disenoGuardado} />
+                                <label htmlFor="realizarDiseno" className="text-sm">Realizar diseño</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="disenoGuardado" checked={selloDetails.disenoGuardado} onChange={(e) => handleCheckboxChange('disenoGuardado', e.target.checked)} className="rounded text-blue-500" disabled={selloDetails.clienteEnviaDiseno || selloDetails.realizarDiseno} />
+                                <label htmlFor="disenoGuardado" className="text-sm">Diseño Guardado</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="isExpress" checked={selloDetails.isExpress} onChange={(e) => handleCheckboxChange('isExpress', e.target.checked)} className="rounded text-blue-500" />
+                                <label htmlFor="isExpress" className="text-sm">Servicio Exprés</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="isMaquila" checked={selloDetails.isMaquila} onChange={(e) => handleCheckboxChange('isMaquila', e.target.checked)} className="rounded text-blue-500" />
+                                <label htmlFor="isMaquila" className="text-sm">Maquila</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AccesoriosSection = ({ accesorios, handleAccesorioChange }) => {
+            const [showAccesorios, setShowAccesorios] = React.useState(false);
+
+            return (
+                <div className="mt-6">
+                    <button onClick={() => setShowAccesorios(!showAccesorios)} className="w-full bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 flex justify-between items-center rounded-md shadow-md transition-all duration-300 ease-in-out">
+                        Accesorios para Sellos (Tinta y Cojines)
+                        <svg className={`w-4 h-4 transition-transform ${showAccesorios ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </button>
+                    {showAccesorios && (
+                        <div className="mt-4 p-4 bg-indigo-50 rounded-lg shadow-inner max-h-96 overflow-y-auto border border-indigo-200">
+                            {accesoriosData.map(item => {
+                                const finalPrice = item.tipo === 'tinta' ? item.precio * TINTA_MARGIN : item.precio * COJIN_MARGIN;
+                                return (
+                                    <div key={item.id} className="flex flex-col sm:flex-row justify-between sm:items-center space-y-2 sm:space-y-0 space-x-0 sm:space-x-4 my-2 p-2 bg-white rounded-md">
+                                        <div className="flex-1">
+                                            <p className="text-sm text-gray-700 font-medium">{item.nombre}</p>
+                                            <p className="text-xs text-gray-500">{`Costo: $${item.precio.toFixed(2)} - Venta: $${finalPrice.toFixed(2)}`}</p>
+                                        </div>
+                                        <input type="number" min="0" value={accesorios[item.id]} onChange={(e) => handleAccesorioChange(item.id, e.target.value)} className="w-full sm:w-24 p-1 text-right border rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const PriceEditor = ({ editableSelloData, handlePriceChange }) => {
+            const [showPriceEditor, setShowPriceEditor] = React.useState(false);
+
+            return (
+                <div className="mt-6">
+                    <button onClick={() => setShowPriceEditor(!showPriceEditor)} className="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 flex justify-between items-center rounded-md shadow-md transition-all duration-300 ease-in-out">
+                        Editar Costos de Aparatos
+                        <svg className={`w-4 h-4 transition-transform ${showPriceEditor ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </button>
+                    {showPriceEditor && (
+                        <div className="mt-4 p-4 bg-yellow-50 rounded-lg shadow-inner max-h-96 overflow-y-auto border border-yellow-200">
+                            <h3 className="text-md font-bold mb-2 text-yellow-800">Precios de Aparatos Colop</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {Object.entries(editableSelloData.colop).map(([subTipo, sellos]) => (
+                                    <div key={subTipo} className="border border-yellow-100 p-3 rounded-md bg-white">
+                                        <h4 className="font-semibold text-yellow-700 capitalize mb-2">{subTipo}</h4>
+                                        {sellos.map(sello => (
+                                            <div key={sello.modelo} className="flex justify-between items-center space-x-2 my-1">
+                                                <label className="text-sm text-gray-700 flex-1">{sello.modelo}</label>
+                                                <input type="number" step="0.01" value={sello.precio} onChange={(e) => handlePriceChange(subTipo, sello.modelo, e.target.value)} className="w-24 p-1 text-right border rounded-md text-sm focus:ring-yellow-500 focus:border-yellow-500" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const WoodPriceEditor = ({ editableMaderaData, handleWoodPriceChange, editableCyrelSheetCost, handleCyrelPriceChange }) => {
+            const [showWoodPriceEditor, setShowWoodPriceEditor] = React.useState(false);
+
+            return (
+                <div className="mt-6">
+                    <button onClick={() => setShowWoodPriceEditor(!showWoodPriceEditor)} className="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-600 flex justify-between items-center rounded-md shadow-md transition-all duration-300 ease-in-out">
+                        Costos de Tiras de Madera, Puños y Cyrel
+                        <svg className={`w-4 h-4 transition-transform ${showWoodPriceEditor ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </button>
+                    {showWoodPriceEditor && (
+                        <div className="mt-4 p-4 bg-green-50 rounded-lg shadow-inner max-h-96 overflow-y-auto border border-green-200">
+                            <h3 className="text-md font-bold mb-2 text-green-800">Precios de Materiales</h3>
+                            <div className="mb-4 p-3 border border-green-100 rounded-md bg-white">
+                                <h4 className="font-semibold text-green-700 mb-2">Lámina de Cyrel</h4>
+                                <div className="flex justify-between items-center space-x-2 my-1">
+                                    <label className="text-sm text-gray-700 flex-1">Costo por lámina ({cyrelSheetWidth}x{cyrelSheetHeight}cm)</label>
+                                    <input type="number" step="0.01" value={editableCyrelSheetCost} onChange={(e) => handleCyrelPriceChange(e.target.value)} className="w-24 p-1 text-right border rounded-md text-sm focus:ring-green-500 focus:border-green-500" />
+                                </div>
+                            </div>
+
+                            <h4 className="font-semibold text-green-700 mb-2">Tiras de Madera y Puños</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {editableMaderaData.map((madera, index) => (
+                                    <div key={index} className="p-3 border rounded-md bg-white border-green-100">
+                                        <p className="font-semibold text-sm text-gray-800 mb-2">Ancho: {madera.ancho} cm</p>
+                                        <div className="flex justify-between items-center text-xs my-1">
+                                            <label className="flex-1">Costo Tira:</label>
+                                            <input type="number" step="0.01" value={madera.costoTira} onChange={(e) => handleWoodPriceChange(index, 'costoTira', e.target.value)} className="w-16 p-1 text-right border rounded-md focus:ring-green-500 focus:border-green-500" />
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs my-1">
+                                            <label className="flex-1">Costo Puño:</label>
+                                            <input type="number" step="0.01" value={madera.costoPuno} onChange={(e) => handleWoodPriceChange(index, 'costoPuno', e.target.value)} className="w-16 p-1 text-right border rounded-md focus:ring-green-500 focus:border-green-500" />
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs my-1">
+                                            <label className="flex-1">Costo Fabricar:</label>
+                                            <input type="number" step="0.01" value={madera.costoFabricar} onChange={(e) => handleWoodPriceChange(index, 'costoFabricar', e.target.value)} className="w-16 p-1 text-right border rounded-md focus:ring-green-500 focus:border-green-500" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const CostSummary = ({ calculos, selloDetails, selectedModelData, editableMaderaData, editableCyrelSheetCost, accesorios }) => {
+            const cyrelAreaCostPerCm2 = (parseFloat(editableCyrelSheetCost || '0') || 0) / (cyrelSheetWidth * cyrelSheetHeight);
+            const modelDims = getModelSize(selectedModelData);
+            const anchoMaderaNum = parseFloat(selloDetails.ancho || '0') || 0;
+            const selectedMaderaForDisplay = anchoMaderaNum > 0 ? editableMaderaData.find(m => (parseFloat(m.ancho || '0') || 0) >= anchoMaderaNum) : null;
+            const tirasNecesariasForDisplay = selectedMaderaForDisplay ? Math.ceil((parseFloat(selloDetails.largo || '0') * parseInt(selloDetails.cantidad || '1')) / TIRA_MADERA_LENGTH_CM) : 0;
+            const costoBaseCojines = accesoriosData.filter(item => item.tipo === 'cojin' && accesorios[item.id] > 0).reduce((total, item) => total + (accesorios[item.id] * item.precio), 0);
+            const costoBaseTintas = accesoriosData.filter(item => item.tipo === 'tinta' && accesorios[item.id] > 0).reduce((total, item) => total + (accesorios[item.id] * item.precio), 0);
+
+            return (
+                <div className="bg-blue-50 p-6 rounded-lg shadow-inner border border-blue-200">
+                    <h2 className="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Resumen de Costos
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                        {calculos.costoAparato > 0 && <p>Costo Aparato: <span className="font-semibold">${formatCurrency(calculos.costoAparato)}</span><br /><span className="text-xs text-gray-500">{`(${(parseFloat(selectedModelData?.precio || '0') || 0).toFixed(2)} x ${selectedModelData?.isTextil ? 1 : APARATO_MARGIN} x ${selloDetails.cantidad})`}</span></p>}
+                        {calculos.costoMadera > 0 && selectedMaderaForDisplay && <p>Costo Madera: <span className="font-semibold">${formatCurrency(calculos.costoMadera)}</span><br /><span className="text-xs text-gray-500">{`((${selectedMaderaForDisplay.costoTira} / ${TIRA_MADERA_LENGTH_CM}) * ${selloDetails.largo} * ${selloDetails.cantidad}) * ${GENERIC_MATERIAL_MARGIN}`}</span></p>}
+                        {calculos.costoPuno > 0 && selectedMaderaForDisplay && <p>Costo Puño: <span className="font-semibold">${formatCurrency(calculos.costoPuno)}</span><br /><span className="text-xs text-gray-500">{`(${selectedMaderaForDisplay.costoPuno} x ${selloDetails.cantidad}) * ${GENERIC_MATERIAL_MARGIN}`}</span></p>}
+                        {calculos.costoFabricar > 0 && selectedMaderaForDisplay && <p>Costo Fabricar (Madera): <span className="font-semibold">${formatCurrency(calculos.costoFabricar)}</span><br /><span className="text-xs text-gray-500">{`(${selectedMaderaForDisplay.costoFabricar} x ${tirasNecesariasForDisplay}) * ${GENERIC_MATERIAL_MARGIN}`}</span></p>}
+                        {calculos.costoFabricacionAutoGoma > 0 && <p>Costo Fabricar (Auto-entintable/Goma): <span className="font-semibold">${formatCurrency(calculos.costoFabricacionAutoGoma)}</span><br /><span className="text-xs text-gray-500">{`(${AUTO_GOMA_FABRICATION_COST} x ${selloDetails.cantidad})`}</span></p>}
+                        {calculos.costoGoma > 0 && <p>Costo Goma: <span className="font-semibold">${formatCurrency(calculos.costoGoma)}</span><br /><span className="text-xs text-gray-500">{`(${selloDetails.ancho || modelDims.w} x ${selloDetails.alto || selloDetails.largo || modelDims.h} x ${cyrelAreaCostPerCm2.toFixed(2)}/cm²) x ${selloDetails.cantidad}`}</span></p>}
+                        {calculos.costoGrabado > 0 && <p>Costo Grabado: <span className="font-semibold">${formatCurrency(calculos.costoGrabado)}</span><br /><span className="text-xs text-gray-500">{(selloDetails.cantidad >= 2 && selloDetails.cantidad <= 5) ? 'Tarifa para 2-5 sellos' : (selloDetails.cantidad >= 6 && selloDetails.cantidad <= 10) ? 'Tarifa para 6-10 sellos' : `(${selloDetails.isMaquila ? 80 : 120} x ${selloDetails.cantidad})`}</span></p>}
+                        {calculos.costoDiseno > 0 && <p>Costo Diseño: <span className="font-semibold">${formatCurrency(calculos.costoDiseno)}</span><br /><span className="text-xs text-gray-500">{`(${selloDetails.realizarDiseno ? disenoCost : savedDisenoCost} x ${selloDetails.cantidad})`}</span></p>}
+                        {calculos.costoCambioTinta > 0 && <p>Costo Cambio Tinta: <span className="font-semibold">${formatCurrency(calculos.costoCambioTinta)}</span><br /><span className="text-xs text-gray-500">{`((Costo cojín x ${GENERIC_MATERIAL_MARGIN}) + ${cambioTintaCost} + ${manoDeObraCost}) x ${selloDetails.cantidad}`}</span></p>}
+                        {calculos.costoAccesorios > 0 && <p>Costo Accesorios: <span className="font-semibold">${formatCurrency(calculos.costoAccesorios)}</span><br /><span className="text-xs text-gray-500">{costoBaseCojines > 0 && `(Cojines: ${formatCurrency(costoBaseCojines)} x ${COJIN_MARGIN})`}{costoBaseCojines > 0 && costoBaseTintas > 0 && ' + '}{costoBaseTintas > 0 && `(Tintas: ${formatCurrency(costoBaseTintas)} x ${TINTA_MARGIN})`}</span></p>}
+                        {calculos.costoAdicionalPegado > 0 && !selloDetails.isMaquila && <p>Costo Adicional Pegado: <span className="font-semibold">${formatCurrency(calculos.costoAdicionalPegado)}</span><br /><span className="text-xs text-gray-500">{`(${selloDetails.ubicacionGoma === 'en aparato' ? costoPegadoAparato : costoPegadoMadera} x ${selloDetails.cantidad})`}</span></p>}
+                        {calculos.costoExpress > 0 && <p>Costo Exprés (25% recargo): <span className="font-semibold text-red-500">${formatCurrency(calculos.costoExpress)}</span><br /><span className="text-xs text-gray-500">{`(Subtotal base sin aparato/accesorios x ${expressSurchargePercentage * 100}%)`}</span></p>}
+                        {calculos.costoMaquila > 0 && <p>Descuento Maquila ({(selloDetails.isMaquila ? 20 : 15)}%): <span className="font-semibold text-green-500">-${formatCurrency(calculos.costoMaquila)}</span><br /><span className="text-xs text-gray-500">{`(Subtotal antes de maquila x ${(selloDetails.isMaquila ? 0.20 : 0.15) * 100}%)`}</span></p>}
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-gray-300">
+                        <div className="flex justify-between items-center">
+                            <p className="text-lg font-bold">Subtotal: <span className="text-blue-600">{formatCurrency(calculos.subtotal)}</span></p>
+                            {selloDetails.cantidad > 1 && (
+                                <p className="text-sm text-gray-600">
+                                    Costo unitario (sin IVA): {formatCurrency(calculos.subtotal / parseInt(selloDetails.cantidad, 10))}
+                                </p>
+                            )}
+                        </div>
+                        <p className="text-lg font-bold">IVA (16%): <span className="text-blue-600">{formatCurrency(calculos.iva)}</span></p>
+                        <p className="text-xl font-extrabold">Total: <span className="text-green-600">{formatCurrency(calculos.total)}</span></p>
+                    </div>
+                </div>
+            );
+        };
+
+        const SimplifiedSummary = ({ generateSimplifiedSummaryText, copyToClipboard, copiedMessage }) => {
+            const summaryText = generateSimplifiedSummaryText();
+            if (!summaryText) return null;
+
+            return (
+                <>
+                    <div id="simplifiedSummary" className="mt-4 pt-4 border-t border-gray-300 bg-blue-100 p-4 rounded-md">
+                        <h3 className="text-lg font-bold text-blue-700 mb-2">Resumen Simplificado</h3>
+                        <p className="text-md font-semibold text-gray-800">{summaryText}</p>
+                    </div>
+                    <div className="mt-4">
+                        <button onClick={copyToClipboard} className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 text-lg shadow-lg flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Copiar al Portapapeles
+                        </button>
+                        {copiedMessage && <p className="text-center text-green-600 font-semibold mt-2">{copiedMessage}</p>}
+                    </div>
+                </>
+            );
+        };
+
+        function App() {
+          const [selloDetails, setSelloDetails] = React.useState(initialSelloDetails);
+          const [calculos, setCalculos] = React.useState(initialCalculos);
+          const [error, setError] = React.useState('');
+          const [copiedMessage, setCopiedMessage] = React.useState('');
+          const [selectedAutoEntintableModelForGoma, setSelectedAutoEntintableModelForGoma] = React.useState('');
+          const [selectedAutoEntintableSubTipoForGoma, setSelectedAutoEntintableSubTipoForGoma] = React.useState('');
+          const [editableSelloData, setEditableSelloData] = React.useState(() => {
+            const data = JSON.parse(JSON.stringify(initialSelloData));
+            for (const subTipo in data.colop) {
+              data.colop[subTipo] = data.colop[subTipo].map(sello => ({ ...sello, precio: sello.precio != null ? String(sello.precio) : '' }));
+            }
+            return data;
+          });
+          const [editableMaderaData, setEditableMaderaData] = React.useState(() => {
+            return initialMaderaData.map(madera => ({ ...madera, costoTira: String(madera.costoTira), costoPuno: String(madera.costoPuno), costoFabricar: String(madera.costoFabricar) }));
+          });
+          const [editableCyrelSheetCost, setEditableCyrelSheetCost] = React.useState(String(INITIAL_CYREL_SHEET_COST));
+          const [accesorios, setAccesorios] = React.useState(initialAccesoriosState);
+
+          const handleAccesorioChange = (id, value) => {
+              const quantity = parseInt(value, 10) || 0;
+              setAccesorios(prev => ({ ...prev, [id]: quantity >= 0 ? quantity : 0 }));
+          };
+
+          const handleSelloChange = (name, value) => {
+            let newValue = value;
+            if ((name === 'ancho' || name === 'alto' || name === 'largo' || name === 'cantidad') && newValue !== '') {
+              const numericValue = parseFloat(newValue);
+              if (isNaN(numericValue) || numericValue < 0) {
+                setError(`Por favor, introduce un número válido y no negativo para ${name}.`);
+                return;
+              }
+              if (name === 'ancho' && numericValue > MAX_WIDTH) {
+                setError(`El ancho no puede exceder ${MAX_WIDTH} cm.`);
+                return;
+              } else if ((name === 'alto' || name === 'largo') && numericValue > MAX_HEIGHT) {
+                setError(`El largo o alto no puede exceder ${MAX_HEIGHT} cm.`);
+                return;
+              }
+            }
+            setError('');
+
+            setSelloDetails(prev => {
+              if (name === 'tipo') {
+                  setSelectedAutoEntintableModelForGoma('');
+                  setSelectedAutoEntintableSubTipoForGoma('');
+                  return { ...initialSelloDetails, tipo: newValue, cantidad: prev.cantidad };
+              }
+              if (name === 'subTipo' || name === 'modelo') {
+                  return { ...prev, subTipo: (name === 'subTipo' ? newValue : prev.subTipo), modelo: (name === 'modelo' ? newValue : ''), cambioTinta: false, cambioTinta2Colores: false };
+              }
+
+              let updatedDetails = { ...prev, [name]: newValue };
+
+              if (updatedDetails.tipo === 'Madera') {
+                const currentAncho = parseFloat(updatedDetails.ancho || '0');
+                const currentLargo = parseFloat(updatedDetails.largo || '0');
+                if (currentAncho > 0 && currentLargo > 0 && currentAncho > currentLargo) {
+                  updatedDetails = { ...updatedDetails, ancho: String(currentLargo), largo: String(currentAncho) };
+                }
+              } else if (updatedDetails.tipo === 'Gomas para sellos') {
+                const currentAncho = parseFloat(updatedDetails.ancho || '0');
+                const currentAlto = parseFloat(updatedDetails.alto || '0');
+                if (currentAncho > 0 && currentAlto > 0 && currentAncho > currentAlto) {
+                  updatedDetails = { ...updatedDetails, ancho: String(currentAlto), alto: String(currentAncho) };
+                }
+              }
+              return updatedDetails;
+            });
+          };
+
+          const handleAutoEntintableModelForGomaChange = (subTipo, modelo) => {
+            setSelectedAutoEntintableSubTipoForGoma(subTipo);
+            setSelectedAutoEntintableModelForGoma(modelo);
+            if (subTipo && modelo) {
+              const selectedModel = editableSelloData.colop[subTipo].find(s => s.modelo === modelo);
+              if (selectedModel) {
+                const { w, h } = getModelSize(selectedModel);
+                setSelloDetails(prev => ({ ...prev, ancho: String(w), alto: String(h), largo: String(h) }));
+              }
+            } else {
+              setSelloDetails(prev => ({ ...prev, ancho: '', alto: '', largo: '' }));
+            }
+          };
+
+          const handleCheckboxChange = (name, checked) => {
+            setSelloDetails(prev => {
+              if (name === 'clienteEnviaDiseno' || name === 'realizarDiseno' || name === 'disenoGuardado') {
+                return { ...prev, clienteEnviaDiseno: name === 'clienteEnviaDiseno' ? checked : false, realizarDiseno: name === 'realizarDiseno' ? checked : false, disenoGuardado: name === 'disenoGuardado' ? checked : false };
+              }
+              if (name === 'cambioTinta' && checked) {
+                return { ...prev, cambioTinta: checked, cambioTinta2Colores: false };
+              }
+              if (name === 'cambioTinta2Colores' && checked) {
+                return { ...prev, cambioTinta2Colores: checked, cambioTinta: false };
+              }
+              return { ...prev, [name]: checked };
+            });
+          };
+
+          const handlePriceChange = (subTipo, model, value) => {
+            setEditableSelloData(prevData => {
+              const newData = JSON.parse(JSON.stringify(prevData));
+              const modelIndex = newData.colop[subTipo].findIndex(s => s.modelo === model);
+              if (modelIndex > -1) newData.colop[subTipo][modelIndex].precio = value;
+              return newData;
+            });
+          };
+
+          const handleWoodPriceChange = (index, field, value) => {
+            setEditableMaderaData(prevData => {
+              const newData = [...prevData];
+              newData[index] = { ...newData[index], [field]: value };
+              return newData;
+            });
+          };
+
+          const handleCyrelPriceChange = (value) => setEditableCyrelSheetCost(value);
+
+          const handleClear = () => {
+            setSelloDetails(initialSelloDetails);
+            setCalculos(initialCalculos);
+            setError('');
+            setCopiedMessage('');
+            setSelectedAutoEntintableModelForGoma('');
+            setSelectedAutoEntintableSubTipoForGoma('');
+            setAccesorios(initialAccesoriosState);
+            setEditableSelloData(() => {
+              const data = JSON.parse(JSON.stringify(initialSelloData));
+              for (const subTipo in data.colop) data.colop[subTipo] = data.colop[subTipo].map(s => ({ ...s, precio: s.precio != null ? String(s.precio) : '' }));
+              return data;
+            });
+            setEditableMaderaData(() => initialMaderaData.map(m => ({ ...m, costoTira: String(m.costoTira), costoPuno: String(m.costoPuno), costoFabricar: String(m.costoFabricar) })));
+            setEditableCyrelSheetCost(String(INITIAL_CYREL_SHEET_COST));
+          };
+
+          const calculateCosts = React.useCallback(() => {
+            const cantidad = parseInt(selloDetails.cantidad || '0', 10) || 0;
+            const cyrelSheetCost = parseFloat(editableCyrelSheetCost || '0') || 0;
+            const cyrelAreaCostPerCm2 = cyrelSheetCost / (cyrelSheetWidth * cyrelSheetHeight);
+
+            let costoAparato = 0, costoMadera = 0, costoPuno = 0, costoFabricar = 0;
+            let costoGoma = 0, costoGrabado = 0, costoDiseno = 0, costoCambioTinta = 0;
+            let costoAdicionalPegado = 0, costoExpress = 0, costoFabricacionAutoGoma = 0, costoMaquila = 0, costoAccesorios = 0;
+
+            let currentGrabadoCost = 120;
+            let currentMaquilaDiscountPercentage = 0.15;
+
+            accesoriosData.forEach(item => {
+                const quantity = accesorios[item.id] || 0;
+                if (quantity > 0) {
+                    if (item.tipo === 'tinta') {
+                        costoAccesorios += quantity * item.precio * TINTA_MARGIN;
+                    } else if (item.tipo === 'cojin') {
+                        costoAccesorios += quantity * item.precio * COJIN_MARGIN;
+                    }
+                }
+            });
+            
+            if (selloDetails.isMaquila) {
+                costoAdicionalPegado = 0;
+                currentGrabadoCost = 80;
+                currentMaquilaDiscountPercentage = 0.20;
+            }
+
+            const getCostoGrabado = () => {
+              if (cantidad >= 2 && cantidad <= 5) {
+                return 150;
+              }
+              if (cantidad >= 6 && cantidad <= 10) {
+                return 185;
+              }
+              return currentGrabadoCost * cantidad;
+            };
+
+            if (selloDetails.realizarDiseno) costoDiseno = disenoCost * cantidad;
+            else if (selloDetails.disenoGuardado) costoDiseno = savedDisenoCost * cantidad;
+
+            if (selloDetails.tipo === 'Auto-entintable' && selloDetails.subTipo && selloDetails.modelo) {
+              const selectedSello = editableSelloData.colop[selloDetails.subTipo].find(s => s.modelo === selloDetails.modelo);
+              if (selectedSello) {
+                const { w: anchoModel, h: altoModel } = getModelSize(selectedSello);
+                const ancho = anchoModel;
+                const alto = altoModel;
+
+                costoGoma = (ancho * alto) * cyrelAreaCostPerCm2 * cantidad;
+                costoGrabado = getCostoGrabado();
+                const precioAparato = parseFloat(selectedSello.precio || '0') || 0;
+
+                if (selectedSello.isTextil) {
+                  costoAparato = precioAparato * cantidad;
+                } else {
+                  costoAparato = precioAparato * APARATO_MARGIN * cantidad;
+                  const cojinCosto = parseFloat(selectedSello.cojin || '0') || 0;
+                  const cojin2ColoresCosto = parseFloat(selectedSello.cojin2Colores || '0') || 0;
+                  if (selloDetails.cambioTinta && cojinCosto) {
+                    costoCambioTinta = (cojinCosto * GENERIC_MATERIAL_MARGIN + cambioTintaCost + manoDeObraCost) * cantidad;
+                  } else if (selloDetails.cambioTinta2Colores && cojin2ColoresCosto) {
+                    costoCambioTinta = (cojin2ColoresCosto * GENERIC_MATERIAL_MARGIN + cambioTintaCost + manoDeObraCost) * cantidad;
+                  }
+                }
+                costoFabricacionAutoGoma = AUTO_GOMA_FABRICATION_COST * cantidad;
+              }
+            } else if (selloDetails.tipo === 'Madera') {
+              const ancho = parseFloat(selloDetails.ancho || '0') || 0;
+              const largo = parseFloat(selloDetails.largo || '0') || 0;
+              if (ancho > 0 && largo > 0) {
+                const selectedMadera = editableMaderaData.find(m => (parseFloat(m.ancho || '0') || 0) >= ancho);
+                if (!selectedMadera) {
+                  setError('No se encontró una tira de madera adecuada para el ancho especificado.');
+                  setCalculos(initialCalculos);
+                  return;
+                }
+                const totalLargoNecesario = largo * cantidad;
+                const tirasNecesarias = Math.ceil(totalLargoNecesario / TIRA_MADERA_LENGTH_CM);
+                const costoTira = parseFloat(selectedMadera.costoTira || '0') || 0;
+                const costoPunoNum = parseFloat(selectedMadera.costoPuno || '0') || 0;
+                const costoFabricarNum = parseFloat(selectedMadera.costoFabricar || '0') || 0;
+
+                costoMadera = (costoTira / TIRA_MADERA_LENGTH_CM * totalLargoNecesario) * GENERIC_MATERIAL_MARGIN;
+                costoPuno = (costoPunoNum * cantidad) * GENERIC_MATERIAL_MARGIN;
+                costoFabricar = (costoFabricarNum * tirasNecesarias) * GENERIC_MATERIAL_MARGIN;
+              }
+              costoGoma = (parseFloat(selloDetails.ancho || '0') || 0) * (parseFloat(selloDetails.largo || '0') || 0) * cyrelAreaCostPerCm2 * cantidad;
+              costoGrabado = getCostoGrabado();
+            } else if (selloDetails.tipo === 'Gomas para sellos') {
+              const ancho = parseFloat(selloDetails.ancho || '0') || 0;
+              const alto = parseFloat(selloDetails.alto || '0') || 0;
+              if (ancho > 0 && alto > 0) {
+                costoGoma = (ancho * alto) * cyrelAreaCostPerCm2 * cantidad;
+                costoGrabado = getCostoGrabado();
+                costoFabricacionAutoGoma = AUTO_GOMA_FABRICATION_COST * cantidad;
+                if (!selloDetails.isMaquila) {
+                    if (selloDetails.ubicacionGoma === 'en aparato') costoAdicionalPegado = costoPegadoAparato * cantidad;
+                    else if (selloDetails.ubicacionGoma === 'en madera') costoAdicionalPegado = costoPegadoMadera * cantidad;
+                }
+              }
+            }
+
+            const subtotalBeforeExpressAndMaquila = costoAparato + costoMadera + costoPuno + costoFabricar + costoGoma + costoGrabado + costoDiseno + costoCambioTinta + costoAdicionalPegado + costoFabricacionAutoGoma + costoAccesorios;
+
+            if (selloDetails.isExpress) {
+              const surchargeBaseForExpress = subtotalBeforeExpressAndMaquila - costoAparato - costoAccesorios;
+              costoExpress = surchargeBaseForExpress * expressSurchargePercentage;
+            }
+
+            const subtotalAfterExpress = subtotalBeforeExpressAndMaquila + costoExpress;
+
+            if (selloDetails.isMaquila) {
+                costoMaquila = subtotalAfterExpress * currentMaquilaDiscountPercentage;
+            }
+
+            const subtotalFinal = subtotalAfterExpress - costoMaquila;
+            const iva = subtotalFinal * 0.16;
+            const total = subtotalFinal + iva;
+
+            setCalculos({
+              costoAparato, costoMadera, costoPuno, costoFabricar, costoGoma, costoGrabado,
+              costoDiseno, costoCambioTinta, costoAdicionalPegado, costoExpress,
+              costoFabricacionAutoGoma, costoMaquila, costoAccesorios,
+              subtotalBase: subtotalBeforeExpressAndMaquila, subtotal: subtotalFinal, iva, total,
+            });
+            setError('');
+          }, [selloDetails, editableSelloData, editableMaderaData, editableCyrelSheetCost, accesorios]);
+
+          React.useEffect(() => {
+            calculateCosts();
+          }, [calculateCosts]);
+
+          const generateSimplifiedSummaryText = () => {
+            const cantidad = parseInt(selloDetails.cantidad || '0', 10);
+            const hasAccessories = Object.values(accesorios).some(q => q > 0);
+
+            if (cantidad === 0 && !hasAccessories) return '';
+
+            let summaryParts = [];
+
+            // Part 1: Stamp description
+            if (cantidad > 0 && selloDetails.tipo) {
+                const pluralSello = cantidad > 1 ? 'sellos' : 'sello';
+                let selloDescription = `${cantidad} ${pluralSello}`;
+                
+                switch (selloDetails.tipo) {
+                    case 'Madera':
+                        selloDescription += ` de Madera (${selloDetails.ancho}x${selloDetails.largo} cm)`;
+                        break;
+                    case 'Auto-entintable':
+                        const selectedModel = editableSelloData.colop[selloDetails.subTipo]?.find(s => s.modelo === selloDetails.modelo);
+                        if (selectedModel) {
+                            selloDescription += ` ${selloDetails.subTipo} modelo ${selectedModel.modelo} (${selectedModel.medida})`;
+                        } else {
+                            selloDescription += ` ${selloDetails.subTipo}`;
+                        }
+                        break;
+                    case 'Gomas para sellos':
+                        const pluralGoma = cantidad > 1 ? 'gomas' : 'goma';
+                        selloDescription = `${cantidad} ${pluralGoma} para sellos (${selloDetails.ancho}x${selloDetails.alto} cm)`;
+                        if (selectedAutoEntintableModelForGoma) {
+                            selloDescription += ` para aparato ${selectedAutoEntintableModelForGoma}`;
+                        } else if (selloDetails.ubicacionGoma) {
+                            selloDescription += ` para ${selloDetails.ubicacionGoma}`;
+                        }
+                        break;
+                }
+                summaryParts.push(selloDescription);
+
+                if (selloDetails.clienteEnviaDiseno) summaryParts.push('cliente envía diseño');
+                else if (selloDetails.realizarDiseno) summaryParts.push('realizar diseño');
+                else if (selloDetails.disenoGuardado) summaryParts.push('diseño guardado');
+            }
+
+            // Part 2: Accessories description
+            if (hasAccessories) {
+                const accessorySummary = [];
+                accesoriosData.forEach(item => {
+                    const quantity = accesorios[item.id];
+                    if (quantity > 0) {
+                        accessorySummary.push(`${quantity} ${item.nombre}`);
+                    }
+                });
+                
+                if (cantidad === 0) { // Accessories-only quote
+                    summaryParts.push('Cotización de accesorios');
+                }
+                summaryParts.push(accessorySummary.join('; '));
+            }
+
+            // Part 3: Other options
+            if (selloDetails.isExpress) {
+                summaryParts.push('servicio exprés');
+            }
+            if (selloDetails.isMaquila && cantidad > 0) { // Maquila only applies to stamps
+                summaryParts.push('maquila');
+            }
+
+            // Part 4: Total
+            if (cantidad > 1) {
+                const unitCost = calculos.total / cantidad;
+                summaryParts.push(`Precio unitario: ${formatCurrency(unitCost)}`);
+            }
+            summaryParts.push(`Total neto: ${formatCurrency(calculos.total)}`);
+
+            let rawSummary = summaryParts.join(', ');
+            if (rawSummary) {
+                rawSummary = rawSummary.charAt(0).toUpperCase() + rawSummary.slice(1);
+            }
+            return rawSummary;
+          };
+
+          const copyToClipboard = () => {
+            const textToCopy = generateSimplifiedSummaryText();
+            if (textToCopy) {
+              navigator.clipboard.writeText(textToCopy).then(() => {
+                setCopiedMessage('¡Copiado!');
+                setTimeout(() => setCopiedMessage(''), 2000);
+              }, (err) => {
+                console.error('Error al copiar: ', err);
+                setCopiedMessage('Error al copiar');
+                setTimeout(() => setCopiedMessage(''), 2000);
+              });
+
+              setCopiedMessage('¡Copiado!');
+              setTimeout(() => setCopiedMessage(''), 2000);
+            }
+          };
+
+          const selectedModelData = selloDetails.subTipo && selloDetails.modelo ? editableSelloData.colop[selloDetails.subTipo].find(s => s.modelo === selloDetails.modelo) : null;
+          const has2ColorCojin = Boolean(selectedModelData && selectedModelData.cojin2Colores);
+
+          return (
+            <div className="min-h-screen p-4 flex flex-col items-center justify-center bg-gray-100 font-inter">
+              <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-xl space-y-6">
+                <Header />
+                <ErrorMessage error={error} />
+                <SelloDetailsForm 
+                    selloDetails={selloDetails}
+                    handleSelloChange={handleSelloChange}
+                    handleCheckboxChange={handleCheckboxChange}
+                    editableSelloData={editableSelloData}
+                    selectedAutoEntintableSubTipoForGoma={selectedAutoEntintableSubTipoForGoma}
+                    selectedAutoEntintableModelForGoma={selectedAutoEntintableModelForGoma}
+                    handleAutoEntintableModelForGomaChange={handleAutoEntintableModelForGomaChange}
+                    has2ColorCojin={has2ColorCojin}
+                    selectedModelData={selectedModelData}
+                />
+                <AccesoriosSection accesorios={accesorios} handleAccesorioChange={handleAccesorioChange} />
+                <div className="flex mt-6">
+                  <button onClick={handleClear} className="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Limpiar Formulario
+                  </button>
+                </div>
+                <PriceEditor editableSelloData={editableSelloData} handlePriceChange={handlePriceChange} />
+                <WoodPriceEditor 
+                    editableMaderaData={editableMaderaData} 
+                    handleWoodPriceChange={handleWoodPriceChange} 
+                    editableCyrelSheetCost={editableCyrelSheetCost}
+                    handleCyrelPriceChange={handleCyrelPriceChange}
+                />
+                <CostSummary 
+                    calculos={calculos}
+                    selloDetails={selloDetails}
+                    selectedModelData={selectedModelData}
+                    editableMaderaData={editableMaderaData}
+                    editableCyrelSheetCost={editableCyrelSheetCost}
+                    accesorios={accesorios}
+                />
+                <SimplifiedSummary 
+                    generateSimplifiedSummaryText={generateSimplifiedSummaryText}
+                    copyToClipboard={copyToClipboard}
+                    copiedMessage={copiedMessage}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

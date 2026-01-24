@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Volantes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="bi bi-calculator"></i> Cotizador de Volantes</h1>
+        <p class="creado-por">Creado por: Joel Adrian Mtz Meza 8341446103</p>
+        <form id="cotizadorForm">
+            <div class="form-group">
+                <label for="cantidad"><i class="bi bi-stack"></i> Cantidad de volantes:</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tamano"><i class="bi bi-rulers"></i> Tamaño:</label>
+                <select id="tamano" name="tamano" required>
+                    <option value="1/8-carta">1/8 carta</option>
+                    <option value="1/4-carta">1/4 carta</option>
+                    <option value="1/3-carta">1/3 carta</option>
+                    <option value="1/2-carta">1/2 carta</option>
+                    <option value="carta" selected>Carta</option>
+                    <option value="doble-carta">Doble Carta</option>
+                    <option value="1/8-oficio">1/8 oficio</option>
+                    <option value="1/4-oficio">1/4 oficio</option>
+                    <option value="1/3-oficio">1/3 oficio</option>
+                    <option value="1/2-oficio">1/2 oficio</option>
+                    <option value="oficio">Oficio</option>
+                    <option value="doble-oficio" disabled>Doble Oficio (solo offset)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="color"><i class="bi bi-palette-fill"></i> Color de impresión:</label>
+                <select id="color" name="color" required>
+                    <option value="blanco-negro">Blanco y Negro</option>
+                    <option value="color">Color</option>
+                    <option value="1-color">1 Color Específico</option>
+                    <option value="2-colores">2 Colores Específicos</option>
+                    <option value="3-colores">3 Colores Específicos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lados"><i class="bi bi-layers-half"></i> Impresión por:</label>
+                <select id="lados" name="lados" required>
+                    <option value="1">1 Lado</option>
+                    <option value="2">Ambos Lados</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="papel"><i class="bi bi-file-earmark-text"></i> Tipo de papel:</label>
+                <select id="papel" name="papel" required>
+                    <!-- Opciones de papel se agregarán dinámicamente con JavaScript -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="diseno"><i class="bi bi-pencil-tip"></i> Tipo de Diseño:</label>
+                <select id="diseno" name="diseno" required>
+                    <option value="0">Cliente envia diseño</option>
+                    <option value="150">Diseño guardado aqui</option>
+                    <option value="250">Realizar diseño</option>
+                </select>
+            </div>
+
+            <div class="botones-accion">
+                <button type="submit"><i class="bi bi-calculator-fill"></i> Cotizar</button>
+                <button type="button" id="limpiarCampos" class="btn-rojo"><i class="bi bi-eraser-fill"></i> Limpiar Campos</button>
+            </div>
+        </form>
+        <div id="resultado" style="display: none;">
+            <div class="resumen-precios">
+                <h3>Subtotal: <span id="subtotal">$0.00</span></h3>
+                <h3>IVA (16%): <span id="iva">$0.00</span></h3>
+                <h2><i class="bi bi-cash-coin"></i> Total: <span id="precioFinal">$0.00</span></h2>
+                <h4>Costo Unitario (Neto): <span id="costoUnitario">$0.00</span></h4>
+                <h5>Costo Unitario (sin IVA): <span id="costoUnitarioSinIva">$0.00</span></h5>
+            </div>
+
+            <div id="resumenCostos" class="resumen-detallado">
+                <h3><i class="bi bi-card-list"></i> Resumen de Costos (Detallado)</h3>
+                <p id="resumenCostosTexto"></p>
+            </div>
+
+            <div id="resumenSimplificado" class="resumen-cliente">
+                <h3><i class="bi bi-send"></i> Resumen para Cliente</h3>
+                <pre id="resumenSimplificadoTexto"></pre>
+                <button type="button" id="copiarPortapapeles"><i class="bi bi-clipboard-check"></i> Copiar al Portapapeles</button>
+            </div>
+            <div id="advertenciaOffset" class="advertencia-offset" style="display: none;"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

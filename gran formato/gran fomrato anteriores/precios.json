@@ -1,0 +1,91 @@
+{
+  "preciosNoRotulado": {
+    "Lona Brillante 13oz": [
+      { "min": 0, "max": 5, "precio": 300 },
+      { "min": 6, "max": 10, "precio": 280 },
+      { "min": 11, "max": 20, "precio": 270 },
+      { "min": 21, "max": 50, "precio": 260 },
+      { "min": 51, "max": null, "precio": 250 }
+    ],
+    "Vinil Brillante 140gr": [
+      { "min": 0, "max": 5, "precio": 310 },
+      { "min": 6, "max": 10, "precio": 290 },
+      { "min": 11, "max": 20, "precio": 280 },
+      { "min": 21, "max": 50, "precio": 265 },
+      { "min": 51, "max": null, "precio": 250 }
+    ],
+    "Vinil Trasparente Brillante": [
+      { "min": 0, "max": 5, "precio": 310 },
+      { "min": 6, "max": 10, "precio": 290 },
+      { "min": 11, "max": 20, "precio": 280 },
+      { "min": 21, "max": 50, "precio": 265 },
+      { "min": 51, "max": null, "precio": 250 }
+    ],
+    "Vinil Trasparente Mate": [
+      { "min": 0, "max": 5, "precio": 310 },
+      { "min": 6, "max": 10, "precio": 290 },
+      { "min": 11, "max": 20, "precio": 280 },
+      { "min": 21, "max": 50, "precio": 265 },
+      { "min": 51, "max": null, "precio": 250 }
+    ],
+    "Vinil Microperforado": [
+      { "min": 0, "max": 5, "precio": 415 },
+      { "min": 6, "max": 10, "precio": 390 },
+      { "min": 11, "max": 20, "precio": 368 },
+      { "min": 21, "max": 50, "precio": 350 },
+      { "min": 51, "max": null, "precio": 345 }
+    ],
+    "Vinil Electroestatico Blanco": [
+      { "min": 0, "max": 5, "precio": 350 },
+      { "min": 6, "max": 10, "precio": 340 },
+      { "min": 11, "max": 20, "precio": 330 },
+      { "min": 21, "max": 50, "precio": 320 },
+      { "min": 51, "max": null, "precio": 310 }
+    ],
+    "Poster 200gr": [
+      { "min": 0, "max": 5, "precio": 300 },
+      { "min": 6, "max": 10, "precio": 280 },
+      { "min": 11, "max": 20, "precio": 270 },
+      { "min": 21, "max": 50, "precio": 260 },
+      { "min": 51, "max": null, "precio": 250 }
+    ],
+    "Papel Fotografico": [
+      { "min": 0, "max": 5, "precio": 380 },
+      { "min": 6, "max": 10, "precio": 370 },
+      { "min": 11, "max": 20, "precio": 360 },
+      { "min": 21, "max": 50, "precio": 350 },
+      { "min": 51, "max": null, "precio": 320 }
+    ],
+    "Canvas": [
+      { "min": 0, "max": 5, "precio": 400 },
+      { "min": 6, "max": 10, "precio": 390 },
+      { "min": 11, "max": 20, "precio": 380 },
+      { "min": 21, "max": 50, "precio": 370 },
+      { "min": 51, "max": null, "precio": 350 }
+    ],
+    "Vinil Metalico Aluminio de 8mm Peso 215gr": [
+      { "min": 0, "max": 20, "precio": 830 },
+      { "min": 21, "max": null, "precio": 700 }
+    ]
+  },
+  "preciosMontaje": {
+    "1/4": 85,
+    "1/2": 120,
+    "3/4": 180,
+    "1": 240
+  },
+  "preciosRotulado": {
+    "CORROPLAST BLANCO DE 4MM": { "1/4": 140, "1/2": 240, "3/4": 325, "1": 415 },
+    "TROVICEL(PVC ESPUMADO)BLANCO DE 3MM": { "1/4": 150, "1/2": 290, "3/4": 416, "1": 504 },
+    "TROVICEL(PVC ESPUMADO)BLANCO DE 6MM": { "1/4": 243, "1/2": 446, "3/4": 670, "1": 810 },
+    "FORAM BOARD 5MM": { "1/4": 100, "1/2": 190, "3/4": 271, "1": 330 },
+    "FORAM BOARD 10 MM": { "1/4": 150, "1/2": 280, "3/4": 400, "1": 490 },
+    "ACRILICO TRASPARENTE DE 3MM": { "1/4": 630, "1/2": 1200, "3/4": 1730, "1": 2090 },
+    "ACRILICO TRASPARENTE DE 6MM": { "1/4": 1140, "1/2": 2200, "3/4": 3150, "1": 3800 }
+  },
+  "preciosDiseno": {
+    "cliente": 0,
+    "guardado": 50,
+    "nuevo": 150
+  }
+}

@@ -1,0 +1,99 @@
+ENMICADO 
+
+hola puedes ayudarme a generar una pagina web que su funcional sea un cotizador en linea , tengo una imprenta y quiero dar los costos a mis clientes mas rápido , no ocupo almacenar base de datos ni nada solo es para mi el ciente no tiene aceso  ni tampoco ocupo que guarde la cotización algo sencillo funcional y que se vea bien , quiero que actúes como el mejor programdor y diseñdor uix
+
+el cotizador se llamara = cotizador emicado 
+
+1 para poder cotizar primero  se pregunta , cuantos enmicados  quiere cotizar (poner un cuadro para escribir la cantidad) 
+2 que tamaño neceista = carta,doble carta, oficio,
+3 grosor del enmicado necesita = rigido 10 ml o delgado 5 ml 
+4 pregutar si va impreso por 1 solo lado o ambos lados  
+5 preguntar color de impresión, frente = color o blanco y negro , reverso = color, blanco y negro o no lleva 
+6 preguntar el tipo de papel :  papel bond 75gr, papel bond 90gr, papel bond 120gr , papel lustrolito o couche (son lo mismo ) de 128-130 , 150 , 200 , 250 y 300 gr, papel opalina blanca 120 gr , papel opalina crema 120gr , cartulina oplina blanca 225gr, cartulina oplina crema 225gr
+
+7 estos son los cotos de los papeles 
+TIPOS DE PAPEL
+PAPEL UNI OPALINA TAMAÑO 57X87 CM (PLIEGO) COLOR BLANCO DE 120GRS COSTO  $3.80 + IVA C/U 
+PAPEL UNI OPALINA TAMAÑO 70X95CM (PLIEGO) COLOR BLANCO DE 120 GRS  COSTO $5.07 + IVA C/U
+CART UNI OPALINA TAMAÑO 57X87CM (PLIEGO) DE 225 GRS COSTO $7.34 
+CART UNI OPALINA MARFIL TAMAÑO 57X72CM (PLIEGO) DE 225 GRS COSTO $6.20
+PAPEL UNIBOND TAMAÑO 61X90 (PLIEGO) BLANCO DE 75GRS PZA COSTO $1.56
+PAPEL UNIBOND TAMAÑO 70X95 (PLIEGO) BLANCO DE 75GRS PZA COSTO $1.63
+PAPEL UNIBOND TAMAÑO 61X90 (PLIEGO) BLANCO DE 90GRS PZA  COSTO $1.60
+PAPEL UNIBOND TAMAÑO 70X95 (PLIEGO) BLANCO DE 90GRS PZA COSTO $1.95
+COUCHE BRILL 2C TAMAÑO 61X90CMS (PLIEGO) DE 128GR 71.3KG COSTO$2.31 
+COUCHE BRILL 2C TAMAÑO 72X95CMS (PLIEGO) DE 130GRS 89KG COSTO $3.26
+COUCHE BRILL 2C TAMAÑO 72X95CMS (PLIEGO) DE 150GRS 102.6KG COSTO $3.50
+COUCHE BRILL 2C TAMAÑO 61X90CMS (PLIEGO) DE 148GR 82KG COSTO $2.95 
+CART COUCHE BRILL 2C TAMAÑO 61X90CM (PLIEGO) DE 200GR 110KG COSTO $3.42    
+CART COUCHE BRILL 2C TAMAÑO 72X95CM (PLIEGO)DE 200GS COSTO $4.91
+CART COUCHE BRILL 2C TAMAÑO 61X90CM (PLIEGO) DE 250GR COSTO $4.51  
+CART COUCHE BRILL 2C TAMAÑO 72X95CM (PLIEGO) DE 250GR COSTO $6.23
+CART COUCHE BRILL 2C TAMAÑO 61X90CM (PLIEGO) DE 300GR COSTO $5.40 
+CART COUCHE BRILL 2C TAMAÑO 72X95CM (PLIEGO) DE 300GR COSTO $7.37
+
+DEL PLIEGO HAY QUE SECCIONARLO EN SECCIONES  = TAMAÑO CARTA , TAMAÑO OFICIO Y TAMAÑO DOBLE CARTA DEPENDEINDO LA MEDIDA A ESCOGER SELECCIONAS EL PLIEGO , ABAJO TE PONGO COMO ESCOGER LOS PLEIGOS
+LA MEDIDA DEL PLIEGO 57 X 87 , 61 X 90 CM  SE USA PARA SACAR LAS IMPRESIONES TAMAÑO CARTA Y TAMAÑO DOBLE CARTA , QUE DE ESE  PLIEGO SALEN 8 PZ  TAMAÑO CARTA ( EL COSTO DE PLEIGO DIVIDE ENTRE 8 CUANDO ES TAMAÑO CARTA ) Y DE ESE PLIEGO SALEN 4 PZ TAMAÑO DOBLE CARTA, ( EL COSTO DE PLEIGO DIVIDE ENTRE 4 CUANDO ES TAMAÑO DOBLE CARTA ) 
+LA MEDIDA DEL PLIEGO 70 X 95  SE USA PARA SACAR LAS IMPRESIONES TAMAÑO OFICIO , QUE DE ESE  PLIEGO SALEN 8 PZ  TAMAÑO OFICIO ( EL COSTO DE PLEIGO DIVIDE ENTRE 8 CUANDO ES TAMAÑO OFICIO )
+
+LA MEDIDA DE TAMAÑO CARTA ES 21.6 X 28CM ,Y DOBLE CARTA ES 28 X 43.2 CM Y OFICIO ES DE 21.6 X 34 CM
+
+8 costo de impresión 
+
+PRECIOS DE IMPRESION - COLOR POR 1 LADO				
+************************************				
+				
+CANTIDAD     CARTA     DOBLE CARTA   OFICIO				
+1-100        6.08      12.16          6.5				
+101-200      6         12             6.3				
+201-300      5.85      11.7           5.9  				
+301-500      5.7       11.4           5.7				
+				
+******************************************				
+PRECIOS DE IMPRESION - BLANCO Y NEGRO POR 1 LADO				
+******************************************				
+				
+CANTIDAD     CARTA     DOBLE CARTA   OFICIO				
+1-100        1.06      2.12           1				
+101-200      1         2              0.95   				
+201-300      0.98      1.96           0.80 				
+301-500      0.8       1.6            0.75 				
+500+         0.78      1.56           0.70 		
+
+9 COSTO DE LA MICA 
+mica termica tamaño carta de 5 ml delgada $ 400 + iva paquete c/100 piezas , $ 4 + iva cada una 
+mica termica tamaño carta de 10 ml rigida $ 415 + iva paquete c/50 piezas , $ 8.30 + iva cada una 
+mica termica tamaño oficio de 5 ml delgada $ 553 + iva paquete c/100 piezas , $ 5.53 + iva cada una 
+mica termica tamaño oficio de 10 ml rigida $ 415 + iva paquete c/50 piezas , $ 11.06 + iva cada una 
+mica termica tamaño doble carta (tabloide) de 5 ml delgada $ 550 + iva paquete c/100 piezas , $ 5.5 + iva cada una 
+mica termica tamaño doble carta (tabloide) de 10 ml rigida $ 900 + iva paquete c/50 piezas , $ 18 + iva cada una 
+
+10 = FORMULA PARA PODER COTIZAR SE NECEISTA LO SIGIENTE 
+
+COSTO DE PAPEL (ESOJER EL PLIEGO CORRECTO DEPENDE LA LA MEDIDA QUE SOLICITEN Y LO DIVIDES EN MEIDA QUE LO SOLICITAN) DEL COSTO DE LA HOJA YA SEA CARTA , DOBEL CARTA U OFICIO EL COSTO QUE TE DE SE MULTIPLICA X 2 PARA SACAR LA UTILDAD DE PAPEL + COSOT DE IMPRESION (ESOJER EL RANGO QUE CORESPONDA ES EL COSTO YA SEA 1 LADO O AMBOS LADOS) + COSTO DE LA MICA SE MULTIPLICA X 1.40 DE UTILIDAD Y CONADO ES DOBLE CARTA LA UTILIDAD SE MULTIPLICA X 1.5, + EL COSTO DEL ENMICADO TE LO DEJO MAS ABAJO , + COTO DE REFILADO DE PAPEL = $80 POR CADA 100 IMPRESIONES SI SON MAS SE SUMAN OTRO $80 
+
+RANGO DE PRECIO DE ENMICADO 
+CANTIDAD     CARTA     DOBLE CARTA   OFICIO				
+1-10          10          15           10
+11-20         9           13           9 				
+21-50         7 	  10	       7	
+51-100        6           8            6
+101+          4           6            4 
+ 
+11 PREGUNTAR LO DE DISEÑO = (Cliente Envía Diseño = NO TIENE COSTO , Diseño Guardado Aquí + $150, Realizar Diseño $250 )
+
+AL FINAL AGREGAR SUBTOTAL , LOS CSOTOS QUE TE PASE SON SIN IVA = AGREGAR  EL IVA 16% Y EL TOTAL Y QUE TAMBIEN SALGA EL COSTO UNITARIO YA NETO 
+
+AGREGAR UN SEGRMENTO ABAJO QUE SE LLAME RESUMEN DE COSTOS ,DONDE PONGAS TODOS LOS COSTOS QUE NECEISTASTE PARA REALZIAR LA COTIZACION QUE SEA MUY EPESIFICO y detallado , exageradamente detallado de como sacaste los costos , las fomulas escribas abajo porque las usas 
+
+AGREGAR UN BOTON AL FINAL COLOR ROJO QUE DIGA LIMPAR CAMPOS Y SU FUNCION SEA LIMPIAR TODOS LOS CAMPOS  
+
+Y AL FINAL DE TODO AGREGAR UN RESUMEN SIPLIFICADO: SU FUINCION ES UNA NOTA DE TODO LO QUE SE ESCOGIO CONTAIDAS y el producto, CON EL PRECIO UNTARIO Y EL TOTAL YA NETO (INLUYE IVA) PARA MANDARLO AL CLINETE CON UN BOTON QUE SE LLAME COPIAR AL PORTAPAPELES DONDE COPIE TODO EL RESUMEN SIMPLIDICADO PODER COPIAR Y MANDARLO A LOS CLIENTES FACILMENTE 
+
+EL RESUMEN PARA EL CLIENTE DEVE SER ASI = CATIDAD... TAMAÑO... IMPRESOS …. 1 LADO …. EN PAPEL... MICA.... DISEÑO... COSTO UNITARIO... , COSTO TOTAL...
+
+
+		
+				
+
+

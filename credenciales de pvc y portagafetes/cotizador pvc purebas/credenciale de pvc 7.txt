@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Tarjetas PVC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Tailwind configuration for custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f9; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04); }
+        .input-focus:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+        
+        /* Estilo para el área de texto de la cotización, asegurando que se vea bien en móviles */
+        #whatsappQuoteText {
+            height: 90px; /* Reducido para una sola línea */
+            line-height: 1.5;
+            overflow: auto; 
+            white-space: pre-wrap; /* Permite saltos de línea si se excede el ancho, pero mantiene el formato de línea única deseado */
+            text-overflow: clip; 
+            resize: vertical; 
+            font-size: 14px;
+        }
+        @media (min-width: 768px) {
+            #whatsappQuoteText {
+                height: 70px;
+            }
+        }
+        .desglose-line {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .desglose-line-total {
+            border-top: 1px dashed #e5e7eb;
+            font-weight: 600;
+        }
+        .formula-line {
+            line-height: 1.25;
+            margin-bottom: 8px;
+            padding: 4px 0;
+            border-bottom: 1px dotted #e0e7ff;
+        }
+        .formula-line:last-child {
+            border-bottom: none;
+        }
+        /* Estilo para el estado sin seleccionar en Tipo de Impresión */
+        .tipo-impresion-label {
+             /* Estilo base para todas las etiquetas no seleccionadas */
+             border: 2px solid transparent; 
+             opacity: 0.7;
+        }
+        .peer-checked\/1L:bg-indigo-600, .peer-checked\/2L:bg-indigo-600 {
+            /* Estilos para el estado seleccionado (sin cambios, solo para referencia) */
+            opacity: 1;
+            border-color: #3b82f6; /* Opcional: para dar un borde al seleccionado */
+        }
+        .table-auto-width {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-auto-width th, .table-auto-width td {
+            border: 1px solid #e0e7ff;
+            padding: 4px 8px;
+            text-align: center;
+        }
+        .table-auto-width th {
+            background-color: #e0e7ff;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #4338ca;
+            text-transform: uppercase;
+        }
+        .table-auto-width tr:nth-child(even) {
+            background-color: #f7faff;
+        }
+        .table-auto-width td {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-xl card-shadow">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900">Cotizador de Tarjetas PVC</h1>
+            <p class="text-gray-500 mt-2">Personaliza y obtén tu presupuesto instantáneo.</p>
+        </header>
+
+        <div id="cotizador" class="space-y-6">
+
+            <!-- SECCIÓN 1: CANTIDAD Y BASE -->
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18z"></path></svg>
+                    Opciones Básicas
+                </h3>
+                
+                <div class="mb-4">
+                    <label for="cantidad" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Tarjetas (Q):</label>
+                    <input type="number" id="cantidad" value="" placeholder="Escribe la cantidad a cotizar" min="1" oninput="calcularTotal()" class="w-full p-3 border border-gray-300 rounded-lg input-focus transition duration-150">
+                    <p class="text-xs text-gray-500 mt-1">Ingresa la cantidad para determinar tu precio por volumen.</p>
+                    <p id="errorCantidad" class="text-sm text-red-500 mt-1 hidden font-semibold">⚠️ Por favor, ingresa una cantidad válida (mínimo 1).</p>
+                </div>
+
+                <!-- Control segmentado para Tipo de Impresión -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Impresión:</label>
+                    <div class="flex w-full rounded-lg overflow-hidden border border-gray-300">
+                        
+                        <!-- Opción 1 Lado (Izquierda) - Eliminado 'checked' -->
+                        <input type="radio" id="impresion1L" name="tipoImpresionRadios" value="1L" onchange="calcularTotal()" class="hidden peer/1L">
+                        <label for="impresion1L" 
+                               class="flex-1 text-center py-3 cursor-pointer text-sm font-semibold transition duration-150 
+                                      select-none border-r border-gray-300 tipo-impresion-label 
+                                      bg-white hover:bg-gray-100 
+                                      peer-checked/1L:bg-indigo-600 peer-checked/1L:text-white peer-checked/1L:font-extrabold text-gray-700">
+                            Color 1 lado
+                        </label>
+
+                        <!-- Opción 2 Lados (Derecha) -->
+                        <input type="radio" id="impresion2L" name="tipoImpresionRadios" value="2L" onchange="calcularTotal()" class="hidden peer/2L">
+                        <label for="impresion2L" 
+                               class="flex-1 text-center py-3 cursor-pointer text-sm font-semibold transition duration-150 
+                                      select-none tipo-impresion-label
+                                      bg-white hover:bg-gray-100 
+                                      peer-checked/2L:bg-indigo-600 peer-checked/2L:text-white peer-checked/2L:font-extrabold text-gray-700">
+                            Color ambos lados
+                        </label>
+                    </div>
+                    <p id="errorImpresion" class="text-sm text-red-500 mt-1 hidden font-semibold">⚠️ Por favor, selecciona el tipo de impresión.</p>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: LAMINADO Y ACABADOS -->
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v10.325a4.864 4.864 0 01-1.332 3.12M12 3v10.325a4.864 4.864 0 001.332 3.12M14 17h.01M10 17h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"></path></svg>
+                    Acabados y Extras
+                </h3>
+                
+                <div class="mb-4">
+                    <label for="laminadoOpcion" class="block text-sm font-medium text-gray-700 mb-1">¿Desea Laminado/Holograma?</label>
+                    <select id="laminadoOpcion" onchange="calcularTotal()" class="w-full p-3 border border-gray-300 rounded-lg input-focus transition duration-150 bg-white">
+                        <option value="No">No (Costo Tarjeta Base: $2.90)</option>
+                        <option value="Si">Sí (Costo Tarjeta Laminada: $4.50)</option>
+                    </select>
+                </div>
+
+                <div id="opcionesLaminado" class="p-4 bg-white rounded-lg border border-dashed border-indigo-300 transition duration-300 ease-in-out" style="display:none;">
+                    <p class="text-sm font-medium text-indigo-700 mb-3">Opciones de Laminado:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="lamFrente" class="block text-xs font-medium text-gray-500 mb-1">Laminado (Frente):</label>
+                            <select id="lamFrente" onchange="calcularTotal()" class="w-full p-2 border border-gray-300 rounded-lg input-focus bg-white">
+                                <option value="Ninguno">Ninguno</option>
+                                <option value="Sencillo">Sencillo</option>
+                                <option value="Holografico">Holográfico</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="lamReverso" class="block text-xs font-medium text-gray-500 mb-1">Laminado (Reverso):</label>
+                            <select id="lamReverso" onchange="calcularTotal()" class="w-full p-2 border border-gray-300 rounded-lg input-focus bg-white">
+                                <option value="Ninguno">Ninguno</option>
+                                <option value="Sencillo">Sencillo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p id="advLaminado" class="text-xs text-red-500 mt-2 hidden">⚠️ Solo se aplica costo de laminado en reverso si la impresión es a 2 Lados.</p>
+                </div>
+
+                <div class="mt-4">
+                    <label for="perforacion" class="block text-sm font-medium text-gray-700 mb-1">Perforación (Circular o Alargada):</label>
+                    <select id="perforacion" onchange="calcularTotal()" class="w-full p-3 border border-gray-300 rounded-lg input-focus transition duration-150 bg-white">
+                        <option value="No">No</option>
+                        <option value="Si">Sí (Costo varía según Cantidad)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: SERVICIOS FIJOS -->
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Servicios Adicionales (Cargos Fijos)
+                </h3>
+                
+                <div class="mb-4">
+                    <label for="opcionDiseno" class="block text-sm font-medium text-gray-700 mb-1">Servicio de Diseño:</label>
+                    <select id="opcionDiseno" onchange="calcularTotal()" class="w-full p-3 border border-gray-300 rounded-lg input-focus transition duration-150 bg-white">
+                        <option value="ClienteEnvia">Cliente envía diseño listo ($40.48)</option>
+                        <option value="Realizar">Realizar diseño ($250)</option>
+                        <option value="Guardado">Diseño guardado aquí ($150)</option>
+                    </select>
+                    <p id="advDiseno" class="text-xs text-blue-600 mt-1 hidden font-medium">✅ El cargo por Diseño NO aplica (Gratis) por superar las 100 tarjetas.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="llevaBD" class="block text-sm font-medium text-gray-700 mb-1">¿Lleva Base de Datos / Personalización?</label>
+                    <select id="llevaBD" onchange="calcularTotal()" class="w-full p-3 border border-gray-300 rounded-lg input-focus transition duration-150 bg-white">
+                        <option value="No">No (Sin personalización)</option>
+                        <option value="Si">Sí (Requiere datos variables)</option>
+                    </select>
+                </div>
+
+                <div id="opcionesBD" class="p-4 bg-white rounded-lg border border-dashed border-red-300 transition duration-300 ease-in-out" style="display:none;">
+                    <p class="text-sm font-medium text-red-700 mb-3">Cargos por Base de Datos:</p>
+                    <label for="numVariables" class="block text-xs font-medium text-gray-500 mb-1">Variables Distintas (ej: 3 para Nombre, ID y Código QR):</label>
+                    <input type="number" id="numVariables" value="0" min="0" oninput="calcularTotal()" class="w-full p-2 border border-gray-300 rounded-lg input-focus">
+                    <p id="costoBDInfo" class="text-sm text-gray-600 mt-2">Costo Fijo Base de Datos: <span id="fijoBDValue">$0.00</span> + Costo Variable ($2.00 por variable)</p>
+                </div>
+            </div>
+            
+            <!-- BOTÓN: LIMPIAR COTIZACIÓN (Formulario) -->
+            <button 
+                onclick="limpiarCotizacion()" 
+                class="w-full mt-4 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-150 transform hover:scale-[1.00] active:scale-[0.98]"
+            >
+                🧹 Limpiar Opciones Seleccionadas
+            </button>
+
+            <!-- SECCIÓN EDUCATIVA: DESGLOSE DETALLADO DEL PVU (Ahora Colapsable) -->
+            <div id="desgloseContainer" class="bg-indigo-50 p-6 rounded-xl border border-indigo-400 space-y-3">
+                <!-- Clickable Header for Desglose -->
+                <button id="desgloseHeader" onclick="toggleDesglose()" class="w-full text-left p-0 m-0 bg-transparent focus:outline-none">
+                    <h3 class="text-lg font-extrabold text-indigo-800 border-b pb-2 mb-2 flex justify-between items-center cursor-pointer">
+                        <span>📊 Desglose del Costo Unitario (PVU) - EDUCATIVO</span>
+                        <svg id="desgloseArrow" class="w-5 h-5 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h3>
+                </button>
+                
+                <!-- Collapsible Content -->
+                <div id="desgloseContent" style="display: none;" class="space-y-3">
+                    <div id="desgloseDetallado" class="text-sm text-gray-700 space-y-0">
+                        
+                        <!-- Costos de Materiales -->
+                        <p class="text-xs font-semibold text-indigo-700 pt-2 border-t">COSTOS MATERIALES Y PRODUCCIÓN (TBP)</p>
+                        
+                        <div class="desglose-line">
+                            <span>1. Costo Base Tarjeta Virge (<span id="d_costoBaseM">0.00</span>):</span>
+                            <span id="d_costoBase" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="desglose-line">
+                            <span>2. Costo Laminado Unitario (<span id="d_costoLamTipo">0.00</span>):</span>
+                            <span id="d_costoLaminado" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="desglose-line text-xs font-bold text-red-700" id="d_markupRow" style="display:none;">
+                            <span>+ 50% Markup Materiales (Base + Lam.):</span>
+                            <span id="d_markupValue">$0.00</span>
+                        </div>
+                        <div class="desglose-line">
+                            <span>3. Costo Limpieza (Fijo):</span>
+                            <span id="d_costoLimpieza" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="desglose-line">
+                            <span>4. Costo Impresión (Según Lados):</span>
+                            <span id="d_costoImpresion" class="font-medium">$0.00</span>
+                        </div>
+
+                        <!-- Subtotal de Producción Base -->
+                        <div class="desglose-line desglose-line-total text-sm text-indigo-800 pt-2">
+                            <span>A. Subtotal Producción Base (TBP):</span>
+                            <span id="d_subtotalCosto" class="font-extrabold">$0.00</span>
+                        </div>
+
+                        <!-- Aplicación de Utilidad y Costos Operativos -->
+                        <p class="text-xs font-semibold text-indigo-700 pt-4 border-t">COSTOS OPERATIVOS Y UTILIDAD</p>
+
+                        <div class="desglose-line">
+                            <span>5. Utilidad Aplicada (TBP x <span id="d_multiplicador">1.0</span>):</span>
+                            <span id="d_utilidadApplied" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="desglose-line">
+                            <span>6. Costo Operativo (CUM/Maquina):</span>
+                            <span id="d_costoMaquina" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="desglose-line">
+                            <span>7. Costo Perforación Unitario:</span>
+                            <span id="d_costoPerforacion" class="font-medium">$0.00</span>
+                        </div>
+
+                        <!-- PVU Final -->
+                        <div class="desglose-line desglose-line-total mt-2 text-base text-green-800 pt-2">
+                            <span>PVU (Precio Venta Unitario) sin IVA:</span>
+                            <span id="d_pvuFinal" class="font-extrabold text-xl">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Botones para expandir la explicación -->
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <button onclick="toggleFormulas()" class="flex-1 px-4 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition duration-150 min-w-[45%]">
+                            Ver Fórmulas y Constantes
+                        </button>
+                        <button onclick="toggleRangos()" class="flex-1 px-4 py-2 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition duration-150 min-w-[45%]">
+                            Ver Rangos de Precios
+                        </button>
+                    </div>
+                    
+                    <!-- Sección Colapsable de Fórmulas -->
+                    <div id="formulasExplicadas" style="display: none;" class="mt-4 p-4 bg-white rounded-lg border border-indigo-200">
+                        <h4 class="text-md font-bold text-indigo-800 mb-2">Fórmula del Precio de Venta Unitario (PVU)</h4>
+                        
+                        <p class="text-xs text-gray-700 mb-3 font-mono bg-gray-50 p-2 rounded">
+                            PVU = (TBP × Multiplicador) + CUM + CP
+                        </p>
+
+                        <div class="text-xs text-gray-600 space-y-1">
+                            <div class="formula-line">
+                                <span class="font-bold text-indigo-600">PVU:</span> Precio de Venta Unitario (Sin IVA).
+                            </div>
+                            <div class="formula-line">
+                                <span class="font-bold text-indigo-600">TBP (Total Base Producción):</span> Suma de Costos de Materiales (Tarjeta Base + Laminado + Markup) + Costo Limpieza + Costo Impresión.
+                            </div>
+                            <div class="formula-line">
+                                <span class="font-bold text-indigo-600">Multiplicador:</span> Factor de Utilidad y Gastos Generales (Varía de <span class="font-mono" id="m_min">1.65</span> a <span class="font-mono" id="m_max">5.00</span> según la Cantidad (Q)).
+                            </div>
+                            <div class="formula-line">
+                                <span class="font-bold text-indigo-600">CUM (Costo Unitario Máquina):</span> Costo Operativo/Máquina (Varía de <span class="font-mono" id="c_min">$8.00</span> a <span class="font-mono" id="c_max">$30.00</span> según la Cantidad (Q)).
+                            </div>
+                            <div class="formula-line">
+                                <span class="font-bold text-indigo-600">CP (Costo Perforación):</span> Costo Unitario de la Perforación (si aplica).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección Colapsable de Rangos de Precios -->
+                    <div id="rangosExplicados" style="display: none;" class="mt-4 p-4 bg-white rounded-lg border border-purple-200">
+                        <h4 class="text-md font-bold text-purple-800 mb-3">Tabla de Rangos de Precios por Volumen</h4>
+                        <div id="rangosTableContainer" class="overflow-x-auto">
+                            <!-- La tabla se generará aquí por JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <!-- FIN DEL DESGLOSE DETALLADO -->
+            </div>
+            
+            <!-- RESULTADO FINAL CON DESGLOSE DE IVA -->
+            <div class="result bg-green-50 p-6 rounded-xl border border-green-400 space-y-3">
+                <p class="text-sm font-semibold text-green-700 mb-2">RESUMEN DEL PEDIDO</p>
+                
+                <!-- 1. PVU sin IVA -->
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-base font-medium text-gray-700">Precio Unitario (P.V.U.) sin IVA:</span>
+                    <span id="pvuSinIva" class="text-base font-bold text-gray-900">$0.00</span>
+                </div>
+
+                <!-- 2. Subtotal sin IVA (Cambiado el texto para ser el "Total Estimado sin IVA") -->
+                <div class="flex justify-between">
+                    <span class="text-lg font-semibold text-gray-800">TOTAL ESTIMADO SIN IVA:</span>
+                    <span id="subtotalSinIva" class="text-lg font-bold text-gray-900">$0.00</span>
+                </div>
+                
+                <!-- LETRA PEQUEÑA RESTAURADA -->
+                <div class="flex justify-between text-sm text-gray-500 pt-1">
+                    <span>Costo de Tarjetas (PVU x Q):</span>
+                    <span id="costoTarjetasSub">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500 pt-1 pb-2 border-b border-dashed">
+                    <span>Cargos Fijos (Diseño + BD):</span>
+                    <span id="cargosFijosSub">$0.00</span>
+                </div>
+                
+                <!-- 3. Total con IVA -->
+                <div class="flex justify-between pt-2">
+                    <span class="text-lg font-semibold text-green-800">TOTAL ESTIMADO CON IVA (16%):</span>
+                    <span id="totalConIva" class="text-2xl font-extrabold text-green-800">$0.00</span>
+                </div>
+
+                <p class="text-xs text-gray-600 mt-3">*No incluye Envío. IVA asumido al 16%.</p>
+            </div>
+            
+            <!-- SECCIÓN 4: COTIZACIÓN PARA CLIENTE -->
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-400 space-y-4">
+                <h3 class="text-xl font-extrabold text-blue-800 border-b pb-2 mb-4">🏷️ Cotización para Cliente (Formato Exacto)</h3>
+                
+                <p class="font-bold text-sm text-gray-800 mb-2">Texto para WhatsApp (¡Sale en una sola línea con miles separados por coma y '= neto'!):</p>
+                
+                <!-- Área de texto de la cotización -->
+                <div class="flex-grow">
+                    <textarea 
+                        id="whatsappQuoteText" 
+                        class="w-full p-3 rounded-lg border border-blue-300 bg-white text-sm break-all" 
+                        readonly 
+                        onclick="this.select();"
+                    >Ingresa los datos para generar la cotización...</textarea>
+                </div>
+
+                <!-- Botón de Copiar -->
+                <button 
+                    id="copyButton"
+                    onclick="copyCotizacion()" 
+                    class="w-full mt-2 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 transform hover:scale-[1.00] active:scale-[0.98]"
+                >
+                    📋 Copiar Cotización
+                </button>
+
+                <!-- BOTÓN: REINICIAR PÁGINA -->
+                <button 
+                    onclick="limpiarFormulario()" 
+                    class="w-full mt-3 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-150 transform hover:scale-[1.00] active:scale-[0.98]"
+                >
+                    🔄 Limpiar Formulario (Reiniciar Página)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTE DE IMPUESTO ---
+        const IVA_RATE = 0.16; // 16%
+
+        // --- ESTRUCTURA DE DATOS (MODIFICADO: Rango 4-10 tiene multiplicador 4.5) ---
+        const RANGOS_PRECIOS = [
+            // min: Cantidad mínima
+            // max: Cantidad máxima (Infinity para el último rango)
+            // costo_maquina: Costo Unitario Máquina (CUM)
+            // costo_perforacion: Costo Unitario Perforación (CP)
+            // multiplicador_utilidad: Factor de Utilidad 
+            { min: 1, max: 3, costo_maquina: 30.00, costo_perforacion: 20.00, multiplicador_utilidad: 5.0 },
+            { min: 4, max: 10, costo_maquina: 20.00, costo_perforacion: 15.00, multiplicador_utilidad: 4.5 }, // <-- MODIFICADO A 4.5
+            { min: 11, max: 20, costo_maquina: 15.00, costo_perforacion: 12.00, multiplicador_utilidad: 4.0 },
+            { min: 21, max: 50, costo_maquina: 14.00, costo_perforacion: 10.00, multiplicador_utilidad: 3.5 },
+            { min: 51, max: 100, costo_maquina: 13.00, costo_perforacion: 8.00, multiplicador_utilidad: 3.0 },
+            { min: 101, max: 200, costo_maquina: 12.00, costo_perforacion: 5.00, multiplicador_utilidad: 2.8 },
+            { min: 201, max: 400, costo_maquina: 11.00, costo_perforacion: 3.00, multiplicador_utilidad: 2.5 },
+            { min: 401, max: 800, costo_maquina: 10.00, costo_perforacion: 2.00, multiplicador_utilidad: 2.0 },
+            { min: 801, max: 1000, costo_maquina: 9.00, costo_perforacion: 1.00, multiplicador_utilidad: 1.85 },
+            { min: 1001, max: Infinity, costo_maquina: 8.00, costo_perforacion: 0.00, multiplicador_utilidad: 1.65 }
+        ];
+
+        const COSTOS_PRODUCCION = {
+            tarjeta_virgen: 2.90,
+            tarjeta_laminado: 4.50, 
+            limpieza: 1.00,
+            impresion: {
+                '1L': 2950 / 750, 
+                '2L': 2950 / 375 
+            },
+            laminado_sencillo_u: 2250 / 750, 
+            laminado_holografico_u: 3100 / 750 
+        };
+
+        const COSTOS_DISENO = {
+            'ClienteEnvia': 40.48, 
+            'Realizar': 250.00,
+            'Guardado': 150.00
+        };
+
+        const COSTOS_BD_FIJOS = [
+            { max: 100, costo: 250.00 },
+            { max: 300, costo: 300.00 },
+            { max: 500, costo: 350.00 },
+            { max: 1000, costo: 400.00 },
+            { max: Infinity, costo: 500.00 }
+        ];
+
+        const COSTO_BD_VARIABLE = 2.00;
+
+        // Función de formato para números (ej: 1234.56 -> $1,234.56)
+        const formatter = new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN',
+            minimumFractionDigits: 2,
+        });
+        
+        // Formato para el TOTAL de la cotización: con coma en miles, 2 decimales, sin símbolo de moneda
+        const totalFormatter = new Intl.NumberFormat('es-MX', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true 
+        });
+
+        // Formato numérico simple (ej: 1.2345 -> 1.23)
+        const numFormatter = new Intl.NumberFormat('es-MX', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4,
+        });
+
+        // --- FUNCIONES DE UTILIDAD DE VISUALIZACIÓN ---
+
+        function generateRangosTable() {
+            const container = document.getElementById('rangosTableContainer');
+            
+            // Generar la tabla HTML
+            let tableHTML = `<table class="table-auto-width">
+                <thead>
+                    <tr>
+                        <th>Cantidad (Q)</th>
+                        <th>CUM (Costo Máquina)</th>
+                        <th>CP (Costo Perforación)</th>
+                        <th>Multiplicador</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            RANGOS_PRECIOS.forEach(r => {
+                const rangoQ = r.max === Infinity ? `${r.min}+` : `${r.min} - ${r.max}`;
+                tableHTML += `
+                    <tr>
+                        <td>${rangoQ}</td>
+                        <td>${formatter.format(r.costo_maquina)}</td>
+                        <td>${formatter.format(r.costo_perforacion)}</td>
+                        <td>${r.multiplicador_utilidad.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</tbody></table>`;
+            container.innerHTML = tableHTML;
+        }
+
+
+        function resetResultDisplays(message = "$0.00") {
+            // Función para resetear los displays si faltan datos
+            const elementsToReset = [
+                'pvuSinIva', 'subtotalSinIva', 'totalConIva', 
+                'costoTarjetasSub', 'cargosFijosSub', 
+                'd_costoBase', 'd_costoLaminado', 'd_markupValue', 'd_costoLimpieza', 
+                'd_costoImpresion', 'd_subtotalCosto', 'd_utilidadApplied', 
+                'd_costoMaquina', 'd_costoPerforacion', 'd_pvuFinal', 'fijoBDValue'
+            ];
+            elementsToReset.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = message;
+            });
+            document.getElementById('whatsappQuoteText').value = "Ingresa los datos para generar la cotización...";
+            
+            // Resetear Desglose Numérico
+            document.getElementById('d_costoBaseM').innerText = '0.00';
+            document.getElementById('d_costoLamTipo').innerText = '0.00';
+            document.getElementById('d_multiplicador').innerText = '1.0';
+            
+            // Ocultar fila de Markup y warnings
+            document.getElementById('d_markupRow').style.display = 'none';
+            document.getElementById('advLaminado').classList.add('hidden');
+
+            // Definir rangos máximos y mínimos para la explicación
+            const maxMulti = RANGOS_PRECIOS.reduce((max, r) => Math.max(max, r.multiplicador_utilidad), RANGOS_PRECIOS[0].multiplicador_utilidad);
+            const minMulti = RANGOS_PRECIOS.reduce((min, r) => Math.min(min, r.multiplicador_utilidad), RANGOS_PRECIOS[0].multiplicador_utilidad);
+            const maxCUM = RANGOS_PRECIOS.reduce((max, r) => Math.max(max, r.costo_maquina), RANGOS_PRECIOS[0].costo_maquina);
+            const minCUM = RANGOS_PRECIOS.reduce((min, r) => Math.min(min, r.costo_maquina), RANGOS_PRECIOS[0].costo_maquina);
+            
+            // Resetear rangos de fórmulas en el HTML
+            document.getElementById('m_min').innerText = minMulti.toFixed(2);
+            document.getElementById('m_max').innerText = maxMulti.toFixed(2);
+            document.getElementById('c_min').innerText = formatter.format(minCUM);
+            document.getElementById('c_max').innerText = formatter.format(maxCUM);
+        }
+
+        function toggleDesglose() {
+            const contentDiv = document.getElementById('desgloseContent');
+            const arrowSvg = document.getElementById('desgloseArrow');
+
+            if (contentDiv.style.display === 'none') {
+                contentDiv.style.display = 'block';
+                // La flecha apunta hacia arriba (se rota 180 grados)
+                arrowSvg.classList.add('rotate-180');
+                // Asegurar que la tabla de rangos se genere la primera vez que se expande
+                generateRangosTable(); 
+            } else {
+                contentDiv.style.display = 'none';
+                // La flecha apunta hacia abajo (se quita la rotación)
+                arrowSvg.classList.remove('rotate-180');
+            }
+        }
+        
+        function toggleFormulas() {
+            const formulasDiv = document.getElementById('formulasExplicadas');
+            formulasDiv.style.display = formulasDiv.style.display === 'none' ? 'block' : 'none';
+            // Ocultar rangos si se muestran fórmulas
+            document.getElementById('rangosExplicados').style.display = 'none'; 
+        }
+
+        // Nueva función para el botón de rangos
+        function toggleRangos() {
+            const rangosDiv = document.getElementById('rangosExplicados');
+            rangosDiv.style.display = rangosDiv.style.display === 'none' ? 'block' : 'none';
+            // Ocultar fórmulas si se muestran rangos
+            document.getElementById('formulasExplicadas').style.display = 'none'; 
+            // Generar la tabla cada vez que se abre (por si las dudas, aunque no cambian)
+            generateRangosTable();
+        }
+        
+        function copyCotizacion() {
+            const quoteText = document.getElementById('whatsappQuoteText');
+            // Si el texto es el mensaje de error o placeholder, no copiar
+            if (quoteText.value.includes("Error:") || quoteText.value.includes("Ingresa los datos")) {
+                 // Puedes mostrar un aviso al usuario
+                 const button = document.getElementById('copyButton');
+                 button.innerText = '❌ No hay cotización válida para copiar';
+                 button.classList.remove('bg-blue-600', 'bg-green-600');
+                 button.classList.add('bg-red-600');
+                 setTimeout(() => {
+                    button.innerText = '📋 Copiar Cotización';
+                    button.classList.remove('bg-red-600');
+                    button.classList.add('bg-blue-600');
+                 }, 2000);
+                 return;
+            }
+
+            // Usamos un pequeño truco para asegurar que solo se copia el contenido sin formato extra
+            const tempInput = document.createElement('textarea');
+            tempInput.value = quoteText.value;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('No se pudo copiar el texto.', err);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+
+            const button = document.getElementById('copyButton');
+            button.classList.remove('bg-green-600', 'bg-red-600', 'bg-blue-600');
+            
+            if (success) {
+                button.innerText = '✅ ¡Copiado!';
+                button.classList.add('bg-green-600');
+            } else {
+                button.innerText = '❌ Error al Copiar';
+                button.classList.add('bg-red-600');
+            }
+            
+            setTimeout(() => {
+                button.innerText = '📋 Copiar Cotización';
+                button.classList.remove('bg-green-600', 'bg-red-600');
+                button.classList.add('bg-blue-600');
+            }, 2000);
+        }
+        
+        function limpiarCotizacion() {
+            // Setear valores a su estado inicial sin selección
+            document.getElementById('cantidad').value = '';
+            
+            // Deseleccionar radios de impresión
+            const radios = document.getElementsByName('tipoImpresionRadios');
+            radios.forEach(radio => radio.checked = false);
+
+            document.getElementById('laminadoOpcion').value = 'No';
+            document.getElementById('lamFrente').value = 'Ninguno';
+            document.getElementById('lamReverso').value = 'Ninguno';
+            document.getElementById('perforacion').value = 'No';
+            document.getElementById('opcionDiseno').value = 'ClienteEnvia';
+            document.getElementById('llevaBD').value = 'No';
+            document.getElementById('numVariables').value = 0;
+
+            // Ocultar divs condicionales
+            document.getElementById('opcionesLaminado').style.display = 'none';
+            document.getElementById('opcionesBD').style.display = 'none';
+            document.getElementById('advDiseno').classList.add('hidden');
+            document.getElementById('advLaminado').classList.add('hidden');
+            document.getElementById('errorCantidad').classList.add('hidden');
+            document.getElementById('errorImpresion').classList.add('hidden');
+
+            // Ocultar secciones de explicación
+            document.getElementById('formulasExplicadas').style.display = 'none'; 
+            document.getElementById('rangosExplicados').style.display = 'none';
+
+            // Resetear todos los resultados visuales
+            resetResultDisplays(); 
+        }
+
+        function limpiarFormulario() {
+            window.location.reload();
+        }
+
+        // --- FUNCIÓN PRINCIPAL DE CÁLCULO ---
+        function calcularTotal() {
+            const Q = parseInt(document.getElementById('cantidad').value);
+            const tipoImpresionRadio = document.querySelector('input[name="tipoImpresionRadios"]:checked');
+            const quoteTextElement = document.getElementById('whatsappQuoteText');
+            const copyButton = document.getElementById('copyButton');
+
+            // Resetear botón de copiar
+            copyButton.innerText = '📋 Copiar Cotización';
+            copyButton.classList.remove('bg-green-600', 'bg-red-600');
+            copyButton.classList.add('bg-blue-600');
+
+            // VALIDACIONES CRÍTICAS
+            if (isNaN(Q) || Q < 1) {
+                document.getElementById('errorCantidad').classList.remove('hidden');
+                document.getElementById('errorImpresion').classList.add('hidden');
+                resetResultDisplays("---");
+                quoteTextElement.value = "Error: Por favor, escribe una cantidad válida (mínimo 1).";
+                return;
+            } else {
+                document.getElementById('errorCantidad').classList.add('hidden');
+            }
+
+            if (!tipoImpresionRadio) {
+                document.getElementById('errorImpresion').classList.remove('hidden');
+                resetResultDisplays("---");
+                quoteTextElement.value = "Error: Por favor, selecciona el tipo de impresión (1 o 2 lados).";
+                return;
+            } else {
+                document.getElementById('errorImpresion').classList.add('hidden');
+            }
+
+            // Si las validaciones pasan, se procede con el cálculo
+            const tipoImpresion = tipoImpresionRadio.value;
+
+            // --- 1. Obtener Costos de Rango (CUM, CP, Multiplicador) ---
+            const rango = RANGOS_PRECIOS.find(r => Q >= r.min && Q <= r.max);
+            
+            // Fallback al rango de más bajo volumen si no se encuentra (que es el primero)
+            const fallbackRango = RANGOS_PRECIOS[0]; 
+            
+            const CUM = rango ? rango.costo_maquina : fallbackRango.costo_maquina; 
+            let CP = 0; 
+            
+            if (document.getElementById('perforacion').value === 'Si') {
+                CP = rango ? rango.costo_perforacion : 0.00; 
+            }
+            const multiplicadorUtilidad = rango ? rango.multiplicador_utilidad : fallbackRango.multiplicador_utilidad; 
+            
+            // Definir rangos máximos y mínimos para la explicación
+            const maxMulti = RANGOS_PRECIOS.reduce((max, r) => Math.max(max, r.multiplicador_utilidad), RANGOS_PRECIOS[0].multiplicador_utilidad);
+            const minMulti = RANGOS_PRECIOS.reduce((min, r) => Math.min(min, r.multiplicador_utilidad), RANGOS_PRECIOS[0].multiplicador_utilidad);
+            const maxCUM = RANGOS_PRECIOS.reduce((max, r) => Math.max(max, r.costo_maquina), RANGOS_PRECIOS[0].costo_maquina);
+            const minCUM = RANGOS_PRECIOS.reduce((min, r) => Math.min(min, r.costo_maquina), RANGOS_PRECIOS[0].costo_maquina);
+
+            // Actualizar rangos de fórmulas en el HTML
+            document.getElementById('m_min').innerText = minMulti.toFixed(2);
+            document.getElementById('m_max').innerText = maxMulti.toFixed(2);
+            document.getElementById('c_min').innerText = formatter.format(minCUM);
+            document.getElementById('c_max').innerText = formatter.format(maxCUM);
+
+
+            // --- 2. Costo Tarjeta Base (CTB) ---
+            const laminadoOpcion = document.getElementById('laminadoOpcion').value;
+            const CTB_Inicial = (laminadoOpcion === 'Si') 
+                ? COSTOS_PRODUCCION.tarjeta_laminado 
+                : COSTOS_PRODUCCION.tarjeta_virgen;
+            
+            // Mostrar/Ocultar opciones de laminado
+            const opcionesLamDiv = document.getElementById('opcionesLaminado');
+            opcionesLamDiv.style.display = (laminadoOpcion === 'Si') ? 'block' : 'none';
+            
+
+            // --- 3. Costo Impresión (CI) y Limpieza (CLIM) ---
+            const CI = COSTOS_PRODUCCION.impresion[tipoImpresion];
+            const CLIM = COSTOS_PRODUCCION.limpieza;
+            
+            // --- 4. Costo Laminado (CL) ---
+            let CL = 0; 
+            let Markup50 = 0;
+            let acabadoText = 'sin acabados';
+            const advLaminado = document.getElementById('advLaminado');
+            advLaminado.classList.add('hidden');
+
+            if (laminadoOpcion === 'Si') {
+                const lamFrente = document.getElementById('lamFrente').value;
+                const lamReverso = document.getElementById('lamReverso').value;
+
+                let CL_FRENTE = 0;
+                let CL_REVERSO = 0;
+
+                if (lamFrente === 'Sencillo') {
+                    CL_FRENTE = COSTOS_PRODUCCION.laminado_sencillo_u;
+                    acabadoText = 'con laminado sencillo (frente)';
+                } else if (lamFrente === 'Holografico') {
+                    CL_FRENTE = COSTOS_PRODUCCION.laminado_holografico_u;
+                    acabadoText = 'con holográfico (frente)';
+                }
+
+                if (lamReverso === 'Sencillo') {
+                    if (tipoImpresion === '2L') {
+                        CL_REVERSO = COSTOS_PRODUCCION.laminado_sencillo_u; 
+                        acabadoText = acabadoText.includes('con ') ? acabadoText + ' y laminado sencillo (reverso)' : 'con laminado sencillo (frente y reverso)';
+                    } else {
+                        advLaminado.classList.remove('hidden');
+                    }
+                }
+                
+                CL = CL_FRENTE + CL_REVERSO;
+
+                // Aplicación de 50% Markup a Materiales (CTB_Inicial + CL)
+                const CostoMaterialLaminado = CTB_Inicial + CL; 
+                Markup50 = CostoMaterialLaminado * 0.50; 
+                
+                document.getElementById('d_markupRow').style.display = 'flex';
+                document.getElementById('d_markupValue').innerText = formatter.format(Markup50);
+
+            } else {
+                document.getElementById('d_markupRow').style.display = 'none';
+            }
+
+            if (document.getElementById('perforacion').value === 'Si') {
+                 acabadoText = acabadoText.includes('con ') ? acabadoText + ' y perforación' : 'con perforación';
+            }
+            if (acabadoText === 'sin acabados') {
+                acabadoText = 'sin acabados';
+            }
+
+
+            // --- 5. TBP (Total Base Producción) y PVU ---
+            // TBP = (CTB + CL + Markup50) + CLIM + CI
+            const TBP_SinUtilidad = CTB_Inicial + CL + Markup50 + CLIM + CI;
+            
+            // PVU_Base = TBP * Multiplicador
+            const PVU_Base = TBP_SinUtilidad * multiplicadorUtilidad;
+            
+            // PVU Final = PVU_Base + CUM + CP
+            const PVU = PVU_Base + CUM + CP; 
+
+            // PVU con IVA (Solo necesario para el texto de WhatsApp)
+            const PVU_CON_IVA = PVU * (1 + IVA_RATE);
+
+            // --- 6. TCU (Total Costo Unitario) ---
+            const TCU = Q * PVU; // Costo Total Unitario (solo tarjetas)
+
+            // --- 7. Costos Fijos (Diseño y BD) (CD, CBD) ---
+            let CD = 0;
+            const advDiseno = document.getElementById('advDiseno');
+            const disenoOpcion = document.getElementById('opcionDiseno').value;
+            let disenoTexto = '';
+            
+            if (Q > 100) { 
+                CD = 0; 
+                advDiseno.classList.remove('hidden');
+                disenoTexto = 'Diseño Gratis (Por volumen)';
+            } else { 
+                CD = COSTOS_DISENO[disenoOpcion] || 0; 
+                advDiseno.classList.add('hidden'); 
+                
+                if (disenoOpcion === 'ClienteEnvia') disenoTexto = 'cliente envia diseño';
+                else if (disenoOpcion === 'Realizar') disenoTexto = 'diseño realizado por nosotros';
+                else if (disenoOpcion === 'Guardado') disenoTexto = 'diseño guardado aquí';
+            }
+
+            let CBD = 0;
+            let fijoBDCosto = 0;
+            let numVariables = 0;
+            const llevaBD = document.getElementById('llevaBD').value;
+            const opcionesBDDiv = document.getElementById('opcionesBD');
+            const fijoBDValueSpan = document.getElementById('fijoBDValue');
+            opcionesBDDiv.style.display = (llevaBD === 'Si') ? 'block' : 'none';
+            let bdText = '';
+
+
+            if (llevaBD === 'Si') {
+                const fijoBD = COSTOS_BD_FIJOS.find(r => Q <= r.max);
+                fijoBDCosto = fijoBD ? fijoBD.costo : COSTOS_BD_FIJOS[COSTOS_BD_FIJOS.length - 1].costo;
+                numVariables = parseInt(document.getElementById('numVariables').value) || 0;
+                
+                CBD = fijoBDCosto + (numVariables * COSTO_BD_VARIABLE);
+                fijoBDValueSpan.innerText = formatter.format(fijoBDCosto);
+                bdText = ` + Personalización BD (${numVariables} variables)`;
+            } else {
+                 fijoBDValueSpan.innerText = formatter.format(0);
+            }
+            
+            // ** CÁLCULO DE CARGOS FIJOS TOTALES **
+            const CargosFijos = CD + CBD;
+
+            // --- 8. Totales finales ---
+            const subtotalSinIva = TCU + CargosFijos; 
+            const totalConIva = subtotalSinIva * (1 + IVA_RATE);
+
+            // --- 9. Actualizar Desglose de Resultados (Visual) ---
+            document.getElementById('pvuSinIva').innerText = formatter.format(PVU);
+            document.getElementById('subtotalSinIva').innerText = formatter.format(subtotalSinIva);
+            document.getElementById('totalConIva').innerText = formatter.format(totalConIva);
+            
+            // ACTUALIZAR LÍNEAS DE DESGLOSE INTERNAS
+            document.getElementById('costoTarjetasSub').innerText = formatter.format(TCU);
+            document.getElementById('cargosFijosSub').innerText = formatter.format(CargosFijos);
+
+
+            // --- 10. Actualizar el Desglose Detallado (Mejorado) ---
+            document.getElementById('d_costoBase').innerText = formatter.format(CTB_Inicial);
+            document.getElementById('d_costoBaseM').innerText = CTB_Inicial.toFixed(2); 
+            document.getElementById('d_costoLaminado').innerText = formatter.format(CL);
+            document.getElementById('d_costoLamTipo').innerText = CL.toFixed(2);
+            document.getElementById('d_costoLimpieza').innerText = formatter.format(CLIM);
+            document.getElementById('d_costoImpresion').innerText = formatter.format(CI);
+            
+            document.getElementById('d_subtotalCosto').innerText = formatter.format(TBP_SinUtilidad);
+            document.getElementById('d_multiplicador').innerText = numFormatter.format(multiplicadorUtilidad);
+            document.getElementById('d_utilidadApplied').innerText = formatter.format(PVU_Base - TBP_SinUtilidad); // Muestra la utilidad en sí (PVU_Base - TBP)
+            document.getElementById('d_costoMaquina').innerText = formatter.format(CUM);
+            document.getElementById('d_costoPerforacion').innerText = formatter.format(CP);
+            document.getElementById('d_pvuFinal').innerText = formatter.format(PVU);
+
+
+            // --- 11. Generar Contenido de la Cotización (Formato Exacto Solicitado) ---
+            
+            // PVU: 2 decimales, SIN separador de miles (Se sigue usando PVU_CON_IVA para el precio unitario del cliente)
+            const pvuString = PVU_CON_IVA.toFixed(2); 
+            
+            // TOTAL: 2 decimales, CON separador de miles.
+            const totalStringFormatted = totalFormatter.format(totalConIva);
+            
+            const ladosTexto = tipoImpresion === '1L' ? '1 lado' : '2 lados';
+
+            // ** FORMATO SOLICITADO POR EL USUARIO EN UNA SOLA LÍNEA (con separador de miles en total y = neto) **
+            const resumenWhatsapp = 
+                `${Q} tarjeta de pvc medida 8.56x5.4 cm grosor de 30 mil. impresas a color ${ladosTexto} ${acabadoText}${bdText}, ${disenoTexto} = $${pvuString} c/u , total = $${totalStringFormatted} = neto`;
+
+            // Actualizar el área de texto con la cotización
+            quoteTextElement.value = resumenWhatsapp;
+        }
+
+        // Ejecutar el cálculo al cargar la página para inicializar los $0.00
+        document.addEventListener('DOMContentLoaded', () => {
+             resetResultDisplays();
+             // Añadir listener para recalcular si el tipo de impresión cambia.
+             document.querySelectorAll('input[name="tipoImpresionRadios"]').forEach(radio => {
+                radio.addEventListener('change', calcularTotal);
+             });
+             // Generar la tabla de rangos por primera vez (aunque esté oculta)
+             generateRangosTable();
+        });
+    </script>
+
+</body>
+</html>

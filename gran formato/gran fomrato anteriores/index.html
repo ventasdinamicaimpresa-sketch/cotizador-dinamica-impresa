@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador Gran Formato</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-calculator"></i> Cotizador Gran Formato</h1>
+        <p class="subtitle">Creado por Joel Adrián Mtz 8341446103</p>
+        <form id="cotizador-form">
+            <div class="form-group">
+                <label for="cantidad"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-ruler-combined"></i> Medidas:</label>
+                <div class="medidas-group">
+                    <input type="number" id="ancho" name="ancho" placeholder="Ancho">
+                    <input type="number" id="largo" name="largo" placeholder="Largo">
+                    <select id="unidades" name="unidades">
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-paint-roller"></i> ¿Va rotulado sobre algo?</label>
+                <div class="radio-group">
+                    <input type="radio" id="rotulado-si" name="rotulado" value="si">
+                    <label for="rotulado-si">Sí</label>
+                    <input type="radio" id="rotulado-no" name="rotulado" value="no" checked>
+                    <label for="rotulado-no">No</label>
+                </div>
+            </div>
+
+            <div id="materiales-no-rotulado-container">
+                <div class="form-group">
+                    <label for="categoria-no-rotulado"><i class="fas fa-tags"></i> Categoría:</label>
+                    <select id="categoria-no-rotulado" name="categoria-no-rotulado">
+                        <option value="">Seleccione una categoría</option>
+                        <option value="lonas">Lonas</option>
+                        <option value="viniles">Viniles</option>
+                        <option value="telas">Telas</option>
+                        <option value="papeles">Papeles</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-lonas-container" style="display: none;">
+                    <label for="material-no-rotulado-lonas"><i class="fas fa-scroll"></i> Material:</label>
+                    <select id="material-no-rotulado-lonas" name="material-no-rotulado-lonas">
+                        <option value="Lona Brillante 13oz">Lona Brillante 13oz</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-viniles-container" style="display: none;">
+                    <label for="material-no-rotulado-viniles"><i class="fas fa-sticky-note"></i> Material:</label>
+                    <select id="material-no-rotulado-viniles" name="material-no-rotulado-viniles">
+                        <option value="Vinil Brillante 140gr">Vinil Brillante 140gr</option>
+                        <option value="Vinil Trasparente Brillante">Vinil Trasparente Brillante</option>
+                        <option value="Vinil Trasparente Mate">Vinil Trasparente Mate</option>
+                        <option value="Vinil Microperforado">Vinil Microperforado</option>
+                        <option value="Vinil Electroestatico Blanco">Vinil Electroestatico Blanco</option>
+                        <option value="Vinil Metalico Aluminio de 8mm Peso 215gr">Vinil Metalico Aluminio de 8mm Peso 215gr</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-telas-container" style="display: none;">
+                    <label for="material-no-rotulado-telas"><i class="fas fa-tshirt"></i> Material:</label>
+                    <select id="material-no-rotulado-telas" name="material-no-rotulado-telas">
+                        <option value="Canvas">Canvas</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-papeles-container" style="display: none;">
+                    <label for="material-no-rotulado-papeles"><i class="fas fa-file-alt"></i> Material:</label>
+                    <select id="material-no-rotulado-papeles" name="material-no-rotulado-papeles">
+                        <option value="Poster 200gr">Poster 200gr</option>
+                        <option value="Papel Fotografico">Papel Fotografico</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="materiales-rotulado-container" style="display: none;">
+                <div class="form-group">
+                    <label for="material-rotulado-vinil"><i class="fas fa-sticky-note"></i> Vinil:</label>
+                    <select id="material-rotulado-vinil" name="material-rotulado-vinil">
+                        <option value="Vinil Brillante 140gr">Vinil Brillante 140gr</option>
+                        <option value="Vinil Trasparente Brillante">Vinil Trasparente Brillante</option>
+                        <option value="Vinil Trasparente Mate">Vinil Trasparente Mate</option>
+                        <option value="Vinil Microperforado">Vinil Microperforado</option>
+                        <option value="Vinil Electroestatico Blanco">Vinil Electroestatico Blanco</option>
+                        <option value="Vinil Metalico Aluminio de 8mm Peso 215gr">Vinil Metalico Aluminio de 8mm Peso 215gr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="material-rotulado-base"><i class="fas fa-layer-group"></i> Material a rotular:</label>
+                    <select id="material-rotulado-base" name="material-rotulado-base">
+                        <option value="CORROPLAST BLANCO DE 4MM">CORROPLAST BLANCO DE 4MM</option>
+                        <option value="TROVICEL(PVC ESPUMADO)BLANCO DE 3MM">TROVICEL(PVC ESPUMADO)BLANCO DE 3MM</option>
+                        <option value="TROVICEL(PVC ESPUMADO)BLANCO DE 6MM">TROVICEL(PVC ESPUMADO)BLANCO DE 6MM</option>
+                        <option value="FORAM BOARD 5MM">FORAM BOARD 5MM</option>
+                        <option value="FORAM BOARD 10 MM">FORAM BOARD 10 MM</option>
+                        <option value="ACRILICO TRASPARENTE DE 3MM">ACRILICO TRASPARENTE DE 3MM</option>
+                        <option value="ACRILICO TRASPARENTE DE 6MM">ACRILICO TRASPARENTE DE 6MM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo-diseno"><i class="fas fa-palette"></i> Tipo de Diseño:</label>
+                <select id="tipo-diseno" name="tipo-diseno">
+                    <option value="cliente">Cliente envia diseño</option>
+                    <option value="guardado">Diseño guardado aqui</option>
+                    <option value="nuevo">Realizar diseño</option>
+                </select>
+            </div>
+
+            <div id="resultados-container">
+                <!-- Aquí se mostrarán los resultados -->
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="limpiar-btn" class="btn-rojo">
+                    <i class="fas fa-trash"></i> Limpiar Campos
+                </button>
+            </div>
+
+            <div id="resumen-container">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Resumen Simplificado</h2>
+                <textarea id="resumen-texto" rows="5" readonly></textarea>
+                <button type="button" id="copiar-btn">
+                    <i class="fas fa-copy"></i> Copiar al Portapapeles
+                </button>
+            </div>
+        </form>
+
+        <div class="costos-materiales-container">
+            <button type="button" class="collapsible">
+                <i class="fas fa-dollar-sign"></i> Costos de Materiales <i class="fas fa-chevron-down icon-right"></i>
+            </button>
+            <div class="content-collapsible">
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-scroll"></i> Lonas</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-lonas-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-sticky-note"></i> Viniles</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-viniles-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-tshirt"></i> Telas</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-telas-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-file-alt"></i> Papeles</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-papeles-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-layer-group"></i> Materiales para Rotulación (Bases)</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-rotulacion-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-wrench"></i> Costos de Montaje</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-montaje-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" id="guardar-precios-btn">
+                    <i class="fas fa-save"></i> Guardar Nuevos Precios
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js?v=7"></script>
+</body>
+</html>
