@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Volantes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            /* Align to the top */
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .creado-por {
+            text-align: center;
+            margin-top: -25px;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            gap: 8px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 5px rgba(0, 86, 179, 0.25);
+            outline: none;
+        }
+
+        .botones-accion {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #004494;
+            transform: translateY(-2px);
+        }
+
+        .btn-rojo {
+            background-color: #dc3545;
+        }
+
+        .btn-rojo:hover {
+            background-color: #c82333;
+        }
+
+        #resultado {
+            margin-top: 30px;
+        }
+
+        .resumen-precios h2,
+        .resumen-precios h3,
+        .resumen-precios h4,
+        .resumen-precios h5,
+        .resumen-detallado h3,
+        .resumen-cliente h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resumen-precios {
+            background-color: #e9f5ff;
+            padding: 20px;
+            border-left: 5px solid #0056b3;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .resumen-precios h2,
+        .resumen-precios h3,
+        .resumen-precios h4,
+        .resumen-precios h5 {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .resumen-precios h2 {
+            font-size: 1.8em;
+        }
+
+        .resumen-precios h5 {
+            font-weight: 600;
+            color: #555;
+        }
+
+        #precioFinal {
+            font-weight: 700;
+            color: #0056b3;
+        }
+
+        .resumen-detallado,
+        .resumen-cliente {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .resumen-detallado h3,
+        .resumen-cliente h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+
+        .resumen-detallado p {
+            white-space: pre-wrap;
+            /* Allows line breaks */
+            font-family: monospace;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+
+        .resumen-cliente pre {
+            white-space: pre-wrap;
+            font-family: inherit;
+            font-size: 1em;
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+            line-height: 1.5;
+        }
+
+        #copiarPortapapeles {
+            width: auto;
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 1em;
+            background-color: #28a745;
+        }
+
+        #copiarPortapapeles:hover {
+            background-color: #218838;
+        }
+
+        .advertencia-offset {
+            margin-top: 20px;
+            padding: 12px 15px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            border-left: 5px solid #ffc107;
+            border-radius: 6px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .advertencia-offset .icono-advertencia {
+            color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1><i class="bi bi-calculator"></i> Cotizador de Volantes</h1>
+        <p class="creado-por">Creado por: Joel Adrian Mtz Meza 8341446103</p>
+        <form id="cotizadorForm">
+            <div class="form-group">
+                <label for="cantidad"><i class="bi bi-stack"></i> Cantidad de volantes:</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tamano"><i class="bi bi-rulers"></i> Tamaño:</label>
+                <select id="tamano" name="tamano" required>
+                    <option value="1/8-carta">1/8 carta</option>
+                    <option value="1/4-carta">1/4 carta</option>
+                    <option value="1/3-carta">1/3 carta</option>
+                    <option value="1/2-carta">1/2 carta</option>
+                    <option value="carta" selected>Carta</option>
+                    <option value="doble-carta">Doble Carta</option>
+                    <option value="1/8-oficio">1/8 oficio</option>
+                    <option value="1/4-oficio">1/4 oficio</option>
+                    <option value="1/3-oficio">1/3 oficio</option>
+                    <option value="1/2-oficio">1/2 oficio</option>
+                    <option value="oficio">Oficio</option>
+                    <option value="doble-oficio" disabled>Doble Oficio (solo offset)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="color"><i class="bi bi-palette-fill"></i> Color de impresión:</label>
+                <select id="color" name="color" required>
+                    <option value="blanco-negro">Blanco y Negro</option>
+                    <option value="color">Color</option>
+                    <option value="1-color">1 Color Específico</option>
+                    <option value="2-colores">2 Colores Específicos</option>
+                    <option value="3-colores">3 Colores Específicos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lados"><i class="bi bi-layers-half"></i> Impresión por:</label>
+                <select id="lados" name="lados" required>
+                    <option value="1">1 Lado</option>
+                    <option value="2">Ambos Lados</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="papel"><i class="bi bi-file-earmark-text"></i> Tipo de papel:</label>
+                <select id="papel" name="papel" required>
+                    <!-- Opciones de papel se agregarán dinámicamente con JavaScript -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="diseno"><i class="bi bi-pencil-tip"></i> Tipo de Diseño:</label>
+                <select id="diseno" name="diseno" required>
+                    <option value="0">Cliente envia diseño</option>
+                    <option value="150">Diseño guardado aqui</option>
+                    <option value="250">Realizar diseño</option>
+                </select>
+            </div>
+
+            <div class="botones-accion">
+                <button type="submit"><i class="bi bi-calculator-fill"></i> Cotizar</button>
+                <button type="button" id="limpiarCampos" class="btn-rojo"><i class="bi bi-eraser-fill"></i> Limpiar
+                    Campos</button>
+            </div>
+        </form>
+        <div id="error-container" class="advertencia-offset" style="display: none;"></div>
+        <div id="resultado" style="display: none;">
+            <div class="resumen-precios">
+                <h3>Subtotal: <span id="subtotal">$0.00</span></h3>
+                <h3>IVA (16%): <span id="iva">$0.00</span></h3>
+                <h2><i class="bi bi-cash-coin"></i> Total: <span id="precioFinal">$0.00</span></h2>
+                <h4>Costo Unitario (Neto): <span id="costoUnitario">$0.00</span></h4>
+                <h5>Costo Unitario (sin IVA): <span id="costoUnitarioSinIva">$0.00</span></h5>
+            </div>
+
+            <div id="resumenCostos" class="resumen-detallado">
+                <h3><i class="bi bi-card-list"></i> Resumen de Costos (Detallado)</h3>
+                <p id="resumenCostosTexto"></p>
+            </div>
+
+            <div id="resumenSimplificado" class="resumen-cliente">
+                <h3><i class="bi bi-send"></i> Resumen para Cliente</h3>
+                <pre id="resumenSimplificadoTexto"></pre>
+                <button type="button" id="copiarPortapapeles"><i class="bi bi-clipboard-check"></i> Copiar al
+                    Portapapeles</button>
+            </div>
+            <div id="advertenciaOffset" class="advertencia-offset" style="display: none;"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Form elements
+            const form = document.getElementById('cotizadorForm');
+            const tamanoSelect = document.getElementById('tamano');
+            const papelSelect = document.getElementById('papel');
+            const cantidadInput = document.getElementById('cantidad');
+            const colorSelect = document.getElementById('color');
+            const ladosSelect = document.getElementById('lados');
+
+            // Result display elements
+            const resultadoDiv = document.getElementById('resultado');
+            const subtotalSpan = document.getElementById('subtotal');
+            const ivaSpan = document.getElementById('iva');
+            const precioFinalSpan = document.getElementById('precioFinal');
+            const costoUnitarioSpan = document.getElementById('costoUnitario');
+            const costoUnitarioSinIvaSpan = document.getElementById('costoUnitarioSinIva');
+            const resumenCostosTextoP = document.getElementById('resumenCostosTexto');
+            const resumenSimplificadoTextoPre = document.getElementById('resumenSimplificadoTexto');
+            const advertenciaOffsetDiv = document.getElementById('advertenciaOffset');
+
+            // Action buttons
+            const limpiarCamposBtn = document.getElementById('limpiarCampos');
+            const copiarPortapapelesBtn = document.getElementById('copiarPortapapeles');
+
+            // Data from TXT file
+            const costosPapel = {
+                'carta': {
+                    'papel-opalina-blanca-120gr': { costo: 3.80, porPliego: 8, cortePorHojas: 200 },
+                    'cartulina-opalina-blanca-225gr': { costo: 7.34, porPliego: 8, cortePorHojas: 100 },
+                    'cartulina-opalina-crema-225gr': { costo: 6.20, porPliego: 8, cortePorHojas: 100 },
+                    'papel-bond-75gr': { costo: 1.56, porPliego: 8, cortePorHojas: 500 },
+                    'papel-bond-90gr': { costo: 1.60, porPliego: 8, cortePorHojas: 500 },
+                    'papel-couche-130gr': { costo: 2.31, porPliego: 8, cortePorHojas: 500 },
+                    'papel-couche-150gr': { costo: 2.95, porPliego: 8, cortePorHojas: 250 },
+                    'cartulina-couche-200gr': { costo: 3.42, porPliego: 8, cortePorHojas: 250 },
+                    'cartulina-couche-250gr': { costo: 4.51, porPliego: 8, cortePorHojas: 250 },
+                    'cartulina-couche-300gr': { costo: 5.40, porPliego: 8, cortePorHojas: 125 },
+                },
+                'oficio': {
+                    'papel-opalina-blanca-120gr': { costo: 5.07, porPliego: 8, cortePorHojas: 200 },
+                    'papel-bond-75gr': { costo: 1.63, porPliego: 8, cortePorHojas: 500 },
+                    'papel-bond-90gr': { costo: 1.95, porPliego: 8, cortePorHojas: 500 },
+                    'papel-couche-130gr': { costo: 3.26, porPliego: 8, cortePorHojas: 250 },
+                    'papel-couche-150gr': { costo: 3.50, porPliego: 8, cortePorHojas: 250 },
+                    'cartulina-couche-200gr': { costo: 4.91, porPliego: 8, cortePorHojas: 125 },
+                    'cartulina-couche-250gr': { costo: 6.23, porPliego: 8, cortePorHojas: 125 },
+                    'cartulina-couche-300gr': { costo: 7.37, porPliego: 8, cortePorHojas: 125 },
+                }
+            };
+            const costosImpresion = {
+                'color': {
+                    'carta': [{ max: 100, costo: 6.08 }, { max: 200, costo: 6.00 }, { max: 300, costo: 5.85 }, { max: 500, costo: 5.70 }],
+                    'doble-carta': [{ max: 100, costo: 12.16 }, { max: 200, costo: 12.00 }, { max: 300, costo: 11.70 }, { max: 500, costo: 11.40 }],
+                    'oficio': [{ max: 100, costo: 6.50 }, { max: 200, costo: 6.08 }, { max: 300, costo: 5.90 }, { max: 500, costo: 5.70 }],
+                    'doble-oficio': [{ max: 100, costo: 13.00 }, { max: 200, costo: 12.16 }, { max: 300, costo: 11.80 }, { max: 500, costo: 11.40 }]
+                },
+                'blanco-negro': {
+                    'carta': [{ max: 100, costo: 1.06 }, { max: 200, costo: 1.00 }, { max: 300, costo: 0.98 }, { max: 500, costo: 0.80 }, { max: Infinity, costo: 0.78 }],
+                    'doble-carta': [{ max: 100, costo: 2.12 }, { max: 200, costo: 2.00 }, { max: 300, costo: 1.96 }, { max: 500, costo: 1.60 }, { max: Infinity, costo: 1.56 }],
+                    'oficio': [{ max: 100, costo: 1.20 }, { max: 200, costo: 1.05 }, { max: 300, costo: 0.98 }, { max: 500, costo: 0.80 }, { max: Infinity, costo: 0.78 }],
+                    'doble-oficio': [{ max: 100, costo: 2.40 }, { max: 200, costo: 2.10 }, { max: 300, costo: 1.96 }, { max: 500, costo: 1.60 }, { max: Infinity, costo: 1.56 }]
+                }
+            };
+            costosImpresion['1-color'] = costosImpresion['color'];
+            costosImpresion['2-colores'] = costosImpresion['color'];
+            costosImpresion['3-colores'] = costosImpresion['color'];
+            const bajadasCorte = { '1/8': 8, '1/4': 7, '1/3': 6, '1/2': 5 };
+            const costoPorBajada = 25;
+            const IVA_RATE = 0.16;
+
+            function formatCurrency(value) {
+                return `$${value.toFixed(2)}`;
+            }
+
+            function actualizarOpcionesPapel() {
+                const tamanoSeleccionado = tamanoSelect.value;
+                const tipoPliego = tamanoSeleccionado.includes('oficio') ? 'oficio' : 'carta';
+                const opciones = costosPapel[tipoPliego];
+                papelSelect.innerHTML = '';
+                for (const key in opciones) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    papelSelect.appendChild(option);
+                }
+            }
+
+            function calcularCosto() {
+                const cantidad = parseInt(cantidadInput.value);
+                const tamano = tamanoSelect.value;
+                const color = colorSelect.value;
+                const lados = parseInt(ladosSelect.value);
+                const papelKey = papelSelect.value;
+                const papelNombre = papelSelect.options[papelSelect.selectedIndex].text;
+                const disenoSelect = document.getElementById('diseno');
+                const costoDiseno = parseFloat(disenoSelect.value);
+                const disenoNombre = disenoSelect.options[disenoSelect.selectedIndex].text;
+
+                // Clear previous errors
+                const errorDiv = document.getElementById('error-container');
+                errorDiv.style.display = 'none';
+
+                if (!cantidad || !tamano || !color || !lados || !papelKey) {
+                    errorDiv.innerHTML = '<span class="icono-advertencia"><i class="bi bi-exclamation-triangle-fill"></i></span> Por favor, complete todos los campos requeridos.';
+                    errorDiv.style.display = 'block';
+                    resultadoDiv.style.display = 'none'; // Hide results
+                    return;
+                }
+
+                let resumenDetallado = 'Cálculo Detallado:\n\n';
+
+                // --- 1. Costo de Papel ---
+                const tipoPliego = tamano.includes('oficio') ? 'oficio' : 'carta';
+                const papelData = costosPapel[tipoPliego][papelKey];
+                const costoPorHojaBase = (papelData.costo / papelData.porPliego) * 2;
+
+                let divisorTamano = 1;
+                if (tamano.includes('doble')) {
+                    divisorTamano = 1 / 2;
+                } else if (tamano.includes('1/2')) {
+                    divisorTamano = 2;
+                } else if (tamano.includes('1/3')) {
+                    divisorTamano = 3;
+                } else if (tamano.includes('1/4')) {
+                    divisorTamano = 4;
+                } else if (tamano.includes('1/8')) {
+                    divisorTamano = 8;
+                }
+
+                const hojasBaseNecesarias = Math.ceil(cantidad / divisorTamano);
+                const costoTotalPapel = costoPorHojaBase * hojasBaseNecesarias;
+
+                resumenDetallado += `1. Costo de Papel (${papelNombre}):\n`;
+                resumenDetallado += `   - Costo del pliego: ${formatCurrency(papelData.costo)}\n`;
+                resumenDetallado += `   - Hojas (${tipoPliego}) por pliego: ${papelData.porPliego}\n`;
+                resumenDetallado += `   - Fórmula costo por hoja base (con utilidad): (${formatCurrency(papelData.costo)} / ${papelData.porPliego}) * 2 = ${formatCurrency(costoPorHojaBase)}\n`;
+                resumenDetallado += `   - Hojas base necesarias para ${cantidad} volantes de ${tamano}: CEIL(${cantidad} / ${divisorTamano}) = ${hojasBaseNecesarias}\n`;
+                resumenDetallado += `   - Costo total del papel: ${formatCurrency(costoPorHojaBase)} * ${hojasBaseNecesarias} = ${formatCurrency(costoTotalPapel)}\n\n`;
+
+                // --- 2. Costo de Impresión ---
+                let tamanoBaseImpresion;
+                if (tamano.includes('doble-carta')) tamanoBaseImpresion = 'doble-carta';
+                else if (tamano.includes('carta')) tamanoBaseImpresion = 'carta';
+                else if (tamano.includes('doble-oficio')) tamanoBaseImpresion = 'doble-oficio';
+                else tamanoBaseImpresion = 'oficio';
+
+                const rangos = costosImpresion[color][tamanoBaseImpresion];
+                let costoImpresionPorHojaBase = rangos[rangos.length - 1].costo;
+
+                for (const rango of rangos) {
+                    if (hojasBaseNecesarias <= rango.max) {
+                        costoImpresionPorHojaBase = rango.costo;
+                        break;
+                    }
+                }
+
+                const costoTotalImpresion = costoImpresionPorHojaBase * hojasBaseNecesarias * lados;
+
+                resumenDetallado += `2. Costo de Impresión (${color.replace(/-/g, ' ')} a ${lados} lado(s)):\n`;
+                resumenDetallado += `   - Hojas a imprimir (${tamanoBaseImpresion}): ${hojasBaseNecesarias}\n`;
+                resumenDetallado += `   - Costo de impresión por hoja (según cantidad de hojas): ${formatCurrency(costoImpresionPorHojaBase)}\n`;
+                resumenDetallado += `   - Fórmula costo total: ${formatCurrency(costoImpresionPorHojaBase)} * ${hojasBaseNecesarias} hojas * ${lados} lado(s) = ${formatCurrency(costoTotalImpresion)}\n\n`;
+
+                // --- 3. Costo de Corte ---
+                let costoTotalCorte = 0;
+                const tamanoFraccion = Object.keys(bajadasCorte).find(f => tamano.includes(f));
+                if (tamanoFraccion) {
+                    const numBajadas = bajadasCorte[tamanoFraccion];
+                    const gruposDeCorte = Math.ceil(hojasBaseNecesarias / papelData.cortePorHojas);
+                    costoTotalCorte = numBajadas * costoPorBajada * gruposDeCorte;
+                    resumenDetallado += `3. Costo de Corte:\n`;
+                    resumenDetallado += `   - Bajadas de guillotina para ${tamanoFraccion}: ${numBajadas}\n`;
+                    resumenDetallado += `   - Costo por bajada: ${formatCurrency(costoPorBajada)}\n`;
+                    resumenDetallado += `   - Hojas por grupo de corte (según papel): ${papelData.cortePorHojas}\n`;
+                    resumenDetallado += `   - Grupos de corte necesarios: CEIL(${hojasBaseNecesarias} / ${papelData.cortePorHojas}) = ${gruposDeCorte}\n`;
+                    resumenDetallado += `   - Fórmula costo total de corte: ${numBajadas} bajadas * ${formatCurrency(costoPorBajada)} * ${gruposDeCorte} grupo(s) = ${formatCurrency(costoTotalCorte)}\n\n`;
+                } else {
+                    resumenDetallado += `3. Costo de Corte: ${formatCurrency(0)} (No aplica para este tamaño)\n\n`;
+                }
+
+                // --- 4. Costo de Diseño ---
+                resumenDetallado += `4. Costo de Diseño (${disenoNombre}): ${formatCurrency(costoDiseno)}\n\n`;
+
+                // --- 5. Totalización ---
+                const subtotal = costoTotalPapel + costoTotalImpresion + costoTotalCorte + costoDiseno;
+                const iva = subtotal * IVA_RATE;
+                const total = subtotal + iva;
+                const costoUnitario = total / cantidad;
+                const costoUnitarioSinIva = subtotal / cantidad;
+
+                resumenDetallado += `5. Totalización:\n`;
+                resumenDetallado += `   - Subtotal (Papel + Impresión + Corte + Diseño): ${formatCurrency(subtotal)}\n`;
+                resumenDetallado += `   - IVA (16%): ${formatCurrency(iva)}\n`;
+                resumenDetallado += `   - Total: ${formatCurrency(total)}\n`;
+                resumenDetallado += `   - Costo Unitario (Neto): ${formatCurrency(total)} / ${cantidad} = ${formatCurrency(costoUnitario)}\n`;
+                resumenDetallado += `   - Costo Unitario (sin IVA): ${formatCurrency(subtotal)} / ${cantidad} = ${formatCurrency(costoUnitarioSinIva)}\n`;
+
+                // --- Display Results ---
+                resultadoDiv.style.display = 'block';
+                subtotalSpan.textContent = formatCurrency(subtotal);
+                ivaSpan.textContent = formatCurrency(iva);
+                precioFinalSpan.textContent = formatCurrency(total);
+                costoUnitarioSpan.textContent = formatCurrency(costoUnitario);
+                costoUnitarioSinIvaSpan.textContent = formatCurrency(costoUnitarioSinIva);
+                resumenCostosTextoP.textContent = resumenDetallado;
+
+                // --- Generate Simplified Summary ---
+                const resumenSimplificado = `${cantidad} Volantes tamaño ${tamano.replace(/-/g, ' ')} en ${papelNombre}, impresión ${color.replace(/-/g, ' ')} a ${lados} lado(s), ${disenoNombre}. Costo Unitario: ${formatCurrency(costoUnitario)}, Costo Total: ${formatCurrency(total)}, Impresion Digital Laser`;
+                resumenSimplificadoTextoPre.textContent = resumenSimplificado;
+
+                // --- Show/Hide Offset Warning ---
+                if (hojasBaseNecesarias >= 350 && ['carta', 'oficio', 'doble-carta', 'doble-oficio'].includes(tamanoBaseImpresion)) {
+                    advertenciaOffsetDiv.innerHTML = '<span class="icono-advertencia"><i class="bi bi-exclamation-triangle-fill"></i></span> Se recomienda cotizar en offset';
+                    advertenciaOffsetDiv.style.display = 'block';
+                } else {
+                    advertenciaOffsetDiv.style.display = 'none';
+                }
+            }
+
+            function limpiarCampos() {
+                form.reset();
+                resultadoDiv.style.display = 'none';
+                advertenciaOffsetDiv.style.display = 'none';
+                actualizarOpcionesPapel();
+            }
+
+            function copiarAlPortapapeles() {
+                const texto = resumenSimplificadoTextoPre.textContent;
+                navigator.clipboard.writeText(texto).then(() => {
+                    alert('¡Resumen copiado al portapapeles!');
+                }, (err) => {
+                    alert('Error al copiar el texto.');
+                    console.error('Error al copiar: ', err);
+                });
+            }
+
+            // Event Listeners
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                calcularCosto();
+            });
+            tamanoSelect.addEventListener('change', actualizarOpcionesPapel);
+            limpiarCamposBtn.addEventListener('click', limpiarCampos);
+            copiarPortapapelesBtn.addEventListener('click', copiarAlPortapapeles);
+
+            // Initial setup
+            actualizarOpcionesPapel();
+        });
+    </script>
+
+    <!-- Botón Flotante de Regreso al Menú -->
+    <a href="indexcotizadorcompleto.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap;
+        }
+
+        /* Responsive: en móviles solo mostrar el icono */
+        @media (max-width: 768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn-home-flotante span {
+                display: none;
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+</body>
+
+</html>
