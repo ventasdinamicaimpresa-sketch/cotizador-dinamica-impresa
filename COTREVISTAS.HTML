@@ -958,13 +958,114 @@
 
                 const resumenSimplificado = resumenItems.filter(Boolean).join(', ') + ` = $${costoUnitarioNeto.toFixed(2)} C/U , TOTAL $${costoTotalNeto.toFixed(2)} NETO`;
 
-                let detailedSummaryContent = [
-                    `Subtotal (con utilidad): $${(subtotalConUtilidad - recargoExpressMonto).toFixed(2)}`,
-                    values.servicioExpress ? `Recargo Express (35%): $${recargoExpressMonto.toFixed(2)}` : null,
-                    `IVA (16%): $${ivaMonto.toFixed(2)}`,
-                    `------------------`,
-                    `Total Neto: $${costoTotalNeto.toFixed(2)}`
-                ].filter(Boolean).join('\n');
+                let factorUtilidadPapel = (values.orientacion === 'horizontal') ? 3 : UTILIDAD_PAPEL_FACTOR;
+                let factorUtilidadImpresion = (values.orientacion === 'horizontal') ? 2 : 1;
+                
+                let detailedSummaryContent = `DESGLOSE DE COSTOS PARA ${values.cantidad} REVISTAS:\n\n`;
+
+                // --- PORTADA ---
+                detailedSummaryContent += `== PORTADA ==\n`;
+                detailedSummaryContent += `Papel Portada (${values.papelPortada}):\n`;
+                detailedSummaryContent += `  - Pliego de impresión: ${pliegoImpresionPortada}\n`;
+                detailedSummaryContent += `  - Costo por pliego: $${costoPorHojaPortada.toFixed(4)}\n`;
+                detailedSummaryContent += `  - Hojas necesarias: ${hojasPortadaNecesarias}\n`;
+                detailedSummaryContent += `  - Costo total de papel portada: ${hojasPortadaNecesarias} * $${costoPorHojaPortada.toFixed(4)} = $${costoPapelPortada.toFixed(2)}\n\n`;
+
+                let costoImpresionFrentes = hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaFrentes, values.cantidad, pliegoImpresionPortada);
+                detailedSummaryContent += `Impresión Portada (Frentes ${values.impresionPortadaFrentes.toUpperCase()}):\n`;
+                detailedSummaryContent += `  - Precio por impresión de pliego: $${getPrintPrice(values.impresionPortadaFrentes, values.cantidad, pliegoImpresionPortada).toFixed(2)}\n`;
+                detailedSummaryContent += `  - Costo total frentes: ${hojasPortadaNecesarias} * $${getPrintPrice(values.impresionPortadaFrentes, values.cantidad, pliegoImpresionPortada).toFixed(2)} = $${costoImpresionFrentes.toFixed(2)}\n`;
+
+                if (values.impresionPortadaReverso !== 'ninguno') {
+                    let costoImpresionReverso = hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaReverso, values.cantidad, pliegoImpresionPortada);
+                    detailedSummaryContent += `Impresión Portada (Reverso ${values.impresionPortadaReverso.toUpperCase()}):\n`;
+                    detailedSummaryContent += `  - Precio por impresión de pliego: $${getPrintPrice(values.impresionPortadaReverso, values.cantidad, pliegoImpresionPortada).toFixed(2)}\n`;
+                    detailedSummaryContent += `  - Costo total reverso: ${hojasPortadaNecesarias} * $${getPrintPrice(values.impresionPortadaReverso, values.cantidad, pliegoImpresionPortada).toFixed(2)} = $${costoImpresionReverso.toFixed(2)}\n`;
+                }
+                detailedSummaryContent += `  - Costo total de impresión portada: $${costoImpresionPortada.toFixed(2)}\n\n`;
+
+
+                if (values.acabadoPortada !== 'no-lleva') {
+                    let precioPorPliegoLaminado = 0;
+                    if (hojasPortadaNecesarias >= 1 && hojasPortadaNecesarias <= 50) precioPorPliegoLaminado = LAMINADO_PRICES['1-50'];
+                    else if (hojasPortadaNecesarias <= 100) precioPorPliegoLaminado = LAMINADO_PRICES['51-100'];
+                    else if (hojasPortadaNecesarias <= 150) precioPorPliegoLaminado = LAMINADO_PRICES['101-150'];
+                    else if (hojasPortadaNecesarias <= 200) precioPorPliegoLaminado = LAMINADO_PRICES['151-200'];
+                    else if (hojasPortadaNecesarias <= 500) precioPorPliegoLaminado = LAMINADO_PRICES['201-500'];
+                    else precioPorPliegoLaminado = LAMINADO_PRICES['501-1000'];
+                    let costoBrutoLaminado = hojasPortadaNecesarias * precioPorPliegoLaminado;
+                    detailedSummaryContent += `Laminado (${values.acabadoPortada}):\n`;
+                    detailedSummaryContent += `  - Precio por pliego: $${precioPorPliegoLaminado.toFixed(2)}\n`;
+                    detailedSummaryContent += `  - Hojas a laminar: ${hojasPortadaNecesarias}\n`;
+                    detailedSummaryContent += `  - Costo bruto laminado: ${hojasPortadaNecesarias} * $${precioPorPliegoLaminado.toFixed(2)} = $${costoBrutoLaminado.toFixed(2)}\n`;
+                    if (costoBrutoLaminado > 0 && costoBrutoLaminado < MIN_LAMINADO_COST) {
+                         detailedSummaryContent += `  - (Se aplica costo mínimo de $${MIN_LAMINADO_COST.toFixed(2)})\n`;
+                    }
+                    detailedSummaryContent += `  - Costo total laminado: $${costoLaminado.toFixed(2)}\n\n`;
+                }
+
+                // --- INTERIOR ---
+                if (hojasInterioresNecesarias > 0) {
+                    detailedSummaryContent += `== INTERIOR ==\n`;
+                    detailedSummaryContent += `Páginas de interior: ${values.paginasInterior} (se redondea a ${paginasInteriorImprimir} para impresión)\n`;
+                    detailedSummaryContent += `Papel Interior (${values.papelInterior}):\n`;
+                    detailedSummaryContent += `  - Pliego de impresión: ${pliegoImpresionInterior}\n`;
+                    detailedSummaryContent += `  - Costo por pliego: $${PAPER_PRICES[values.papelInterior][pliegoImpresionInterior].toFixed(4)}\n`;
+                    detailedSummaryContent += `  - Hojas interiores necesarias: (${paginasInteriorImprimir} / 4) * ${values.cantidad} = ${hojasInterioresNecesarias}\n`;
+                    detailedSummaryContent += `  - Costo total de papel interior: ${hojasInterioresNecesarias} * $${PAPER_PRICES[values.papelInterior][pliegoImpresionInterior].toFixed(4)} = $${costoPapelInterior.toFixed(2)}\n\n`;
+
+                    detailedSummaryContent += `Impresión Interior (${values.impresionInterior.toUpperCase()}):\n`;
+                    detailedSummaryContent += `  - Precio por impresión de pliego: $${getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior).toFixed(2)}\n`;
+                    detailedSummaryContent += `  - Costo total impresión interior: ${hojasInterioresNecesarias} * $${getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior).toFixed(2)} = $${costoImpresionInterior.toFixed(2)}\n\n`;
+                }
+
+                // --- ACABADOS Y EXTRAS ---
+                detailedSummaryContent += `== ACABADOS Y EXTRAS ==\n`;
+                 if (costoOrientacionHorizontal > 0) {
+                    detailedSummaryContent += `Costo por Orientación Horizontal: $${costoOrientacionHorizontal.toFixed(2)}\n`;
+                }
+                detailedSummaryContent += `Refilado:\n`;
+                detailedSummaryContent += `  - Costo por cada 10 revistas: $${REFILADO_COST_PER_10_MAGAZINES.toFixed(2)}\n`;
+                detailedSummaryContent += `  - Grupos de 10: ${Math.ceil(values.cantidad / 10)}\n`;
+                detailedSummaryContent += `  - Costo total refilado: ${Math.ceil(values.cantidad / 10)} * $${REFILADO_COST_PER_10_MAGAZINES.toFixed(2)} = $${costoRefilado.toFixed(2)}\n\n`;
+
+                if (costoGrapado > 0) {
+                    let precioUnitarioGrapado = 0;
+                    if (values.cantidad <= 10) precioUnitarioGrapado = GRAPADO_PRICES['1-10'];
+                    else if (values.cantidad <= 25) precioUnitarioGrapado = GRAPADO_PRICES['11-25'];
+                    else if (values.cantidad <= 50) precioUnitarioGrapado = GRAPADO_PRICES['26-50'];
+                    else precioUnitarioGrapado = GRAPADO_PRICES['50+'];
+                    let costoBrutoGrapado = values.cantidad * precioUnitarioGrapado;
+
+                    detailedSummaryContent += `Grapado:\n`;
+                    detailedSummaryContent += `  - Precio unitario por grapa: $${precioUnitarioGrapado.toFixed(2)}\n`;
+                    detailedSummaryContent += `  - Costo bruto grapado: ${values.cantidad} * $${precioUnitarioGrapado.toFixed(2)} = $${costoBrutoGrapado.toFixed(2)}\n`;
+                    if (costoBrutoGrapado > 0 && costoBrutoGrapado < MIN_GRAPADO_COST) {
+                        detailedSummaryContent += `  - (Se aplica costo mínimo de $${MIN_GRAPADO_COST.toFixed(2)})\n`;
+                    }
+                    detailedSummaryContent += `  - Costo total grapado: $${costoGrapado.toFixed(2)}\n\n`;
+                }
+
+                if (costoDiseno > 0) {
+                    detailedSummaryContent += `Servicio de Diseño (${values.servicioDiseno}): $${costoDiseno.toFixed(2)}\n\n`;
+                }
+
+                // --- CÁLCULO FINAL ---
+                detailedSummaryContent += `== CÁLCULO FINAL ==\n`;
+                detailedSummaryContent += `Costo Papel (Portada + Interior) * Utilidad Papel (${factorUtilidadPapel}x): ($${costoPapelPortada.toFixed(2)} + $${costoPapelInterior.toFixed(2)}) * ${factorUtilidadPapel} = $${((costoPapelPortada + costoPapelInterior) * factorUtilidadPapel).toFixed(2)}\n`;
+                detailedSummaryContent += `Costo Impresión (Portada + Interior) * Utilidad Impresión (${factorUtilidadImpresion}x): ($${costoImpresionPortada.toFixed(2)} + $${costoImpresionInterior.toFixed(2)}) * ${factorUtilidadImpresion} = $${((costoImpresionPortada + costoImpresionInterior) * factorUtilidadImpresion).toFixed(2)}\n`;
+                detailedSummaryContent += `Suma de Acabados y Extras: $${(costoLaminado + costoRefilado + costoGrapado + costoDiseno + costoOrientacionHorizontal).toFixed(2)}\n\n`;
+
+                let subtotalSinExpress = subtotalConUtilidad - recargoExpressMonto;
+                detailedSummaryContent += `Subtotal (antes de express): $${subtotalSinExpress.toFixed(2)}\n`;
+                if (values.servicioExpress) {
+                    detailedSummaryContent += `Recargo Express (35% sobre subtotal): $${subtotalSinExpress.toFixed(2)} * ${SERVICIO_EXPRESS_RATE} = $${recargoExpressMonto.toFixed(2)}\n`;
+                    detailedSummaryContent += `Subtotal con Express: $${subtotalConUtilidad.toFixed(2)}\n`;
+                }
+                detailedSummaryContent += `IVA (16% sobre subtotal): $${subtotalConUtilidad.toFixed(2)} * ${IVA_RATE} = $${ivaMonto.toFixed(2)}\n`;
+                detailedSummaryContent += `-------------------------------------\n`;
+                detailedSummaryContent += `COSTO TOTAL NETO: $${costoTotalNeto.toFixed(2)}\n`;
+                detailedSummaryContent += `PRECIO UNITARIO NETO: $${costoTotalNeto.toFixed(2)} / ${values.cantidad} = $${costoUnitarioNeto.toFixed(2)}\n`;
 
 
                 document.getElementById('resumenSimplificado').innerText = resumenSimplificado;
