@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Revistas - COTREVISTAS</title>
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e3f2fd;
+            /* Light Blue background */
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 950px;
+            width: 100%;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #1976d2;
+            /* Darker Blue */
+            margin-bottom: 5px;
+            font-size: 2.5em;
+            border-bottom: 3px solid #bbdefb;
+            /* Lighter blue border */
+            padding-bottom: 15px;
+            position: relative;
+        }
+
+        h1 .material-icons {
+            font-size: 1.2em;
+            vertical-align: middle;
+            margin-right: 10px;
+            color: #2196f3;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #616161;
+            font-size: 0.95em;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #1976d2;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-left: 6px solid #2196f3;
+            /* Accent blue */
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 .material-icons {
+            margin-right: 10px;
+            font-size: 1.1em;
+            color: #2196f3;
+        }
+
+        .input-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #fcfdff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-group label {
+            flex: 0 0 200px;
+            /* Fixed width for labels */
+            font-weight: bold;
+            color: #424242;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label span.step-number {
+            color: #e91e63;
+            /* Pink color for numbers */
+            font-size: 1.1em;
+            margin-right: 5px;
+        }
+
+        input[type="number"],
+        select {
+            flex: 1;
+            /* Take remaining space */
+            min-width: 150px;
+            padding: 12px;
+            border: 1px solid #90caf9;
+            /* Light blue border */
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+            background-color: #e3f2fd;
+            /* Light blue background */
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #1976d2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25);
+            background-color: #ffffff;
+        }
+
+        /* Custom select arrow */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231976d2'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 24px;
+            padding-right: 40px;
+            /* Make space for the arrow */
+        }
+
+        /* Radio group custom styling for modern look */
+        .radio-group-modern {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .radio-group-modern label {
+            flex: none;
+            /* Override flex:1 for inputs */
+            background-color: #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            font-weight: normal;
+            color: #424242;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #bdbdbd;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .radio-group-modern label:hover {
+            background-color: #bdbdbd;
+        }
+
+        .radio-group-modern input[type="radio"] {
+            display: none;
+            /* Hide actual radio button */
+        }
+
+        .radio-group-modern input[type="radio"]:checked+label {
+            background-color: #2196f3;
+            /* Accent blue when checked */
+            color: white;
+            border-color: #1976d2;
+            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);
+            font-weight: bold;
+        }
+
+        .radio-group-modern input[type="radio"]:checked+label .material-icons {
+            color: white;
+        }
+
+        .radio-group-modern label .material-icons {
+            margin-right: 5px;
+            font-size: 1.2em;
+            color: #616161;
+        }
+
+        /* Checkbox switch for Servicio Express */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .note {
+            font-size: 0.85em;
+            color: #757575;
+            margin-top: 5px;
+            padding-left: 5px;
+            border-left: 3px solid #ff9800;
+            /* Amber accent */
+            background-color: #fff3e0;
+            /* Light orange background */
+            padding: 10px;
+            border-radius: 5px;
+            flex-basis: 100%;
+        }
+
+        .note strong {
+            color: #d32f2f;
+            /* Red accent */
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: #4caf50;
+            /* Green for Cotizar */
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: #388e3c;
+            /* Darker green */
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button .material-icons {
+            margin-right: 8px;
+        }
+
+        button.clear-button {
+            background-color: #f44336;
+            /* Red for clear */
+        }
+
+        button.clear-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .output-section {
+            margin-top: 40px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #fcfdff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        #resumenCostosDetallado-header,
+        #costos-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #e0f2f7;
+            /* Light cyan background */
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #b2ebf2;
+            transition: background-color 0.3s ease;
+        }
+
+        #resumenCostosDetallado-header:hover,
+        #costos-list-header:hover {
+            background-color: #b2ebf2;
+        }
+
+        #resumenCostosDetallado-header h2,
+        #costos-list-header h2 {
+            margin: 0;
+            border-left: none;
+            padding-left: 0;
+            color: #00838f;
+            /* Dark Cyan */
+            font-size: 1.5em;
+        }
+
+        #resumenCostosDetallado-header .material-icons,
+        #costos-list-header .material-icons {
+            color: #00838f;
+        }
+
+        #resumenCostosDetallado {
+            white-space: pre-wrap;
+            background-color: #e0f7fa;
+            /* Even lighter cyan */
+            border: 1px solid #b2ebf2;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 50px;
+            margin-top: 10px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #006064;
+            /* Darker cyan text */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            max-height: 500px;
+            /* Limit height for scroll */
+            overflow-y: auto;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+        }
+
+        #resumenCostosDetallado.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            border: none;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        #resumenSimplificado {
+            white-space: normal;
+            /* Allow normal wrapping */
+            background-color: #e8f5e9;
+            /* Light green */
+            border: 1px solid #c8e6c9;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 50px;
+            margin-top: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.1em;
+            color: #2e7d32;
+            /* Dark green text */
+            font-weight: 500;
+            display: flex;
+            /* Use flexbox for single line text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #copiarResumenBtn {
+            margin-top: 20px;
+            background-color: #1e88e5;
+            /* Blue for copy button */
+        }
+
+        #copiarResumenBtn:hover {
+            background-color: #1565c0;
+        }
+
+        /* Estilos para la sección de Lista de Costos */
+        #costos-list-header {
+            background-color: #fce4ec;
+            /* Light pink background */
+            border: 1px solid #f8bbd0;
+        }
+
+        #costos-list-header:hover {
+            background-color: #f8bbd0;
+        }
+
+        #costos-list-header h2 {
+            color: #c2185b;
+            /* Dark Pink */
+        }
+
+        #costos-list-header .material-icons {
+            color: #c2185b;
+        }
+
+        #costos-list-content {
+            padding: 0 15px;
+            border: 1px solid #f8bbd0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff8f9;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out, border 0.5s ease-out;
+        }
+
+        #costos-list-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            border: none;
+        }
+
+        /* Estilos para el Acordeón de Costos Interno */
+        .accordion-item .accordion-header {
+            background-color: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-item .accordion-header:hover {
+            background-color: #f5f5f5;
+        }
+
+        .accordion-item:last-child .accordion-header {
+            margin-bottom: 10px;
+        }
+
+        .accordion-item .accordion-content {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            display: none;
+            /* Oculto por defecto */
+            background-color: #ffffff;
+            overflow-x: auto;
+        }
+
+        .accordion-item .accordion-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .accordion-item .accordion-content th,
+        .accordion-item .accordion-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .accordion-item .accordion-content th {
+            background-color: #f2f2f2;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+
+            .form-group label {
+                flex: 0 0 100%;
+            }
+
+            .radio-group-modern {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1><span class="material-icons">menu_book</span> Cotizador REVISTAS</h1>
+        <p class="subtitle">CREADO POR = JOEL ADRIAN MTZ 8341446103</p>
+
+        <form id="cotizadorForm">
+            <section class="input-section">
+                <h2><span class="material-icons">info</span> Datos Generales</h2>
+                <div class="form-group">
+                    <label for="cantidad"><span class="step-number">1.</span> Cantidad a Cotizar:</label>
+                    <input type="number" id="cantidad" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="tamano"><span class="step-number">2.</span> ¿Qué tamaño necesita?</label>
+                    <select id="tamano" required>
+                        <option value="carta">Carta</option>
+                        <option value="media-carta">1/2 Carta</option>
+                        <option value="oficio">Oficio</option>
+                        <option value="medio-oficio">1/2 Oficio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="orientacion"><span class="step-number">3.</span> Orientación del trabajo:</label>
+                    <select id="orientacion" required>
+                        <option value="vertical">Vertical (Normal)</option>
+                        <option value="horizontal">Horizontal (a lo largo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="servicioExpress"><span class="step-number">9.</span> Servicio Express (35%
+                        extra):</label>
+                    <label class="switch">
+                        <input type="checkbox" id="servicioExpress">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="input-section">
+                <h2><span class="material-icons">book</span> Portada</h2>
+                <div class="form-group">
+                    <label for="papelPortada"><span class="step-number">4.</span> Papel de la portada:</label>
+                    <select id="papelPortada" required>
+                        <option value="couche-250gr">Couché 250gr</option>
+                        <option value="couche-300gr">Couché 300gr</option>
+                        <option value="cartulina-cromacote">Cartulina Cromacote</option>
+                        <option value="couche-130gr">Couché 130gr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="step-number">5.</span> Tipo de impresión de la portada:</label>
+                    <div class="radio-group-modern">
+                        <div>
+                            <input type="radio" id="impresionPortadaFrentesColor" name="impresionPortadaFrentes"
+                                value="color" checked>
+                            <label for="impresionPortadaFrentesColor"><span class="material-icons">colorize</span>
+                                Frentes Color</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="impresionPortadaFrentesBN" name="impresionPortadaFrentes"
+                                value="bn">
+                            <label for="impresionPortadaFrentesBN"><span class="material-icons">palette</span> Frentes
+                                B/N</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Reverso de portada:</label>
+                    <div class="radio-group-modern">
+                        <div>
+                            <input type="radio" id="impresionPortadaReversoColor" name="impresionPortadaReverso"
+                                value="color">
+                            <label for="impresionPortadaReversoColor"><span class="material-icons">colorize</span>
+                                Reverso Color</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="impresionPortadaReversoBN" name="impresionPortadaReverso"
+                                value="bn">
+                            <label for="impresionPortadaReversoBN"><span class="material-icons">palette</span> Reverso
+                                B/N</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="impresionPortadaReversoNinguno" name="impresionPortadaReverso"
+                                value="ninguno" checked>
+                            <label for="impresionPortadaReversoNinguno"><span class="material-icons">close</span>
+                                Ninguno</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="acabadoPortada"><span class="step-number">6.</span> Acabado portada:</label>
+                    <select id="acabadoPortada" required>
+                        <option value="no-lleva">No lleva</option>
+                        <option value="brillante">Laminado Brillante</option>
+                        <option value="mate">Laminado Mate</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="input-section">
+                <h2><span class="material-icons">description</span> Interior</h2>
+                <div class="form-group">
+                    <label for="paginasInterior"><span class="step-number">7.</span> Número de páginas del
+                        interior:</label>
+                    <input type="number" id="paginasInterior" min="4" step="4" value="4" required>
+                    <p class="note">El total de páginas de interior se divide entre 4. Si no es un número divisible
+                        entre 4, se redondeará y se cobrarán las páginas en blanco.</p>
+                </div>
+                <div class="form-group">
+                    <label for="papelInterior"><span class="step-number">8.</span> Tipo de papel interior:</label>
+                    <select id="papelInterior" required>
+                        <option value="bond-75gr">Papel Bond 75gr</option>
+                        <option value="bond-90gr">Papel Bond 90gr</option>
+                        <option value="couche-128-130gr">Couché/Lustrolito 128-130gr</option>
+                        <option value="couche-250gr-int">Couché 250gr</option>
+                        <option value="couche-300gr-int">Couché 300gr</option>
+                        <option value="opalina-blanca-120gr">Papel Opalina Blanca 120gr</option>
+                        <option value="opalina-crema-120gr">Papel Opalina Crema 120gr</option>
+                        <option value="cartulina-opalina-blanca-225gr">Cartulina Opalina Blanca 225gr</option>
+                        <option value="cartulina-opalina-crema-225gr">Cartulina Opalina Crema 225gr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de impresión interior:</label>
+                    <div class="radio-group-modern">
+                        <div>
+                            <input type="radio" id="impresionInteriorColor" name="impresionInterior" value="color"
+                                checked>
+                            <label for="impresionInteriorColor"><span class="material-icons">colorize</span>
+                                Color</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="impresionInteriorBN" name="impresionInterior" value="bn">
+                            <label for="impresionInteriorBN"><span class="material-icons">palette</span> Blanco y
+                                Negro</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="input-section">
+                <h2><span class="material-icons">handyman</span> Servicios Adicionales</h2>
+                <div class="form-group">
+                    <label for="servicioDiseno">Servicio de Diseño:</label>
+                    <select id="servicioDiseno" required>
+                        <option value="cliente-envia">Cliente envía diseño (ya compaginado)</option>
+                        <option value="diseno-guardado">Diseño guardado aquí</option>
+                        <option value="realizar-compaginado">Realizar compaginado (armado del libro)</option>
+                        <option value="no-necesita">No necesita diseño</option>
+                    </select>
+                    <p class="note"><strong>NOTA: NO SE REALIZAN DISEÑOS.</strong></p>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" id="cotizarBtn"><span class="material-icons">calculate</span> Cotizar</button>
+                <button type="button" id="limpiarBtn" class="clear-button"><span class="material-icons">clear_all</span>
+                    Limpiar Campos</button>
+            </div>
+        </form>
+
+        <section class="output-section">
+            <div id="resumenCostosDetallado-header">
+                <h2><span class="material-icons">receipt_long</span> Resumen de Costos Detallado</h2>
+                <button type="button" id="toggleDetailedSummaryBtn"><span class="material-icons">expand_more</span>
+                    Explicar</button>
+            </div>
+            <div id="resumenCostosDetallado" class="collapsed">
+                <!-- Aquí se generará el resumen detallado de costos -->
+            </div>
+        </section>
+
+        <section class="output-section">
+            <h2><span class="material-icons">assignment</span> Resumen Simplificado para el Cliente</h2>
+            <div id="resumenSimplificado">
+                <!-- Aquí se generará el resumen simplificado -->
+            </div>
+            <button type="button" id="copiarResumenBtn"><span class="material-icons">content_copy</span> Copiar al
+                Portapapeles</button>
+        </section>
+
+        <section class="output-section">
+            <div id="costos-list-header">
+                <h2><span class="material-icons">monetization_on</span> LISTA DE COSTOS</h2>
+                <button type="button" id="toggleCostosBtn"><span class="material-icons">expand_more</span> DAR
+                    COSTOS</button>
+            </div>
+            <div id="costos-list-content" class="collapsed">
+                <!-- El acordeón de costos se generará aquí por JS -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONSTANTES DE PRECIOS ---
+            const PAPER_PRICES = {
+                'bond-75gr': { 'carta': 0.195, 'oficio': 0.20375, 'doble-carta': 0.39 },
+                'bond-90gr': { 'carta': 0.20, 'oficio': 0.24375, 'doble-carta': 0.40 },
+                'opalina-blanca-120gr': { 'carta': 0.475, 'oficio': 0.63375, 'doble-carta': 0.95 },
+                'opalina-crema-120gr': { 'carta': 0.475, 'oficio': 0.63375, 'doble-carta': 0.95 },
+                'cartulina-opalina-blanca-225gr': { 'carta': 0.9175, 'oficio': 0.775, 'doble-carta': 1.835 },
+                'cartulina-opalina-crema-225gr': { 'carta': 0.9175, 'oficio': 0.775, 'doble-carta': 1.835 },
+                'couche-130gr': { 'carta': 0.28875, 'oficio': 0.4075, 'doble-carta': 0.5775 },
+                'couche-250gr': { 'carta': 0.56375, 'oficio': 0.77875, 'doble-carta': 1.1275 },
+                'couche-300gr': { 'carta': 0.675, 'oficio': 0.92125, 'doble-carta': 1.35 },
+                'cartulina-cromacote': { 'carta': 0.56375, 'oficio': 0.77875, 'doble-carta': 1.1275 },
+                'couche-128-130gr': { 'carta': 0.28875, 'oficio': 0.4075, 'doble-carta': 0.5775 },
+                'couche-250gr-int': { 'carta': 0.56375, 'oficio': 0.77875, 'doble-carta': 1.1275 },
+                'couche-300gr-int': { 'carta': 0.675, 'oficio': 0.92125, 'doble-carta': 1.35 }
+            };
+            const SIZE_MAPPING = { 'media-carta': 'carta', 'carta': 'doble-carta', 'medio-oficio': 'oficio', 'oficio': 'doble-oficio' };
+            const LAMINADO_PRICES = { '1-50': 8, '51-100': 7, '101-150': 6, '151-200': 5, '201-500': 4, '501-1000': 3 };
+            const MIN_LAMINADO_COST = 280.00;
+            const IMPRESION_PRICES = {
+                'color': { '100': { 'carta': 6.08, 'doble-carta': 12.16, 'oficio': 6.50 }, '200': { 'carta': 6.00, 'doble-carta': 12.00, 'oficio': 6.30 }, '300': { 'carta': 5.85, 'doble-carta': 11.70, 'oficio': 5.90 }, '500': { 'carta': 5.70, 'doble-carta': 11.40, 'oficio': 5.70 }, 'mas-500': { 'carta': 5.70, 'doble-carta': 11.40, 'oficio': 5.70 } },
+                'bn': { '100': { 'carta': 1.06, 'doble-carta': 2.12, 'oficio': 1.00 }, '200': { 'carta': 1.00, 'doble-carta': 2.00, 'oficio': 0.95 }, '300': { 'carta': 0.98, 'doble-carta': 1.96, 'oficio': 0.80 }, '500': { 'carta': 0.80, 'doble-carta': 1.60, 'oficio': 0.75 }, 'mas-500': { 'carta': 0.78, 'doble-carta': 1.56, 'oficio': 0.70 } }
+            };
+            const REFILADO_COST_PER_10_MAGAZINES = 60.00;
+            const GRAPADO_PRICES = { '1-10': 20, '11-25': 10, '26-50': 8, '50+': 5 };
+            const MIN_GRAPADO_COST = 40.00;
+            const DESIGN_PRICES = { 'cliente-envia': 25, 'diseno-guardado': 180, 'realizar-compaginado': 250, 'no-necesita': 0 };
+            const UTILIDAD_PAPEL_FACTOR = 2;
+            const IVA_RATE = 0.16;
+            const SERVICIO_EXPRESS_RATE = 0.35;
+            const HORIZONTAL_ORIENTATION_COST = 120.00;
+
+            // --- ELEMENTOS DEL DOM ---
+            const cotizarBtn = document.getElementById('cotizarBtn');
+            const limpiarBtn = document.getElementById('limpiarBtn');
+            const copiarResumenBtn = document.getElementById('copiarResumenBtn');
+            const toggleDetailedSummaryBtn = document.getElementById('toggleDetailedSummaryBtn');
+            const resumenCostosDetalladoDiv = document.getElementById('resumenCostosDetallado');
+            const toggleCostosBtn = document.getElementById('toggleCostosBtn');
+            const costosContentDiv = document.getElementById('costos-list-content');
+
+            // --- EVENT LISTENERS ---
+            cotizarBtn.addEventListener('click', calculateQuote);
+            limpiarBtn.addEventListener('click', clearForm);
+            copiarResumenBtn.addEventListener('click', copySimplifiedSummary);
+
+            toggleDetailedSummaryBtn.addEventListener('click', () => {
+                resumenCostosDetalladoDiv.classList.toggle('collapsed');
+                const icon = toggleDetailedSummaryBtn.querySelector('.material-icons');
+                icon.innerText = resumenCostosDetalladoDiv.classList.contains('collapsed') ? 'expand_more' : 'expand_less';
+            });
+
+            toggleCostosBtn.addEventListener('click', () => {
+                costosContentDiv.classList.toggle('collapsed');
+                const icon = toggleCostosBtn.querySelector('.material-icons');
+                icon.innerText = costosContentDiv.classList.contains('collapsed') ? 'expand_more' : 'expand_less';
+            });
+
+            // --- GENERACIÓN INICIAL ---
+            generateCostsList();
+
+            // --- FUNCIONES ---
+            function getFormValues() {
+                return {
+                    cantidad: parseInt(document.getElementById('cantidad').value) || 0,
+                    tamano: document.getElementById('tamano').value,
+                    orientacion: document.getElementById('orientacion').value,
+                    papelPortada: document.getElementById('papelPortada').value,
+                    impresionPortadaFrentes: document.querySelector('input[name="impresionPortadaFrentes"]:checked').value,
+                    impresionPortadaReverso: document.querySelector('input[name="impresionPortadaReverso"]:checked').value,
+                    acabadoPortada: document.getElementById('acabadoPortada').value,
+                    paginasInterior: parseInt(document.getElementById('paginasInterior').value) || 0,
+                    papelInterior: document.getElementById('papelInterior').value,
+                    impresionInterior: document.querySelector('input[name="impresionInterior"]:checked').value,
+                    servicioDiseno: document.getElementById('servicioDiseno').value,
+                    servicioExpress: document.getElementById('servicioExpress').checked
+                };
+            }
+
+            function calculateQuote() {
+                const values = getFormValues();
+                let detailedSummary = '';
+
+                if (values.cantidad <= 0 || isNaN(values.cantidad)) {
+                    detailedSummary = 'ERROR: La cantidad a cotizar debe ser un número mayor que 0.';
+                    document.getElementById('resumenCostosDetallado').innerText = detailedSummary;
+                    document.getElementById('resumenSimplificado').innerText = '';
+                    resumenCostosDetalladoDiv.classList.remove('collapsed');
+                    return;
+                }
+                if (values.paginasInterior < 0 || isNaN(values.paginasInterior)) { // Permitir 0 paginas interiores
+                    detailedSummary = 'ERROR: El número de páginas interiores debe ser un número válido (0 o más).';
+                    document.getElementById('resumenCostosDetallado').innerText = detailedSummary;
+                    document.getElementById('resumenSimplificado').innerText = '';
+                    resumenCostosDetalladoDiv.classList.remove('collapsed');
+                    return;
+                }
+
+                let costoPapelPortada = 0, costoImpresionPortada = 0, costoLaminado = 0, costoPapelInterior = 0, costoImpresionInterior = 0, costoRefilado = 0, costoGrapado = 0, costoDiseno = 0, costoOrientacionHorizontal = 0;
+
+                let hojasPortadaNecesarias = values.cantidad + 1;
+                let pliegoImpresionPortada = SIZE_MAPPING[values.tamano];
+
+                if (!PAPER_PRICES[values.papelPortada][pliegoImpresionPortada]) {
+                    if (pliegoImpresionPortada === 'doble-oficio' && PAPER_PRICES[values.papelPortada]['oficio']) {
+                        PAPER_PRICES[values.papelPortada]['doble-oficio'] = PAPER_PRICES[values.papelPortada]['oficio'] * 2;
+                    } else {
+                        document.getElementById('resumenCostosDetallado').innerText = `ERROR: No se encontró precio para el pliego de impresión ${pliegoImpresionPortada} para el papel ${values.papelPortada}.\n`;
+                        return;
+                    }
+                }
+
+                const costoPorHojaPortada = PAPER_PRICES[values.papelPortada][pliegoImpresionPortada];
+                if (values.acabadoPortada !== 'no-lleva') {
+                    hojasPortadaNecesarias += 5;
+                }
+                costoPapelPortada = hojasPortadaNecesarias * costoPorHojaPortada;
+
+                if (values.orientacion === 'horizontal') {
+                    costoOrientacionHorizontal = HORIZONTAL_ORIENTATION_COST;
+                }
+
+                costoImpresionPortada += hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaFrentes, values.cantidad, pliegoImpresionPortada);
+                if (values.impresionPortadaReverso !== 'ninguno') {
+                    costoImpresionPortada += hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaReverso, values.cantidad, pliegoImpresionPortada);
+                }
+
+                if (values.acabadoPortada !== 'no-lleva') {
+                    let precioPorPliegoLaminado = 0;
+                    if (hojasPortadaNecesarias >= 1 && hojasPortadaNecesarias <= 50) precioPorPliegoLaminado = LAMINADO_PRICES['1-50'];
+                    else if (hojasPortadaNecesarias <= 100) precioPorPliegoLaminado = LAMINADO_PRICES['51-100'];
+                    else if (hojasPortadaNecesarias <= 150) precioPorPliegoLaminado = LAMINADO_PRICES['101-150'];
+                    else if (hojasPortadaNecesarias <= 200) precioPorPliegoLaminado = LAMINADO_PRICES['151-200'];
+                    else if (hojasPortadaNecesarias <= 500) precioPorPliegoLaminado = LAMINADO_PRICES['201-500'];
+                    else precioPorPliegoLaminado = LAMINADO_PRICES['501-1000'];
+
+                    let costoBrutoLaminado = hojasPortadaNecesarias * precioPorPliegoLaminado;
+                    costoLaminado = (costoBrutoLaminado > 0 && costoBrutoLaminado < MIN_LAMINADO_COST) ? MIN_LAMINADO_COST : costoBrutoLaminado;
+                }
+
+                let paginasInteriorImprimir = values.paginasInterior;
+                if (paginasInteriorImprimir > 0 && paginasInteriorImprimir % 4 !== 0) {
+                    paginasInteriorImprimir = Math.ceil(paginasInteriorImprimir / 4) * 4;
+                }
+                const hojasInterioresNecesarias = (paginasInteriorImprimir / 4) * values.cantidad;
+                const pliegoImpresionInterior = pliegoImpresionPortada;
+
+                if (hojasInterioresNecesarias > 0) {
+                    if (!PAPER_PRICES[values.papelInterior][pliegoImpresionInterior]) {
+                        if (pliegoImpresionInterior === 'doble-oficio' && PAPER_PRICES[values.papelInterior]['oficio']) {
+                            PAPER_PRICES[values.papelInterior]['doble-oficio'] = PAPER_PRICES[values.papelInterior]['oficio'] * 2;
+                        } else {
+                            document.getElementById('resumenCostosDetallado').innerText = `ERROR: No se encontró precio para el pliego de impresión interior ${pliegoImpresionInterior} para el papel ${values.papelInterior}.\n`;
+                            return;
+                        }
+                    }
+                    costoPapelInterior = hojasInterioresNecesarias * PAPER_PRICES[values.papelInterior][pliegoImpresionInterior];
+                    costoImpresionInterior = hojasInterioresNecesarias * getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior);
+                }
+
+                if (values.cantidad > 0) {
+                    costoRefilado = Math.ceil(values.cantidad / 10) * REFILADO_COST_PER_10_MAGAZINES;
+                    let precioUnitarioGrapado = 0;
+                    if (values.cantidad <= 10) precioUnitarioGrapado = GRAPADO_PRICES['1-10'];
+                    else if (values.cantidad <= 25) precioUnitarioGrapado = GRAPADO_PRICES['11-25'];
+                    else if (values.cantidad <= 50) precioUnitarioGrapado = GRAPADO_PRICES['26-50'];
+                    else precioUnitarioGrapado = GRAPADO_PRICES['50+'];
+                    let costoBrutoGrapado = values.cantidad * precioUnitarioGrapado;
+                    costoGrapado = (costoBrutoGrapado > 0 && costoBrutoGrapado < MIN_GRAPADO_COST) ? MIN_GRAPADO_COST : costoBrutoGrapado;
+                }
+
+                costoDiseno = DESIGN_PRICES[values.servicioDiseno];
+
+                // --- CÁLCULO FINAL ---
+                let subtotalConUtilidad = 0;
+                let factorUtilidadPapel = (values.orientacion === 'horizontal') ? 3 : UTILIDAD_PAPEL_FACTOR;
+                let factorUtilidadImpresion = (values.orientacion === 'horizontal') ? 2 : 1;
+
+                subtotalConUtilidad += (costoPapelPortada + costoPapelInterior) * factorUtilidadPapel;
+                subtotalConUtilidad += (costoImpresionPortada + costoImpresionInterior) * factorUtilidadImpresion;
+                subtotalConUtilidad += costoLaminado + costoRefilado + costoGrapado + costoDiseno + costoOrientacionHorizontal;
+
+                let recargoExpressMonto = 0;
+                if (values.servicioExpress) {
+                    recargoExpressMonto = subtotalConUtilidad * SERVICIO_EXPRESS_RATE;
+                    subtotalConUtilidad += recargoExpressMonto;
+                }
+
+                const ivaMonto = subtotalConUtilidad * IVA_RATE;
+                const costoTotalNeto = subtotalConUtilidad + ivaMonto;
+                const costoUnitarioNeto = values.cantidad > 0 ? costoTotalNeto / values.cantidad : 0;
+
+                // --- RENDERIZADO DE RESÚMENES ---
+                const tamanoDisplay = values.tamano.replace('-', ' ').toUpperCase();
+                const impresionFrentesDisplay = values.impresionPortadaFrentes === 'color' ? 'COLOR' : 'B/N';
+                const acabadoPortadaDisplay = values.acabadoPortada === 'no-lleva' ? 'SIN ACABADO' : `LAMINADO ${values.acabadoPortada.toUpperCase()}`;
+                const impresionInteriorDisplay = values.impresionInterior === 'color' ? 'COLOR' : 'B/N';
+                const papelInteriorDisplay = values.papelInterior.replace(/-/g, ' ').toUpperCase();
+                const grapadoDisplay = costoGrapado > 0 ? 'GRAPADO' : '';
+                const servicioDisenoDisplay = values.servicioDiseno.replace(/-/g, ' ').toUpperCase();
+                const servicioExpressDisplay = values.servicioExpress ? 'SERVICIO EXPRESS' : '';
+
+                let resumenItems = [
+                    `${values.cantidad} REVISTAS TAMAÑO ${tamanoDisplay}`,
+                    `PORTADA IMPRESA ${impresionFrentesDisplay} FRENTES CON ${acabadoPortadaDisplay}`,
+                ];
+
+                if (paginasInteriorImprimir > 0) {
+                    resumenItems.push(`INTERIOR CON ${paginasInteriorImprimir} PAGINAS IMPRESAS A ${impresionInteriorDisplay} EN PAPEL ${papelInteriorDisplay}`);
+                }
+
+                if (grapadoDisplay) resumenItems.push(grapadoDisplay);
+                if (servicioDisenoDisplay !== 'NO NECESITA') resumenItems.push(servicioDisenoDisplay);
+                if (servicioExpressDisplay) resumenItems.push(servicioExpressDisplay);
+
+                const resumenSimplificado = resumenItems.filter(Boolean).join(', ') + ` = $${costoUnitarioNeto.toFixed(2)} C/U , TOTAL $${costoTotalNeto.toFixed(2)} NETO`;
+
+                let detailedSummaryContent = [
+                    `Subtotal (con utilidad): $${(subtotalConUtilidad - recargoExpressMonto).toFixed(2)}`,
+                    values.servicioExpress ? `Recargo Express (35%): $${recargoExpressMonto.toFixed(2)}` : null,
+                    `IVA (16%): $${ivaMonto.toFixed(2)}`,
+                    `------------------`,
+                    `Total Neto: $${costoTotalNeto.toFixed(2)}`
+                ].filter(Boolean).join('\n');
+
+
+                document.getElementById('resumenSimplificado').innerText = resumenSimplificado;
+                document.getElementById('resumenCostosDetallado').innerText = detailedSummaryContent;
+            }
+
+            function getPrintPrice(type, quantity, size) {
+                let range = '';
+                if (quantity <= 100) range = '100';
+                else if (quantity <= 200) range = '200';
+                else if (quantity <= 300) range = '300';
+                else if (quantity <= 500) range = '500';
+                else range = 'mas-500';
+                return IMPRESION_PRICES[type]?.[range]?.[size] || 0;
+            }
+
+            function clearForm() {
+                document.getElementById('cotizadorForm').reset();
+                document.getElementById('resumenCostosDetallado').innerText = '';
+                document.getElementById('resumenSimplificado').innerText = '';
+                document.getElementById('cantidad').value = 1;
+                document.getElementById('paginasInterior').value = 4;
+                resumenCostosDetalladoDiv.classList.add('collapsed');
+                toggleDetailedSummaryBtn.querySelector('.material-icons').innerText = 'expand_more';
+                costosContentDiv.classList.add('collapsed');
+                toggleCostosBtn.querySelector('.material-icons').innerText = 'expand_more';
+            }
+
+            function copySimplifiedSummary() {
+                const resumenText = document.getElementById('resumenSimplificado').innerText;
+                navigator.clipboard.writeText(resumenText).then(() => {
+                    alert('Resumen copiado al portapapeles!');
+                }).catch(err => {
+                    console.error('Error al copiar el resumen: ', err);
+                });
+            }
+
+            function generateCostsList() {
+                const container = document.getElementById('costos-list-content');
+                if (!container) return;
+                container.innerHTML = '';
+
+                const createAccordionItem = (title, content) => {
+                    const item = document.createElement('div');
+                    item.className = 'accordion-item';
+                    const header = document.createElement('div');
+                    header.className = 'accordion-header';
+                    header.innerHTML = `${title} <span class="material-icons">add</span>`;
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'accordion-content';
+                    contentDiv.innerHTML = content;
+                    header.addEventListener('click', () => {
+                        const isVisible = contentDiv.style.display === 'block';
+                        contentDiv.style.display = isVisible ? 'none' : 'block';
+                        header.querySelector('.material-icons').innerText = isVisible ? 'add' : 'remove';
+                    });
+                    item.appendChild(header);
+                    item.appendChild(contentDiv);
+                    return item;
+                };
+
+                let paperContent = '<table><thead><tr><th>Papel</th><th>Carta</th><th>Oficio</th><th>Doble Carta</th></tr></thead><tbody>';
+                for (const papel in PAPER_PRICES) {
+                    paperContent += `<tr><td>${papel.replace(/-/g, ' ')}</td><td>$${PAPER_PRICES[papel].carta || 'N/A'}</td><td>$${PAPER_PRICES[papel].oficio || 'N/A'}</td><td>$${PAPER_PRICES[papel]['doble-carta'] || 'N/A'}</td></tr>`;
+                }
+                paperContent += '</tbody></table>';
+                container.appendChild(createAccordionItem('Papel', paperContent));
+
+                let printContent = '<h3>Impresión a Color</h3><table><thead><tr><th>Rango</th><th>Carta</th><th>Doble Carta</th><th>Oficio</th></tr></thead><tbody>';
+                for (const rango in IMPRESION_PRICES.color) {
+                    printContent += `<tr><td>Hasta ${rango}</td><td>$${IMPRESION_PRICES.color[rango].carta}</td><td>$${IMPRESION_PRICES.color[rango]['doble-carta']}</td><td>$${IMPRESION_PRICES.color[rango].oficio}</td></tr>`;
+                }
+                printContent += '</tbody></table><h3>Impresión B/N</h3><table><thead><tr><th>Rango</th><th>Carta</th><th>Doble Carta</th><th>Oficio</th></tr></thead><tbody>';
+                for (const rango in IMPRESION_PRICES.bn) {
+                    printContent += `<tr><td>Hasta ${rango}</td><td>$${IMPRESION_PRICES.bn[rango].carta}</td><td>$${IMPRESION_PRICES.bn[rango]['doble-carta']}</td><td>$${IMPRESION_PRICES.bn[rango].oficio}</td></tr>`;
+                }
+                printContent += '</tbody></table>';
+                container.appendChild(createAccordionItem('Impresión', printContent));
+
+                let laminadoContent = `<p>Costo mínimo: $${MIN_LAMINADO_COST.toFixed(2)}</p><table><thead><tr><th>Rango de Pliegos</th><th>Precio por Pliego</th></tr></thead><tbody>`;
+                for (const rango in LAMINADO_PRICES) {
+                    laminadoContent += `<tr><td>${rango}</td><td>$${LAMINADO_PRICES[rango]}</td></tr>`;
+                }
+                laminadoContent += '</tbody></table>';
+                container.appendChild(createAccordionItem('Laminado', laminadoContent));
+
+                let grapadoContent = `<p>Costo mínimo: $${MIN_GRAPADO_COST.toFixed(2)}</p><table><thead><tr><th>Rango de Revistas</th><th>Precio por Revista</th></tr></thead><tbody>`;
+                for (const rango in GRAPADO_PRICES) {
+                    grapadoContent += `<tr><td>${rango}</td><td>$${GRAPADO_PRICES[rango]}</td></tr>`;
+                }
+                grapadoContent += '</tbody></table>';
+                container.appendChild(createAccordionItem('Grapado', grapadoContent));
+
+                let disenoContent = '<table><thead><tr><th>Servicio</th><th>Costo</th></tr></thead><tbody>';
+                for (const servicio in DESIGN_PRICES) {
+                    disenoContent += `<tr><td>${servicio.replace(/-/g, ' ')}</td><td>$${DESIGN_PRICES[servicio]}</td></tr>`;
+                }
+                disenoContent += '</tbody></table>';
+                container.appendChild(createAccordionItem('Diseño', disenoContent));
+
+                let refiladoContent = `<p>Costo por cada 10 revistas: $${REFILADO_COST_PER_10_MAGAZINES.toFixed(2)}</p>`;
+                container.appendChild(createAccordionItem('Refilado', refiladoContent));
+            }
+        });
+    </script>
+
+    <!-- Botón Flotante de Regreso al Menú -->
+    <a href="indexcotizadorcompleto.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap;
+        }
+
+        /* Responsive: en móviles solo mostrar el icono */
+        @media (max-width: 768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn-home-flotante span {
+                display: none;
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+</body>
+
+</html>
