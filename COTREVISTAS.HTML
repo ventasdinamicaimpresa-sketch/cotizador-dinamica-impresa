@@ -898,7 +898,8 @@
                         }
                     }
                     costoPapelInterior = hojasInterioresNecesarias * PAPER_PRICES[values.papelInterior][pliegoImpresionInterior];
-                    costoImpresionInterior = hojasInterioresNecesarias * getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior);
+                    // Los interiores siempre se imprimen por ambos lados (x2)
+                    costoImpresionInterior = hojasInterioresNecesarias * getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior) * 2;
                 }
 
                 if (values.cantidad > 0) {
@@ -995,8 +996,8 @@ ${paginasInteriorImprimir > 0 ? `
   - Costo Total Papel Interior: ${hojasInterioresNecesarias} x $${(costoPorHojaInterior > 0 ? costoPorHojaInterior.toFixed(2) : 'N/A')} = $${costoPapelInterior.toFixed(2)}
 
 - Impresión Interior (${values.impresionInterior}):
-  - Costo de impresión por hoja: $${costoImpresionInteriorUnitario.toFixed(2)}
-  - Costo Total Impresión Interior: ${hojasInterioresNecesarias} x $${costoImpresionInteriorUnitario.toFixed(2)} = $${costoImpresionInterior.toFixed(2)}
+  - Costo de impresión por cara/lado: $${costoImpresionInteriorUnitario.toFixed(2)}
+  - Costo Total Impresión Interior: ${hojasInterioresNecesarias} hojas x $${costoImpresionInteriorUnitario.toFixed(2)} por lado x 2 lados = $${costoImpresionInterior.toFixed(2)}
 ` : '- Sin páginas interiores.'}
 
 --- ACABADOS Y SERVICIOS ---
