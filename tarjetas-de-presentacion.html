@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Tarjetas de Presentación</title>
+
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="assets/css/inter.css">
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <style>
+        /* Estilos base para el cuerpo */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
+        }
+
+        /* Estilos específicos para el modo oscuro */
+        .dark {
+            background-color: #1A202C;
+            /* dark-bg */
+            color: #E2E8F0;
+            /* dark-text */
+        }
+
+        .dark .card {
+            background-color: #2D3748;
+            /* dark-card */
+            color: #E2E8F0;
+            /* dark-text */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            /* custom-dark shadow */
+        }
+
+        .dark .form-input,
+        .dark .form-select {
+            background-color: #4A5568;
+            /* dark-input */
+            color: #E2E8F0;
+            /* dark-text */
+            border-color: #718096;
+        }
+
+        /* Estilos para inputs cuando tienen un valor (más visual) */
+        .form-input.input-filled,
+        .form-select.input-filled {
+            border-color: #4CAF50;
+            /* primary color */
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+            /* Sombra de enfoque suave */
+        }
+
+        .dark .form-input.input-filled,
+        .dark .form-select.input-filled {
+            border-color: #4CAF50;
+            /* primary color */
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Estilos para el select del tipo de papel para que resalte */
+        #paper-select {
+            background-color: #FFECB3;
+            /* Un amarillo más suave del accent para el fondo */
+            border-color: #FFC107;
+            /* Color accent para el borde */
+            color: #333333;
+            /* Texto oscuro para contraste */
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.2);
+            /* Sombra para resaltarlo */
+        }
+
+        .dark #paper-select {
+            background-color: #6A4B00;
+            /* Fondo más oscuro para el modo oscuro */
+            border-color: #FFC107;
+            color: #E2E8F0;
+        }
+
+        #paper-select:focus {
+            outline: none;
+            border-color: #E65100;
+            /* Naranja más fuerte al enfocar */
+            box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.4);
+        }
+
+        .dark .tab-button,
+        .dark .selection-button {
+            color: #E2E8F0;
+            /* dark-text */
+            background-color: #4A5568;
+            /* dark-input */
+            border-color: #718096;
+        }
+
+        /* Estado activo mejorado para los botones de selección */
+        .selection-button.active {
+            background-color: #4CAF50;
+            /* primary color */
+            color: white;
+            border-color: #388E3C;
+            /* Darker primary for border */
+            box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.3), 0 4px 8px -2px rgba(0, 0, 0, 0.15);
+            /* Sombra más pronunciada */
+            transform: translateY(-3px);
+            /* Efecto de levantamiento */
+            font-weight: 600;
+            /* Texto más audaz */
+        }
+
+        .dark .selection-button.active {
+            background-color: #4CAF50;
+            /* primary color */
+            border-color: #388E3C;
+            color: white;
+        }
+
+        /* Transiciones suaves para los botones de selección */
+        .selection-button {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+            border: 1px solid #D1D5DB;
+        }
+
+        /* Estado hover para los botones de selección (cuando no están activos) */
+        .selection-button:hover:not(.active) {
+            background-color: #E0E0E0;
+            /* Gris claro para hover */
+            border-color: #B0B0B0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .selection-button:hover:not(.active) {
+            background-color: #3A4452;
+            /* Darker grey for hover in dark mode */
+            border-color: #5A6A7E;
+        }
+
+        .dark .summary-box {
+            background-color: #2D3748;
+            /* dark-card */
+            border-color: #4A5568;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            /* custom-dark shadow */
+        }
+
+        /* Estilos para los contenedores de sub-opciones con transición */
+        .sub-options-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+        }
+
+        .sub-options-container.active {
+            max-height: 200px;
+            /* Ajustar según la altura del contenido */
+            transition: max-height 0.4s ease-in, opacity 0.4s ease-in;
+            opacity: 1;
+        }
+
+        /* Estilos para las pestañas de configuración */
+        .config-tab-button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            background-color: #CFD8DC;
+            /* Gris azulado claro */
+            color: #4A4A4A;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .dark .config-tab-button {
+            background-color: #4A5568;
+            /* dark-input */
+            color: #E2E8F0;
+            /* dark-text */
+        }
+
+        .config-tab-button.active {
+            background-color: #4CAF50;
+            /* primary color */
+            color: white;
+            box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .config-tab-button:hover:not(.active) {
+            background-color: #B0BEC5;
+            /* Gris azulado más oscuro para hover */
+            transform: translateY(-1px);
+        }
+
+        .dark .config-tab-button:hover:not(.active) {
+            background-color: #5A6A7E;
+        }
+
+        /* Estilos para el contenido de configuración */
+        .config-content {
+            display: none;
+            padding: 1.5rem;
+            background-color: #F8F9FA;
+            /* Fondo blanco-gris claro */
+            border-radius: 1rem;
+            margin-top: 1.5rem;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease-out;
+            /* Animación de aparición */
+        }
+
+        .dark .config-content {
+            background-color: #2D3748;
+            /* dark-card */
+        }
+
+        .config-content.active {
+            display: block;
+        }
+
+        /* Animación de desvanecimiento para el contenido de configuración */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para el mensaje flotante */
+        .message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .message-box.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-15px);
+            /* Un poco más de elevación */
+        }
+
+        .message-box.success {
+            background-color: #4CAF50;
+            /* primary color for success */
+        }
+
+        .message-box.info {
+            background-color: #2196F3;
+            /* info color */
+        }
+
+        .message-box.error {
+            background-color: #F44336;
+            /* danger color */
+        }
+
+        .message-box.warning {
+            background-color: #FF9800;
+            /* warning color */
+        }
+
+        /* Estilos para el despliegue del resumen */
+        #breakdown-section {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.7s ease-in-out, opacity 0.5s ease-in-out, padding 0.7s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        #breakdown-section.summary-visible {
+            max-height: 1000px;
+            /* Altura suficiente para el contenido */
+            opacity: 1;
+            padding-top: 2rem;
+            /* 32px */
+            padding-bottom: 2rem;
+            /* 32px */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-bg p-6 flex flex-col items-center justify-center min-h-screen">
+
+    <!-- Contenedor principal de la aplicación -->
+    <div class="w-full max-w-5xl space-y-8">
+        <!-- Formulario de cotización -->
+        <div class="w-full p-8 bg-white dark:bg-dark-card rounded-2xl shadow-custom-light card">
+            <!-- Encabezado y botón para alternar modo oscuro -->
+            <div class="mb-10 text-center relative">
+                <div class="absolute right-0 top-0">
+                    <button id="theme-toggle"
+                        class="p-3 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-yellow-300 transition-all duration-300 transform hover:scale-110 shadow-md">
+                        <i class="fas fa-moon dark:hidden text-lg"></i>
+                        <i class="fas fa-sun hidden dark:inline text-lg"></i>
+                    </button>
+                </div>
+
+                <h1
+                    class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 mb-2">
+                    Cotizador de Tarjetas de Presentación
+                </h1>
+                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium mb-4">(9 x 5.5 cm)</p>
+
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm">
+                    <i class="fas fa-code text-blue-500 text-sm"></i>
+                    <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Joel Adrián Mtz</span>
+                    <span class="text-gray-300 dark:text-gray-600">|</span>
+                    <i class="fab fa-whatsapp text-green-500 text-sm"></i>
+                    <span class="text-sm font-bold text-gray-600 dark:text-gray-400">8341446103</span>
+                </div>
+            </div>
+
+            <form id="quote-form" class="space-y-6">
+                <!-- Cantidad -->
+                <div>
+                    <label for="quantity"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cantidad</label>
+                    <input type="number" id="quantity" name="quantity"
+                        class="form-input w-full p-3 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text transition-all duration-300"
+                        min="1" placeholder="Ej. 1000">
+                </div>
+
+                <!-- Tipo de Papel (Menú desplegable) -->
+                <div>
+                    <label for="paper-select"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Papel</label>
+                    <select id="paper-select" name="paper-select"
+                        class="w-full p-3 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text transition-all duration-300">
+                        <option value="" disabled selected>Selecciona un tipo de papel</option>
+                        <option value="opaline-white-225">Cartulina Opalina Blanca 225g</option>
+                        <option value="opaline-ivory-225">Cartulina Opalina Marfil 225g</option>
+                        <option value="couche-300">Couche 300g</option>
+                        <option value="couche-250">Couche 250g</option>
+                        <option value="sulfated-12pt">Cartulina Sulfatada 12pt</option>
+                        <option value="kromakote">Cartulina Kromakote</option>
+                        <option value="stardream">Cartulina Stardream</option>
+                    </select>
+                </div>
+
+                <!-- Lados de Impresión -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lados de
+                        Impresión</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300 active"
+                            data-type="printing-sides" data-value="1"><i class="fas fa-file mr-2"></i> 1 Lado</button>
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                            data-type="printing-sides" data-value="2"><i class="fas fa-copy mr-2"></i> 2 Lados</button>
+                    </div>
+                </div>
+
+                <!-- Opciones de impresión (Frente y Reverso) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Frente -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Impresión
+                            (Frente)</label>
+                        <div class="flex flex-wrap gap-3">
+                            <button type="button"
+                                class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300 active"
+                                data-type="printing-front" data-value="color"><i class="fas fa-palette mr-2"></i>
+                                Color</button>
+                            <button type="button"
+                                class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                                data-type="printing-front" data-value="bw"><i class="fas fa-paint-brush mr-2"></i>
+                                Blanco y Negro</button>
+                        </div>
+                    </div>
+                    <!-- Reverso (se muestra solo si se elige 2 lados) -->
+                    <div id="back-printing-options" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Impresión
+                            (Reverso)</label>
+                        <div class="flex flex-wrap gap-3">
+                            <button type="button"
+                                class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                                data-type="printing-back" data-value="color"><i class="fas fa-palette mr-2"></i>
+                                Color</button>
+                            <button type="button"
+                                class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                                data-type="printing-back" data-value="bw"><i class="fas fa-paint-brush mr-2"></i> Blanco
+                                y Negro</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acabados -->
+                <div class="space-y-6">
+                    <label class="block text-lg font-bold text-gray-900 dark:text-dark-text mb-2">Acabados</label>
+
+                    <!-- Opción Sin Acabados -->
+                    <div class="p-4 rounded-xl bg-gray-100 dark:bg-dark-input shadow-sm">
+                        <button type="button"
+                            class="selection-button w-full py-3 px-4 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-bold shadow-md transition-all active"
+                            data-type="no-finish" data-value="no-finish"><i class="fas fa-ban mr-2"></i> Sin
+                            Acabados</button>
+                    </div>
+
+                    <!-- Contenedor para Laminado y Redondeo - En una cuadrícula -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Sección de Laminado -->
+                        <div id="laminate-options"
+                            class="p-5 rounded-xl bg-gray-100 dark:bg-dark-input space-y-4 shadow-sm">
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-300"><i
+                                    class="fas fa-layer-group mr-2 text-primary"></i> Laminado</h4>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Lados</label>
+                                <div class="flex flex-wrap gap-3">
+                                    <button type="button"
+                                        class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                        data-type="laminate-sides" data-value="1-side">1 Lado</button>
+                                    <button type="button"
+                                        class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                        data-type="laminate-sides" data-value="2-sides">2 Lados</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Tipo de
+                                    Acabado</label>
+                                <div class="flex flex-wrap gap-3">
+                                    <button type="button"
+                                        class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                        data-type="laminate-type" data-value="matte">Mate</button>
+                                    <button type="button"
+                                        class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                        data-type="laminate-type" data-value="glossy">Brillante</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Redondeo de esquinas -->
+                        <div id="rounded-options"
+                            class="p-5 rounded-xl bg-gray-100 dark:bg-dark-input space-y-4 shadow-sm">
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-300"><i
+                                    class="fas fa-border-all mr-2 text-primary"></i> Redondeo de esquinas</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button"
+                                    class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                    data-type="rounded-corners" data-value="rounded-1">1 Esquina</button>
+                                <button type="button"
+                                    class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                    data-type="rounded-corners" data-value="rounded-2">2 Esquinas</button>
+                                <button type="button"
+                                    class="selection-button py-2 px-4 rounded-lg bg-gray-50 dark:bg-dark-input text-xs font-medium text-gray-700 dark:text-gray-300"
+                                    data-type="rounded-corners" data-value="rounded-4">4 Esquinas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de Diseño -->
+                <div class="space-y-6">
+                    <label class="block text-lg font-bold text-gray-900 dark:text-dark-text mb-2">Opciones de
+                        Diseño</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-bold shadow-md active"
+                            data-type="design-option" data-value="client-sends"><i class="fas fa-upload mr-2"></i>
+                            Cliente envía diseño</button>
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                            data-type="design-option" data-value="create-design"><i
+                                class="fas fa-pencil-ruler mr-2"></i> Realizar diseño</button>
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                            data-type="design-option" data-value="saved-design"><i class="fas fa-folder-open mr-2"></i>
+                            Diseño guardado aquí</button>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                    <button type="button" id="reset-btn"
+                        class="w-full sm:w-auto px-6 py-3 rounded-lg font-bold bg-red-500 hover:bg-red-600 text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400">
+                        <i class="fas fa-sync-alt mr-2"></i> Limpiar Campos
+                    </button>
+                    <button type="button" id="toggle-summary-btn"
+                        class="w-full sm:w-auto px-6 py-3 rounded-lg font-bold bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <i class="fas fa-chevron-down mr-2"></i> Desglose de la Cotización
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Desglose de la Cotización (desplegable) -->
+        <div id="breakdown-section"
+            class="w-full bg-secondary dark:bg-dark-card rounded-2xl shadow-custom-light summary-box">
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-dark-text mb-6"><i
+                        class="fas fa-receipt mr-3 text-primary"></i> Desglose de Cotización</h2>
+                <div id="summary-content" class="text-gray-700 dark:text-gray-300 space-y-4 text-lg">
+                    <p><strong>Cantidad:</strong> <span id="summary-quantity"
+                            class="font-semibold text-gray-800 dark:text-gray-200">--</span></p>
+                    <p><strong>Papel:</strong> <span id="summary-paper"
+                            class="font-semibold text-gray-800 dark:text-gray-200">--</span></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 ml-4">Costo original de papel: <span
+                            id="sheets-needed">0</span> pliegos x $<span id="cost-per-single-paper-sheet">0.00</span> =
+                        $<span id="original-total-paper-cost">0.00</span></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 ml-4">Costo de Venta por pliego (con utilidad):
+                        $<span id="cost-per-selling-paper-sheet">0.00</span></p>
+                    <p class="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-4">Total de Papel (con
+                        utilidad): $<span id="total-paper-cost">0.00</span></p>
+                    <p><strong>Impresión:</strong> <span id="summary-printing"
+                            class="font-semibold text-gray-800 dark:text-gray-200">--</span></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 ml-4">Costo de impresión: <span
+                            id="sheets-needed-for-printing-display">0</span> pliegos x $<span
+                            id="cost-per-printing-sheet">0.00</span> = $<span id="total-printing-cost-batch">0.00</span>
+                    </p>
+                    <p><strong>Acabados:</strong> <span id="summary-finishes"
+                            class="font-semibold text-gray-800 dark:text-gray-200">--</span></p>
+                    <p id="laminate-detail" class="text-sm text-gray-500 dark:text-gray-400 ml-4 hidden"></p>
+                    <p id="rounded-detail" class="text-sm text-gray-500 dark:text-gray-400 ml-4 hidden"></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 ml-4">Corte de tarjetas: $<span
+                            id="cutting-cost-display">220.00</span></p>
+                    <p><strong>Diseño:</strong> <span id="summary-design-option"
+                            class="font-semibold text-gray-800 dark:text-gray-200">--</span></p>
+                    <p id="design-cost-detail" class="text-sm text-gray-500 dark:text-gray-400 ml-4 hidden"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totales -->
+        <div id="totals-section" class="w-full p-8 bg-white dark:bg-dark-card rounded-2xl shadow-custom-light card">
+            <div class="space-y-3">
+                <p class="text-xl font-semibold text-gray-900 dark:text-dark-text">Unitario (sin IVA): <span
+                        id="unit-price-no-iva" class="font-extrabold text-info dark:text-info">$0.00</span></p>
+                <p class="text-xl font-semibold text-gray-900 dark:text-dark-text">Subtotal:</p>
+                <p id="subtotal-cost" class="text-3xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+                <p class="text-xl font-semibold text-gray-900 dark:text-dark-text">IVA (16%):</p>
+                <p id="iva-cost" class="text-3xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+                <p class="text-xl font-semibold text-gray-900 dark:text-dark-text">Total:</p>
+                <p id="final-total-cost" class="text-5xl font-extrabold text-danger dark:text-danger">$0.00</p>
+                <p id="error-message" class="text-danger text-sm mt-4 hidden"><i
+                        class="fas fa-exclamation-circle mr-2"></i> Por favor, completa todos los campos requeridos para
+                    calcular el costo.</p>
+            </div>
+        </div>
+
+        <!-- Cotización para Cliente -->
+        <div id="client-quote-section"
+            class="w-full p-8 rounded-2xl shadow-lg text-center bg-blue-100 dark:bg-gray-800">
+            <p id="simplified-description" class="text-base text-gray-700 dark:text-gray-200 mb-6 leading-relaxed"></p>
+            <button type="button" id="copy-quote-btn"
+                class="w-full max-w-xs mx-auto px-6 py-4 rounded-xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-copy"></i> Copiar Cotización
+            </button>
+            <button type="button" id="reset-all-btn"
+                class="w-full max-w-xs mx-auto px-6 py-4 rounded-xl font-bold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-all duration-300 flex items-center justify-center gap-2 mt-4">
+                <i class="fas fa-trash-alt"></i> Limpiar Todo
+            </button>
+        </div>
+
+        <!-- Configuración de Precios -->
+        <div class="w-full p-8 bg-white dark:bg-dark-card rounded-2xl shadow-custom-light card">
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-dark-text">Configuración de Precios</h3>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button type="button" class="config-tab-button" data-tab="costos-papel">Costos Papel</button>
+                    <button type="button" class="config-tab-button" data-tab="impresion">Impresión</button>
+                    <button type="button" class="config-tab-button" data-tab="laminado">Laminado</button>
+                </div>
+
+                <!-- Contenido de Costos Papel -->
+                <div id="costos-papel-content" class="config-content">
+                    <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-4">Costos de Papel por Pliego
+                        (Doble Carta)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Input para Cartulina Opalina Blanca 225g -->
+                        <div>
+                            <label for="paper-opaline-white-225"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cartulina
+                                Opalina Blanca 225g</label>
+                            <input type="number" step="0.01" id="paper-opaline-white-225" data-category="paper"
+                                data-item="opaline-white-225"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Cartulina Opalina Marfil 225g -->
+                        <div>
+                            <label for="paper-opaline-ivory-225"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cartulina
+                                Opalina Marfil 225g</label>
+                            <input type="number" step="0.01" id="paper-opaline-ivory-225" data-category="paper"
+                                data-item="opaline-ivory-225"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Couche 300g -->
+                        <div>
+                            <label for="paper-couche-300"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Couche
+                                300g</label>
+                            <input type="number" step="0.01" id="paper-couche-300" data-category="paper"
+                                data-item="couche-300"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Couche 250g -->
+                        <div>
+                            <label for="paper-couche-250"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Couche
+                                250g</label>
+                            <input type="number" step="0.01" id="paper-couche-250" data-category="paper"
+                                data-item="couche-250"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Cartulina Sulfatada 12pt -->
+                        <div>
+                            <label for="paper-sulfated-12pt"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cartulina
+                                Sulfatada 12pt</label>
+                            <input type="number" step="0.01" id="paper-sulfated-12pt" data-category="paper"
+                                data-item="sulfated-12pt"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Cartulina Kromakote -->
+                        <div>
+                            <label for="paper-kromakote"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cartulina
+                                Kromakote</label>
+                            <input type="number" step="0.01" id="paper-kromakote" data-category="paper"
+                                data-item="kromakote"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                        <!-- Input para Cartulina Stardream -->
+                        <div>
+                            <label for="paper-stardream"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cartulina
+                                Stardream</label>
+                            <input type="number" step="0.01" id="paper-stardream" data-category="paper"
+                                data-item="stardream"
+                                class="form-input w-full p-2 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-dark-input dark:text-dark-text">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de Impresión -->
+                <div id="impresion-content" class="config-content">
+                    <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-4">Costos de Impresión por
+                        Pliego</h4>
+
+                    <!-- Impresión a Color -->
+                    <div class="mb-6 p-4 bg-gray-200 dark:bg-dark-input rounded-lg shadow-inner">
+                        <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3"><i
+                                class="fas fa-print mr-2"></i> Impresión a Color</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm items-center">
+                            <div class="font-medium text-gray-600 dark:text-gray-400">Rango (pliegos)</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">1 Lado</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">2 Lados</div>
+
+                            <!-- Rango 1-50 -->
+                            <label class="text-gray-700 dark:text-gray-300">1-50 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="0" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="0" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 51-100 -->
+                            <label class="text-gray-700 dark:text-gray-300">51-100 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="1" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="1" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 101-150 -->
+                            <label class="text-gray-700 dark:text-gray-300">101-150 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="2" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="2" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 151-200 -->
+                            <label class="text-gray-700 dark:text-gray-300">151-200 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="3" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="3" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 201-500 -->
+                            <label class="text-gray-700 dark:text-gray-300">201-500 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="4" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="4" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 501-1000 -->
+                            <label class="text-gray-700 dark:text-gray-300">501-1000 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="5" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="color"
+                                data-range-idx="5" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                        </div>
+                    </div>
+
+                    <!-- Impresión Blanco y Negro -->
+                    <div class="p-4 bg-gray-200 dark:bg-dark-input rounded-lg shadow-inner">
+                        <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3"><i
+                                class="fas fa-print mr-2"></i> Impresión Blanco y Negro</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm items-center">
+                            <div class="font-medium text-gray-600 dark:text-gray-400">Rango (pliegos)</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">1 Lado</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">2 Lados</div>
+
+                            <!-- Rango 1-50 -->
+                            <label class="text-gray-700 dark:text-gray-300">1-50 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="0"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="0"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 51-100 -->
+                            <label class="text-gray-700 dark:text-gray-300">51-100 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="1"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="1"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 101-150 -->
+                            <label class="text-gray-700 dark:text-gray-300">101-150 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="2"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="2"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 151-200 -->
+                            <label class="text-gray-700 dark:text-gray-300">151-200 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="3"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="3"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 201-500 -->
+                            <label class="text-gray-700 dark:text-gray-300">201-500 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="4"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="4"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 501-1000 -->
+                            <label class="text-gray-700 dark:text-gray-300">501-1000 pliegos</label>
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="5"
+                                data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="printing" data-type="bw" data-range-idx="5"
+                                data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de Laminado -->
+                <div id="laminado-content" class="config-content">
+                    <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-4">Costos de Laminado por
+                        Pliego</h4>
+
+                    <!-- Laminado Mate -->
+                    <div class="mb-6 p-4 bg-gray-200 dark:bg-dark-input rounded-lg shadow-inner">
+                        <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3"><i class="fas fa-star mr-2"></i>
+                            Laminado Mate</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm items-center">
+                            <div class="font-medium text-gray-600 dark:text-gray-400">Rango (pliegos)</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">1 Lado</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">2 Lados</div>
+
+                            <!-- Rango 1-50 -->
+                            <label class="text-gray-700 dark:text-gray-300">1-50 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="0" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="0" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 51-100 -->
+                            <label class="text-gray-700 dark:text-gray-300">51-100 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="1" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="1" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 101-150 -->
+                            <label class="text-gray-700 dark:text-gray-300">101-150 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="2" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="2" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 151-200 -->
+                            <label class="text-gray-700 dark:text-gray-300">151-200 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="3" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="3" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 201-500 -->
+                            <label class="text-gray-700 dark:text-gray-300">201-500 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="4" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="4" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 501-1000 -->
+                            <label class="text-gray-700 dark:text-gray-300">501-1000 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="5" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="matte"
+                                data-range-idx="5" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                        </div>
+                    </div>
+
+                    <!-- Laminado Brillante -->
+                    <div class="p-4 bg-gray-200 dark:bg-dark-input rounded-lg shadow-inner">
+                        <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3"><i
+                                class="fas fa-sparkles mr-2"></i> Laminado Brillante</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm items-center">
+                            <div class="font-medium text-gray-600 dark:text-gray-400">Rango (pliegos)</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">1 Lado</div>
+                            <div class="font-medium text-gray-600 dark:text-gray-400 text-center">2 Lados</div>
+
+                            <!-- Rango 1-50 -->
+                            <label class="text-gray-700 dark:text-gray-300">1-50 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="0" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="0" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 51-100 -->
+                            <label class="text-gray-700 dark:text-gray-300">51-100 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="1" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="1" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 101-150 -->
+                            <label class="text-gray-700 dark:text-gray-300">101-150 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="2" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="2" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 151-200 -->
+                            <label class="text-gray-700 dark:text-gray-300">151-200 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="3" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="3" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 201-500 -->
+                            <label class="text-gray-700 dark:text-gray-300">201-500 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="4" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="4" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+
+                            <!-- Rango 501-1000 -->
+                            <label class="text-gray-700 dark:text-gray-300">501-1000 pliegos</label>
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="5" data-sides="1-side"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                            <input type="number" step="0.01" data-category="laminate" data-type="glossy"
+                                data-range-idx="5" data-sides="2-sides"
+                                class="form-input p-2 text-sm rounded-lg dark:bg-dark-card dark:border-gray-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje flotante para notificaciones -->
+    <div id="message-box" class="message-box"></div>
+
+    <!-- Script de la aplicación -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mapeo de precios por defecto (valores iniciales)
+            const defaultPrices = {
+                paper: {
+                    'opaline-white-225': 1.84,
+                    'opaline-ivory-225': 1.55,
+                    'couche-300': 1.35,
+                    'couche-250': 1.13,
+                    'sulfated-12pt': 2.34,
+                    'kromakote': 3.695,
+                    'stardream': 13.85,
+                },
+                printing: {
+                    color: [
+                        { range: [1, 50], '1-side': 12.08, '2-sides': 24.16 },
+                        { range: [51, 100], '1-side': 12, '2-sides': 24 },
+                        { range: [101, 150], '1-side': 11.8, '2-sides': 23.6 },
+                        { range: [151, 200], '1-side': 11.6, '2-sides': 23.2 },
+                        { range: [201, 500], '1-side': 11.3, '2-sides': 22.6 },
+                        { range: [501, 1000], '1-side': 10.5, '2-sides': 21 }
+                    ],
+                    bw: [
+                        { range: [1, 50], '1-side': 2.4, '2-sides': 4.8 },
+                        { range: [51, 100], '1-side': 2.2, '2-sides': 4.4 },
+                        { range: [101, 150], '1-side': 2, '2-sides': 4 },
+                        { range: [151, 200], '1-side': 1.7, '2-sides': 3.4 },
+                        { range: [201, 500], '1-side': 1.6, '2-sides': 3.2 },
+                        { range: [501, 1000], '1-side': 1.56, '2-sides': 3.12 }
+                    ]
+                },
+                finishes: {
+                    'no-finish': 0,
+                    laminate: {
+                        matte: [
+                            { range: [1, 50], '1-side': 5.852, '2-sides': 11.704 },
+                            { range: [51, 100], '1-side': 5.0875, '2-sides': 10.175 },
+                            { range: [101, 150], '1-side': 3.63, '2-sides': 6.534 },
+                            { range: [151, 200], '1-side': 3.234, '2-sides': 5.4978 },
+                            { range: [201, 500], '1-side': 2.42, '2-sides': 3.63 },
+                            { range: [501, 1000], '1-side': 2.42, '2-sides': 3.63 }
+                        ],
+                        glossy: [
+                            { range: [1, 50], '1-side': 5.32, '2-sides': 10.64 },
+                            { range: [51, 100], '1-side': 4.625, '2-sides': 9.25 },
+                            { range: [101, 150], '1-side': 3.3, '2-sides': 5.94 },
+                            { range: [151, 200], '1-side': 2.94, '2-sides': 4.998 },
+                            { range: [201, 500], '1-side': 2.2, '2-sides': 3.3 },
+                            { range: [501, 1000], '1-side': 2.2, '2-sides': 3.3 }
+                        ]
+                    },
+                    'rounded-1': 35,
+                    'rounded-2': 45,
+                    'rounded-4': 60,
+                },
+                design: {
+                    'client-sends': 0,
+                    'create-design': 250,
+                    'saved-design': 150
+                }
+            };
+
+            // Precios actuales, se cargarán desde localStorage o usarán los por defecto
+            let currentPrices = JSON.parse(JSON.stringify(defaultPrices)); // Copia profunda de los precios por defecto
+
+            // Estado global de la aplicación para gestionar las selecciones y cálculos
+            let appState = {
+                quantity: 0,
+                paper: null,
+                printingSides: '1',
+                printingFront: 'color',
+                printingBack: null,
+                noFinish: true,
+                laminateSides: null,
+                laminateType: null,
+                roundedCorners: null,
+                designOption: 'client-sends',
+                sheetsNeeded: 0,
+                originalPaperCostTotal: 0,
+                paperCostPerSheetValue: 0,
+                paperSellingCostPerSheetValue: 0,
+                paperCostTotal: 0,
+                printingCostPerSheet: 0,
+                totalPrintingCostForBatch: 0,
+                totalLaminateCost: 0,
+                laminatePricePerSheetValue: 0,
+                cuttingCost: 220,
+                roundedCornersCost: 0,
+                designCost: 0,
+                subtotal: 0,
+                iva: 0,
+                finalTotal: 0,
+                unitPriceNoIva: 0
+            };
+
+            // Elementos del DOM
+            const quantityInput = document.getElementById('quantity');
+            const paperSelect = document.getElementById('paper-select');
+            const noFinishButton = document.querySelector('[data-type="no-finish"]');
+            const selectionButtons = document.querySelectorAll('.selection-button:not([data-type="no-finish"])');
+            const backPrintingOptions = document.getElementById('back-printing-options');
+            const subtotalCostEl = document.getElementById('subtotal-cost');
+            const unitPriceNoIvaEl = document.getElementById('unit-price-no-iva');
+            const ivaCostEl = document.getElementById('iva-cost');
+            const finalTotalCostEl = document.getElementById('final-total-cost');
+            const errorMessageEl = document.getElementById('error-message');
+            const resetButton = document.getElementById('reset-btn');
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const toggleSummaryBtn = document.getElementById('toggle-summary-btn');
+            const breakdownSection = document.getElementById('breakdown-section');
+            const messageBox = document.getElementById('message-box');
+
+            // Elementos para el desglose del cálculo en el resumen
+            const sheetsNeededEl = document.getElementById('sheets-needed');
+            const originalTotalPaperCostEl = document.getElementById('original-total-paper-cost');
+            const totalPaperCostEl = document.getElementById('total-paper-cost');
+            const costPerSinglePaperSheetEl = document.getElementById('cost-per-single-paper-sheet');
+            const costPerSellingPaperSheetEl = document.getElementById('cost-per-selling-paper-sheet');
+            const sheetsNeededForPrintingDisplayEl = document.getElementById('sheets-needed-for-printing-display');
+            const costPerPrintingSheetEl = document.getElementById('cost-per-printing-sheet');
+            const totalPrintingCostBatchEl = document.getElementById('total-printing-cost-batch');
+            const laminateDetailEl = document.getElementById('laminate-detail');
+            const roundedDetailEl = document.getElementById('rounded-detail');
+            const cuttingCostDisplayEl = document.getElementById('cutting-cost-display');
+            const summaryDesignOptionEl = document.getElementById('summary-design-option');
+            const designCostDetailEl = document.getElementById('design-cost-detail');
+            const simplifiedDescriptionEl = document.getElementById('simplified-description');
+
+            // Elementos para la configuración de precios
+            const configTabButtons = document.querySelectorAll('.config-tab-button');
+            const configContents = document.querySelectorAll('.config-content');
+            const priceInputs = document.querySelectorAll('.config-content input[type="number"]');
+            const copyQuoteBtn = document.getElementById('copy-quote-btn');
+            const resetAllBtn = document.getElementById('reset-all-btn');
+
+            // --- Funciones de utilidad ---
+
+            // Muestra un mensaje flotante al usuario
+            const showMessage = (message, type = 'info', duration = 3000) => {
+                messageBox.textContent = message;
+                messageBox.className = `message-box show ${type}`;
+                setTimeout(() => {
+                    messageBox.classList.remove('show');
+                }, duration);
+                // También registra en la consola para depuración
+                if (type === 'error') {
+                    console.error(message);
+                } else {
+                    // console.log(message);
+                }
+            };
+
+            // --- Funciones de persistencia de precios ---
+
+            // Cargar precios desde localStorage
+            const loadPrices = () => {
+                try {
+                    const savedPrices = localStorage.getItem('customPrices');
+                    if (savedPrices) {
+                        currentPrices = JSON.parse(savedPrices);
+                        // console.log("Precios cargados desde localStorage.");
+                    } else {
+                        currentPrices = JSON.parse(JSON.stringify(defaultPrices));
+                        // console.log("No hay precios guardados, usando valores por defecto.");
+                    }
+                } catch (e) {
+                    console.error("Error al parsear precios de localStorage:", e);
+                    showMessage('Error al cargar precios guardados. Usando valores por defecto.', 'error');
+                    currentPrices = JSON.parse(JSON.stringify(defaultPrices));
+                }
+            };
+
+            // Guardar precios en localStorage
+            const savePrices = () => {
+                try {
+                    localStorage.setItem('customPrices', JSON.stringify(currentPrices));
+                    // console.log("Precios guardados en localStorage.");
+                } catch (e) {
+                    console.error("Error al guardar precios en localStorage:", e);
+                    showMessage('Error al guardar precios.', 'error');
+                }
+            };
+
+            // Rellenar los inputs de configuración con los precios actuales
+            const populatePriceInputs = () => {
+                // Papel
+                for (const paperType in currentPrices.paper) {
+                    const input = document.getElementById(`paper-${paperType}`);
+                    if (input) {
+                        input.value = currentPrices.paper[paperType].toFixed(3);
+                    }
+                }
+
+                // Impresión
+                for (const colorType in currentPrices.printing) {
+                    currentPrices.printing[colorType].forEach((range, idx) => {
+                        const input1Side = document.querySelector(`[data-category="printing"][data-type="${colorType}"][data-range-idx="${idx}"][data-sides="1-side"]`);
+                        const input2Sides = document.querySelector(`[data-category="printing"][data-type="${colorType}"][data-range-idx="${idx}"][data-sides="2-sides"]`);
+                        if (input1Side) input1Side.value = range['1-side'].toFixed(2);
+                        if (input2Sides) input2Sides.value = range['2-sides'].toFixed(2);
+                    });
+                }
+
+                // Laminado
+                for (const laminateType in currentPrices.finishes.laminate) {
+                    currentPrices.finishes.laminate[laminateType].forEach((range, idx) => {
+                        const input1Side = document.querySelector(`[data-category="laminate"][data-type="${laminateType}"][data-range-idx="${idx}"][data-sides="1-side"]`);
+                        const input2Sides = document.querySelector(`[data-category="laminate"][data-type="${laminateType}"][data-range-idx="${idx}"][data-sides="2-sides"]`);
+
+                        if (input1Side) input1Side.value = range['1-side'].toFixed(3);
+                        if (input2Sides) input2Sides.value = range['2-sides'].toFixed(3);
+                    });
+                }
+                // console.log("Inputs de precios rellenados.");
+            };
+
+            // --- Funciones de control de UI y lógica de cálculo ---
+
+            // Función para actualizar el resumen de selecciones en la UI
+            const updateSummary = () => {
+                document.getElementById('summary-quantity').textContent = appState.quantity || '--';
+
+                const selectedPaperOption = paperSelect.options[paperSelect.selectedIndex];
+                document.getElementById('summary-paper').textContent = selectedPaperOption.value ? selectedPaperOption.text : '--';
+
+                let printingText = 'No seleccionado';
+                if (appState.printingFront) {
+                    const frontLabel = document.querySelector(`[data-type="printing-front"][data-value="${appState.printingFront}"]`).textContent.trim();
+                    printingText = `Frente: ${frontLabel}`;
+                    if (appState.printingSides === '2' && appState.printingBack) {
+                        const backLabel = document.querySelector(`[data-type="printing-back"][data-value="${appState.printingBack}"]`).textContent.trim();
+                        printingText += `, Reverso: ${backLabel}`;
+                    }
+                }
+                document.getElementById('summary-printing').textContent = printingText;
+
+                let finishesText = 'Sin acabados';
+                if (!appState.noFinish) { // Si NO se ha seleccionado "Sin Acabados"
+                    let finishesParts = [];
+                    // Opciones de laminado
+                    if (appState.laminateSides && appState.laminateType) {
+                        const sidesLabel = document.querySelector(`[data-type="laminate-sides"][data-value="${appState.laminateSides}"]`);
+                        const typeLabel = document.querySelector(`[data-type="laminate-type"][data-value="${appState.laminateType}"]`);
+
+                        if (sidesLabel && typeLabel) { // Asegurar que los elementos existen antes de acceder a textContent
+                            finishesParts.push(`Laminado: ${sidesLabel.textContent.trim()}, ${typeLabel.textContent.trim()}`);
+                            laminateDetailEl.textContent = `Laminado: ${appState.sheetsNeeded} pliegos x $${appState.laminatePricePerSheetValue.toFixed(2)} = $${appState.totalLaminateCost.toFixed(2)}`;
+                            laminateDetailEl.classList.remove('hidden');
+                        } else {
+                            laminateDetailEl.classList.add('hidden');
+                        }
+                    } else {
+                        laminateDetailEl.classList.add('hidden');
+                    }
+                    // Opciones de redondeo
+                    if (appState.roundedCorners) {
+                        const roundedLabel = document.querySelector(`[data-type="rounded-corners"][data-value="${appState.roundedCorners}"]`);
+                        if (roundedLabel) { // Asegurar que el elemento existe
+                            finishesParts.push(`Redondeo: ${roundedLabel.textContent.trim()}`);
+                            roundedDetailEl.textContent = `Redondeo: $${appState.roundedCornersCost.toFixed(2)}`;
+                            roundedDetailEl.classList.remove('hidden');
+                        } else {
+                            roundedDetailEl.classList.add('hidden');
+                        }
+                    } else {
+                        roundedDetailEl.classList.add('hidden');
+                    }
+                    finishesText = finishesParts.length > 0 ? finishesParts.join(', ') : 'No seleccionado'; // Si hay acabados pero no se eligió ninguno
+                } else {
+                    laminateDetailEl.classList.add('hidden');
+                    roundedDetailEl.classList.add('hidden');
+                }
+                document.getElementById('summary-finishes').textContent = finishesText;
+
+                const designOptionLabelEl = document.querySelector(`[data-type="design-option"][data-value="${appState.designOption}"]`);
+                const designOptionLabel = designOptionLabelEl ? designOptionLabelEl.textContent.trim() : 'No seleccionado';
+                summaryDesignOptionEl.textContent = designOptionLabel;
+
+                if (appState.designCost > 0) {
+                    designCostDetailEl.textContent = `Costo de diseño: $${appState.designCost.toFixed(2)}`;
+                    designCostDetailEl.classList.remove('hidden');
+                } else {
+                    designCostDetailEl.classList.add('hidden');
+                }
+
+                sheetsNeededEl.textContent = appState.sheetsNeeded;
+                costPerSinglePaperSheetEl.textContent = appState.paperCostPerSheetValue.toFixed(2);
+                originalTotalPaperCostEl.textContent = (appState.paperCostPerSheetValue * appState.sheetsNeeded).toFixed(2);
+                costPerSellingPaperSheetEl.textContent = appState.paperSellingCostPerSheetValue.toFixed(2);
+                totalPaperCostEl.textContent = appState.paperCostTotal.toFixed(2);
+
+                sheetsNeededForPrintingDisplayEl.textContent = appState.sheetsNeeded;
+                costPerPrintingSheetEl.textContent = appState.printingCostPerSheet.toFixed(2);
+                totalPrintingCostBatchEl.textContent = appState.totalPrintingCostForBatch.toFixed(2);
+
+                cuttingCostDisplayEl.textContent = appState.cuttingCost.toFixed(2);
+
+                subtotalCostEl.textContent = `$${appState.subtotal.toFixed(2)}`;
+                unitPriceNoIvaEl.textContent = `$${appState.unitPriceNoIva.toFixed(2)}`;
+                ivaCostEl.textContent = `$${appState.iva.toFixed(2)}`;
+                finalTotalCostEl.textContent = `$${appState.finalTotal.toFixed(2)}`;
+
+                // Generar descripción simplificada para el resumen
+                let descriptionParts = [];
+                if (appState.quantity > 0) {
+                    descriptionParts.push(`${appState.quantity} tarjetas de presentación (9x5.5cm)`);
+                }
+                if (selectedPaperOption.value) {
+                    descriptionParts.push(`en ${selectedPaperOption.text.toLowerCase()}`);
+                }
+                if (appState.printingFront) {
+                    const frontColorLabelEl = document.querySelector(`[data-type="printing-front"][data-value="${appState.printingFront}"]`);
+                    const frontColorLabel = frontColorLabelEl ? frontColorLabelEl.textContent.trim().toLowerCase() : '';
+                    let printingDesc = `frente impreso a ${frontColorLabel}`;
+
+                    if (appState.printingSides === '2' && appState.printingBack) {
+                        const backColorLabelEl = document.querySelector(`[data-type="printing-back"][data-value="${appState.printingBack}"]`);
+                        const backColorLabel = backColorLabelEl ? backColorLabelEl.textContent.trim().toLowerCase() : '';
+                        printingDesc += `, reverso impreso a ${backColorLabel}`;
+                    }
+                    descriptionParts.push(printingDesc);
+                }
+
+                let finishesDescParts = [];
+                if (!appState.noFinish) {
+                    if (appState.laminateSides && appState.laminateType) {
+                        const sidesLabelEl = document.querySelector(`[data-type="laminate-sides"][data-value="${appState.laminateSides}"]`);
+                        const typeLabelEl = document.querySelector(`[data-type="laminate-type"][data-value="${appState.laminateType}"]`);
+                        if (sidesLabelEl && typeLabelEl) {
+                            finishesDescParts.push(`con laminado ${typeLabelEl.textContent.trim().toLowerCase()} ${sidesLabelEl.textContent.trim().toLowerCase()}`);
+                        }
+                    }
+                    if (appState.roundedCorners) {
+                        const roundedLabelEl = document.querySelector(`[data-type="rounded-corners"][data-value="${appState.roundedCorners}"]`);
+                        if (roundedLabelEl) {
+                            finishesDescParts.push(`con ${roundedLabelEl.textContent.trim().toLowerCase()}`);
+                        }
+                    }
+                }
+                if (finishesDescParts.length > 0) {
+                    descriptionParts.push(finishesDescParts.join(' y '));
+                } else {
+                    descriptionParts.push('sin acabados');
+                }
+
+                descriptionParts.push(`, ${designOptionLabel.toLowerCase()}`);
+
+                let finalDescription = descriptionParts.join(' ');
+
+                // Añadir costo unitario y total (modificado para quitar paréntesis y añadir "neto")
+                if (appState.quantity > 0 && appState.finalTotal > 0) {
+                    finalDescription += ` - Unitario (sin IVA): $${appState.unitPriceNoIva.toFixed(2)} c/u, Total: $${appState.finalTotal.toFixed(2)} neto`;
+                }
+
+                simplifiedDescriptionEl.textContent = finalDescription;
+                // console.log("Resumen de UI actualizado.");
+            };
+
+            // Función para obtener el costo de impresión por la cantidad de pliegos
+            const getPrintingCostForSheets = (colorType, sheetsQuantity, sidesConfig) => {
+                const priceList = currentPrices.printing[colorType];
+                // Buscar el rango de precios correcto
+                const priceEntry = priceList.find(p => sheetsQuantity >= p.range[0] && sheetsQuantity <= p.range[1]);
+                return priceEntry ? priceEntry[sidesConfig] : 0;
+            };
+
+            // Función para obtener el costo de laminado por la cantidad de pliegos
+            const getLaminateCostForSheets = (laminateType, sheetsQuantity, sidesConfig) => {
+                const priceList = currentPrices.finishes.laminate[laminateType];
+                // Buscar el rango de precios correcto
+                const priceEntry = priceList.find(p => sheetsQuantity >= p.range[0] && sheetsQuantity <= p.range[1]);
+                return priceEntry ? priceEntry[sidesConfig] : 0;
+            };
+
+            // Función principal para calcular el costo total
+            const calculateTotal = () => {
+                try {
+                    const { quantity, paper, printingSides, printingFront, printingBack, noFinish, laminateSides, laminateType, roundedCorners, designOption } = appState;
+
+                    // Validar que todos los campos necesarios estén seleccionados
+                    if (quantity <= 0 || !paper || !printingFront || (printingSides === '2' && !printingBack)) {
+                        // Si faltan datos, resetear los totales y mostrar mensaje de error
+                        subtotalCostEl.textContent = '$0.00';
+                        unitPriceNoIvaEl.textContent = '$0.00';
+                        ivaCostEl.textContent = '$0.00';
+                        finalTotalCostEl.textContent = '$0.00';
+                        errorMessageEl.classList.remove('hidden'); // Mostrar mensaje de error
+
+                        // Resetear todos los estados de cálculo
+                        appState.sheetsNeeded = 0;
+                        appState.originalPaperCostTotal = 0;
+                        appState.paperCostTotal = 0;
+                        appState.paperCostPerSheetValue = 0;
+                        appState.paperSellingCostPerSheetValue = 0;
+                        appState.printingCostPerSheet = 0;
+                        appState.totalPrintingCostForBatch = 0;
+                        appState.totalLaminateCost = 0;
+                        appState.laminatePricePerSheetValue = 0;
+                        appState.cuttingCost = 220; // Mantener costo de corte por defecto
+                        appState.roundedCornersCost = 0;
+                        appState.designCost = 0;
+                        appState.subtotal = 0;
+                        appState.iva = 0;
+                        appState.finalTotal = 0;
+                        appState.unitPriceNoIva = 0;
+                        updateSummary(); // Actualizar resumen con valores reseteados
+                        // console.log("Cálculo detenido: campos incompletos.");
+                        return; // Detener la ejecución
+                    }
+                    errorMessageEl.classList.add('hidden'); // Ocultar mensaje de error si todo está completo
+
+                    const cardsPerSheet = 20; // Tarjetas por pliego
+                    const sheetsNeeded = Math.ceil(quantity / cardsPerSheet); // Calcular pliegos necesarios
+                    const paperCostPerSheetValue = currentPrices.paper[paper]; // Costo original del papel por pliego
+                    const paperSellingCostPerSheetValue = paperCostPerSheetValue * 2.5; // Costo de venta del papel (con utilidad)
+                    const paperCostTotal = paperSellingCostPerSheetValue * sheetsNeeded; // Total de papel con utilidad
+
+                    let printingCostPerSheet = 0;
+                    if (printingSides === '1') {
+                        printingCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '1-side');
+                    } else if (printingSides === '2') {
+                        if (printingFront === printingBack) { // Si ambos lados son del mismo color (e.g., Color/Color)
+                            printingCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '2-sides');
+                        } else { // Si los lados son de diferente color (e.g., Color/B&N)
+                            const frontSideCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '1-side');
+                            const backSideCostPerSheet = getPrintingCostForSheets(printingBack, sheetsNeeded, '1-side');
+                            printingCostPerSheet = frontSideCostPerSheet + backSideCostPerSheet;
+                        }
+                    }
+                    const totalPrintingCostForBatch = printingCostPerSheet * sheetsNeeded; // Costo total de impresión
+
+                    let totalFinishesCostForBatch = 0;
+                    let currentLaminateCost = 0;
+                    let laminatePricePerSheetFromTable = 0;
+                    let currentRoundedCost = 0;
+
+                    if (!noFinish) { // Si hay acabados seleccionados
+                        if (laminateSides && laminateType) {
+                            laminatePricePerSheetFromTable = getLaminateCostForSheets(laminateType, sheetsNeeded, laminateSides === '1-side' ? '1-side' : '2-sides');
+                            currentLaminateCost = laminatePricePerSheetFromTable * sheetsNeeded;
+                            if (currentLaminateCost < 250 && currentLaminateCost > 0) { // Aplicar costo mínimo de laminado
+                                currentLaminateCost = 250;
+                            }
+                            totalFinishesCostForBatch += currentLaminateCost;
+                        }
+                        if (roundedCorners) {
+                            currentRoundedCost = currentPrices.finishes[roundedCorners];
+                            totalFinishesCostForBatch += currentRoundedCost;
+                        }
+                    }
+
+                    const cuttingCost = appState.cuttingCost; // Costo de corte (fijo)
+
+                    const designCost = currentPrices.design[designOption]; // Costo de diseño
+
+                    // Calcular el subtotal, IVA y total final
+                    const calculatedSubtotal = paperCostTotal + totalPrintingCostForBatch + totalFinishesCostForBatch + cuttingCost + designCost;
+                    const calculatedIva = calculatedSubtotal * 0.16;
+                    const calculatedFinalTotal = calculatedSubtotal + calculatedIva;
+                    const calculatedUnitPriceNoIva = calculatedSubtotal / quantity; // Costo unitario sin IVA
+
+                    // Actualizar el estado de la aplicación con los valores calculados
+                    appState.sheetsNeeded = sheetsNeeded;
+                    appState.originalPaperCostTotal = paperCostPerSheetValue * sheetsNeeded;
+                    appState.paperCostTotal = paperCostTotal;
+                    appState.paperCostPerSheetValue = paperCostPerSheetValue;
+                    appState.paperSellingCostPerSheetValue = paperSellingCostPerSheetValue;
+                    appState.printingCostPerSheet = printingCostPerSheet;
+                    appState.totalPrintingCostForBatch = totalPrintingCostForBatch;
+                    appState.totalLaminateCost = currentLaminateCost;
+                    appState.laminatePricePerSheetValue = laminatePricePerSheetFromTable;
+                    appState.roundedCornersCost = currentRoundedCost;
+                    appState.designCost = designCost;
+                    appState.subtotal = calculatedSubtotal;
+                    appState.iva = calculatedIva;
+                    appState.finalTotal = calculatedFinalTotal;
+                    appState.unitPriceNoIva = calculatedUnitPriceNoIva;
+
+                    // console.log("Cálculo completado:", appState);
+                    updateSummary(); // Actualizar el resumen en la UI
+                } catch (e) {
+                    console.error("Error en calculateTotal:", e);
+                    showMessage(`Error al calcular costos: ${e.message}`, 'error');
+                }
+            };
+
+            // Alterna la visibilidad de las opciones de impresión del reverso
+            const toggleBackPrintingOptions = () => {
+                if (appState.printingSides === '2') {
+                    backPrintingOptions.classList.remove('hidden');
+                    if (!appState.printingBack) {
+                        // Establecer 'color' como predeterminado si no hay selección para impresión posterior
+                        const defaultBackBtn = document.querySelector(`[data-type="printing-back"][data-value="color"]`);
+                        if (defaultBackBtn) { // Asegurarse de que el botón existe
+                            defaultBackBtn.classList.add('active');
+                            appState.printingBack = defaultBackBtn.dataset.value;
+                        } else {
+                            console.warn("Botón de impresión trasera por defecto no encontrado.");
+                        }
+                    }
+                } else {
+                    backPrintingOptions.classList.add('hidden');
+                    appState.printingBack = null; // Limpiar selección si se deselecciona 2 lados
+                    document.querySelectorAll(`[data-type="printing-back"]`).forEach(btn => btn.classList.remove('active')); // Deseleccionar botones
+                }
+                // console.log("Visibilidad de opciones de impresión trasera actualizada.");
+            };
+
+            // Deselecciona todas las opciones de acabado y activa "Sin Acabados"
+            const deselectAllFinishes = () => {
+                document.querySelectorAll('[data-type="laminate-sides"], [data-type="laminate-type"], [data-type="rounded-corners"]').forEach(btn => btn.classList.remove('active'));
+                appState.laminateSides = null;
+                appState.laminateType = null;
+                appState.roundedCorners = null;
+                appState.noFinish = true;
+                noFinishButton.classList.add('active'); // Activar el botón "Sin Acabados"
+
+                // Reiniciar costos asociados
+                appState.totalLaminateCost = 0;
+                appState.laminatePricePerSheetValue = 0;
+                appState.roundedCornersCost = 0;
+                // console.log("Todos los acabados deseleccionados.");
+            };
+
+            // Función para actualizar la UI basada en el estado de la aplicación (usado para cargar estado)
+            const updateUIFromAppState = () => {
+                try {
+                    // Cantidad y Papel
+                    quantityInput.value = appState.quantity;
+                    paperSelect.value = appState.paper;
+
+                    // Lados de Impresión
+                    document.querySelectorAll(`[data-type="printing-sides"]`).forEach(btn => btn.classList.remove('active'));
+                    const printingSidesBtn = document.querySelector(`[data-type="printing-sides"][data-value="${appState.printingSides}"]`);
+                    if (printingSidesBtn) printingSidesBtn.classList.add('active');
+                    toggleBackPrintingOptions(); // Asegurar que la visibilidad de las opciones de impresión posterior sea correcta
+
+                    // Impresión Frente
+                    document.querySelectorAll(`[data-type="printing-front"]`).forEach(btn => btn.classList.remove('active'));
+                    const printingFrontBtn = document.querySelector(`[data-type="printing-front"][data-value="${appState.printingFront}"]`);
+                    if (printingFrontBtn) printingFrontBtn.classList.add('active');
+
+                    // Impresión Reverso (si aplica)
+                    if (appState.printingSides === '2' && appState.printingBack) {
+                        document.querySelectorAll(`[data-type="printing-back"]`).forEach(btn => btn.classList.remove('active'));
+                        const printingBackBtn = document.querySelector(`[data-type="printing-back"][data-value="${appState.printingBack}"]`);
+                        if (printingBackBtn) printingBackBtn.classList.add('active');
+                    }
+
+                    // Acabados
+                    if (appState.noFinish) {
+                        deselectAllFinishes(); // Asegurar que todas las opciones de acabado estén deseleccionadas
+                    } else {
+                        noFinishButton.classList.remove('active'); // Desactivar el botón "Sin Acabados"
+
+                        if (appState.laminateSides) {
+                            document.querySelectorAll(`[data-type="laminate-sides"]`).forEach(btn => btn.classList.remove('active'));
+                            const laminateSidesBtn = document.querySelector(`[data-type="laminate-sides"][data-value="${appState.laminateSides}"]`);
+                            if (laminateSidesBtn) laminateSidesBtn.classList.add('active');
+                        }
+                        if (appState.laminateType) {
+                            document.querySelectorAll(`[data-type="laminate-type"]`).forEach(btn => btn.classList.remove('active'));
+                            const laminateTypeBtn = document.querySelector(`[data-type="laminate-type"][data-value="${appState.laminateType}"]`);
+                            if (laminateTypeBtn) laminateTypeBtn.classList.add('active');
+                        }
+                        if (appState.roundedCorners) {
+                            document.querySelectorAll(`[data-type="rounded-corners"]`).forEach(btn => btn.classList.remove('active'));
+                            const roundedCornersBtn = document.querySelector(`[data-type="rounded-corners"][data-value="${appState.roundedCorners}"]`);
+                            if (roundedCornersBtn) roundedCornersBtn.classList.add('active');
+                        }
+                    }
+
+                    // Opciones de Diseño
+                    document.querySelectorAll(`[data-type="design-option"]`).forEach(btn => btn.classList.remove('active'));
+                    const designOptionBtn = document.querySelector(`[data-type="design-option"][data-value="${appState.designOption}"]`);
+                    if (designOptionBtn) designOptionBtn.classList.add('active');
+
+                    // Actualizar el estado visual de los inputs de cantidad y papel
+                    if (quantityInput.value) {
+                        quantityInput.classList.add('input-filled');
+                    } else {
+                        quantityInput.classList.remove('input-filled');
+                    }
+                    if (paperSelect.value) {
+                        paperSelect.classList.add('input-filled');
+                    } else {
+                        paperSelect.classList.remove('input-filled');
+                    }
+
+                    // console.log("UI actualizada desde el estado de la aplicación.");
+                    updateSummary();
+                    calculateTotal();
+                } catch (e) {
+                    console.error("Error en updateUIFromAppState:", e);
+                    showMessage(`Error al actualizar la UI desde el estado guardado: ${e.message}`, 'error');
+                }
+            };
+
+            // Función central para actualizar la UI y recalcular costos
+            const updateUIAndCalculate = () => {
+                try {
+                    // Actualizar estado visual de input/select
+                    if (quantityInput.value) {
+                        quantityInput.classList.add('input-filled');
+                    } else {
+                        quantityInput.classList.remove('input-filled');
+                    }
+                    if (paperSelect.value) {
+                        paperSelect.classList.add('input-filled');
+                    } else {
+                        paperSelect.classList.remove('input-filled');
+                    }
+                    // console.log("Iniciando actualización de UI y cálculo.");
+                    updateSummary();
+                    calculateTotal();
+                } catch (e) {
+                    console.error("Error en updateUIAndCalculate:", e);
+                    showMessage(`Error general al actualizar la interfaz: ${e.message}`, 'error');
+                }
+            };
+
+            // --- Manejadores de eventos ---
+
+            // Maneja los cambios en la selección de papel
+            paperSelect.addEventListener('change', () => {
+                try {
+                    appState.paper = paperSelect.value;
+                    // console.log(`Papel seleccionado: ${appState.paper}`);
+                    updateUIAndCalculate();
+                } catch (e) {
+                    console.error("Error en el manejador de cambio de papel:", e);
+                    showMessage(`Error al cambiar el papel: ${e.message}`, 'error');
+                }
+            });
+
+            // Maneja los clics en los botones de selección
+            document.querySelectorAll('.selection-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    try {
+                        const type = button.dataset.type;
+                        const value = button.dataset.value;
+                        // console.log(`Botón clicado: Tipo=${type}, Valor=${value}`);
+
+                        if (type === 'design-option') {
+                            // Manejo especial para opciones de diseño (solo una puede estar activa)
+                            document.querySelectorAll(`[data-type="design-option"]`).forEach(btn => btn.classList.remove('active'));
+                            button.classList.add('active');
+                            appState.designOption = value;
+                        } else if (type === 'no-finish') {
+                            // Cuando se selecciona "Sin Acabados", deseleccionar todos los demás acabados
+                            deselectAllFinishes();
+                        } else if (type === 'laminate-sides' || type === 'laminate-type' || type === 'rounded-corners') {
+                            // Manejo para laminado y esquinas redondeadas
+                            appState.noFinish = false; // Deseleccionar automáticamente "Sin Acabados"
+                            noFinishButton.classList.remove('active');
+
+                            const isActive = button.classList.contains('active');
+
+                            if (type === 'laminate-sides' || type === 'laminate-type') {
+                                // Solo un lado/tipo de laminado puede estar activo a la vez
+                                document.querySelectorAll(`[data-type="${type}"]`).forEach(btn => btn.classList.remove('active'));
+                                if (!isActive) {
+                                    button.classList.add('active');
+                                    if (type === 'laminate-sides') appState.laminateSides = value;
+                                    if (type === 'laminate-type') appState.laminateType = value;
+                                } else {
+                                    // Si ya está activo, deseleccionarlo
+                                    if (type === 'laminate-sides') appState.laminateSides = null;
+                                    if (type === 'laminate-type') appState.laminateType = null;
+                                }
+                            } else if (type === 'rounded-corners') {
+                                // Solo una opción de esquinas redondeadas puede estar activa
+                                document.querySelectorAll(`[data-type="${type}"]`).forEach(btn => btn.classList.remove('active'));
+                                if (!isActive) {
+                                    button.classList.add('active');
+                                    appState.roundedCorners = value;
+                                } else {
+                                    appState.roundedCorners = null;
+                                }
+                            }
+                            // Si no se selecciona ningún acabado después de un cambio, reactivar "Sin Acabados"
+                            if (!appState.laminateSides && !appState.laminateType && !appState.roundedCorners) {
+                                appState.noFinish = true;
+                                noFinishButton.classList.add('active');
+                            }
+                        } else {
+                            // Manejo genérico para otros botones de selección (ej. lados de impresión, frente, reverso)
+                            document.querySelectorAll(`[data-type="${type}"]`).forEach(btn => btn.classList.remove('active'));
+                            button.classList.add('active');
+
+                            if (type === 'printing-sides') {
+                                appState.printingSides = value;
+                                toggleBackPrintingOptions(); // Actualizar visibilidad de opciones de impresión del reverso
+                            } else if (type === 'printing-front') {
+                                appState.printingFront = value;
+                            } else if (type === 'printing-back') {
+                                appState.printingBack = value;
+                            }
+                        }
+
+                        updateUIAndCalculate();
+                    } catch (e) {
+                        console.error("Error en el manejador de clic de selección:", e);
+                        showMessage(`Error al procesar la selección: ${e.message}`, 'error');
+                    }
+                });
+            });
+
+            // Maneja los cambios en la cantidad
+            quantityInput.addEventListener('input', () => {
+                try {
+                    appState.quantity = parseInt(quantityInput.value) || 0;
+                    // console.log(`Cantidad ingresada: ${appState.quantity}`);
+                    updateUIAndCalculate();
+                } catch (e) {
+                    console.error("Error en el manejador de cantidad:", e);
+                    showMessage(`Error al ingresar la cantidad: ${e.message}`, 'error');
+                }
+            });
+
+            // Maneja el clic en el botón de restablecer
+            const resetApplication = () => {
+                try {
+                    quantityInput.value = '';
+                    paperSelect.value = '';
+
+                    // Remover la clase 'active' de todos los botones de selección
+                    document.querySelectorAll('.selection-button').forEach(btn => btn.classList.remove('active'));
+
+                    // Reiniciar el estado de la aplicación a los valores predeterminados iniciales
+                    appState = {
+                        quantity: 0,
+                        paper: null,
+                        printingSides: '1',
+                        printingFront: 'color',
+                        printingBack: null,
+                        noFinish: true,
+                        laminateSides: null,
+                        laminateType: null,
+                        roundedCorners: null,
+                        designOption: 'client-sends',
+                        sheetsNeeded: 0,
+                        originalPaperCostTotal: 0,
+                        paperCostTotal: 0,
+                        paperCostPerSheetValue: 0,
+                        paperSellingCostPerSheetValue: 0,
+                        printingCostPerSheet: 0,
+                        totalPrintingCostForBatch: 0,
+                        totalLaminateCost: 0,
+                        laminatePricePerSheetValue: 0,
+                        cuttingCost: 220,
+                        roundedCornersCost: 0,
+                        designCost: 0,
+                        subtotal: 0,
+                        iva: 0,
+                        finalTotal: 0,
+                        unitPriceNoIva: 0
+                    };
+
+                    // Reactivar los botones predeterminados iniciales
+                    document.querySelector('[data-type="printing-sides"][data-value="1"]').classList.add('active');
+                    document.querySelector('[data-type="printing-front"][data-value="color"]').classList.add('active');
+                    document.querySelector('[data-type="design-option"][data-value="client-sends"]').classList.add('active');
+                    noFinishButton.classList.add('active');
+
+                    // Ocultar opciones de impresión del reverso
+                    backPrintingOptions.classList.add('hidden');
+
+                    // Reiniciar precios a los valores por defecto y guardarlos
+                    currentPrices = JSON.parse(JSON.stringify(defaultPrices));
+                    savePrices();
+                    populatePriceInputs(); // Actualizar inputs de configuración de precios
+
+                    updateUIAndCalculate(); // Actualizar resumen y recalcular
+                    showMessage('Campos limpiados y precios reiniciados.', 'info');
+                    // console.log("Aplicación reiniciada a valores por defecto.");
+                } catch (e) {
+                    console.error("Error en el manejador de restablecer:", e);
+                    showMessage(`Error al reiniciar la aplicación: ${e.message}`, 'error');
+                }
+            };
+
+            resetButton.addEventListener('click', resetApplication);
+            resetAllBtn.addEventListener('click', resetApplication);
+
+
+
+            // Maneja el clic en el botón de alternar tema
+            themeToggleBtn.addEventListener('click', () => {
+                try {
+                    document.body.classList.toggle('dark');
+                    // console.log(`Modo oscuro alternado: ${document.body.classList.contains('dark')}`);
+                } catch (e) {
+                    console.error("Error al alternar tema:", e);
+                    showMessage(`Error al cambiar el tema: ${e.message}`, 'error');
+                }
+            });
+
+            // Maneja el clic en el botón de alternar visibilidad del resumen
+            toggleSummaryBtn.addEventListener('click', () => {
+                try {
+                    breakdownSection.classList.toggle('summary-visible');
+                    const isVisible = breakdownSection.classList.contains('summary-visible');
+                    toggleSummaryBtn.innerHTML = isVisible
+                        ? '<i class="fas fa-chevron-up mr-2"></i> Ocultar Desglose'
+                        : '<i class="fas fa-chevron-down mr-2"></i> Desglose de la Cotización';
+                    // console.log(`Visibilidad del resumen alternada. Visible: ${isVisible}`);
+                } catch (e) {
+                    console.error("Error al alternar visibilidad del resumen:", e);
+                    showMessage(`Error al alternar el resumen: ${e.message}`, 'error');
+                }
+            });
+
+            // Maneja el clic en el botón de copiar cotización
+            copyQuoteBtn.addEventListener('click', async () => {
+                try {
+                    const textToCopy = simplifiedDescriptionEl.textContent;
+                    await navigator.clipboard.writeText(textToCopy);
+                    showMessage('Cotización copiada al portapapeles.', 'success');
+                } catch (e) {
+                    console.error("Error al copiar la cotización:", e);
+                    showMessage(`Error al copiar la cotización: ${e.message}`, 'error');
+                }
+            });
+
+            // --- Manejo de pestañas de configuración de precios ---
+            configTabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    try {
+                        const targetTab = button.dataset.tab;
+                        const targetContent = document.getElementById(`${targetTab}-content`);
+
+                        // Si la pestaña clicada ya está activa, desactívala (oculta su contenido)
+                        if (button.classList.contains('active')) {
+                            button.classList.remove('active');
+                            configContents.forEach(content => content.classList.remove('active'));
+                            // console.log(`Pestaña ${targetTab} desactivada.`);
+                        } else {
+                            // Remover 'active' de todos los botones y contenidos
+                            configTabButtons.forEach(btn => btn.classList.remove('active'));
+                            configContents.forEach(content => content.classList.remove('active'));
+
+                            // Añadir 'active' al botón y contenido correctos
+                            button.classList.add('active');
+                            targetContent.classList.add('active');
+                            // console.log(`Pestaña ${targetTab} activada.`);
+                        }
+
+                        // Rellenar los inputs cada vez que se cambia de pestaña (o se oculta)
+                        populatePriceInputs();
+                    } catch (e) {
+                        console.error("Error en el manejador de pestañas de configuración:", e);
+                        showMessage(`Error al cambiar de pestaña: ${e.message}`, 'error');
+                    }
+                });
+            });
+
+            // Manejador de eventos para los inputs de precios de configuración
+            priceInputs.forEach(input => {
+                input.addEventListener('input', (event) => {
+                    try {
+                        const category = event.target.dataset.category;
+                        const item = event.target.dataset.item;
+                        const type = event.target.dataset.type;
+                        const rangeIdx = event.target.dataset.rangeIdx;
+                        const sides = event.target.dataset.sides;
+                        const value = parseFloat(event.target.value);
+
+                        // Validación básica para números
+                        if (isNaN(value)) {
+                            console.warn("Entrada de precio inválida:", event.target.value);
+                            return;
+                        }
+
+                        // Actualizar el objeto currentPrices según los atributos de datos del input
+                        if (category === 'paper') {
+                            currentPrices.paper[item] = value;
+                        } else if (category === 'printing') {
+                            currentPrices.printing[type][rangeIdx][sides] = value;
+                        } else if (category === 'laminate') {
+                            currentPrices.finishes.laminate[type][rangeIdx][sides] = value;
+                        }
+
+                        savePrices(); // Guardar precios actualizados en localStorage
+                        updateUIAndCalculate(); // Recalcular y actualizar resumen
+                        // console.log(`Precio de ${category}/${item || type} actualizado a ${value}`);
+                    } catch (e) {
+                        console.error("Error en el manejador de input de precios:", e);
+                        showMessage(`Error al actualizar precios: ${e.message}`, 'error');
+                    }
+                });
+            });
+
+            // Inicialización de la aplicación al cargar el DOM
+            loadPrices(); // Cargar precios desde localStorage
+            populatePriceInputs(); // Rellenar inputs de configuración
+
+            // Establecer el estado inicial de los botones de selección
+            document.querySelector('[data-type="printing-sides"][data-value="1"]').classList.add('active');
+            document.querySelector('[data-type="printing-front"][data-value="color"]').classList.add('active');
+            document.querySelector('[data-type="design-option"][data-value="client-sends"]').classList.add('active');
+            noFinishButton.classList.add('active');
+
+
+
+            updateUIAndCalculate(); // Realizar cálculo inicial y actualización de la UI
+            // console.log("Aplicación inicializada.");
+        });
+    </script>
+
+    <!-- Botón Flotante de Regreso al Menú -->
+    <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap;
+        }
+
+        /* Responsive: en móviles solo mostrar el icono */
+        @media (max-width: 768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn-home-flotante span {
+                display: none;
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+</body>
+
+</html>
