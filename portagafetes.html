@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liston Porta Gafetes (LANYARD) - Cotizador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-section .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .whatsapp-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #25d366;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            color: white;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .printing-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .method-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .method-box h5 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .btn-cotizar {
+            background: var(--success-color);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-cotizar:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-borrar {
+            background: var(--accent-color);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-borrar:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .cost-summary {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .cost-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .summary-simplified {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary-color);
+        }
+
+        .collapsible {
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible:hover {
+            background: #34495e;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212";
+        }
+
+        .content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .content.show {
+            max-height: 2000px;
+            padding: 20px;
+        }
+
+        .cost-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .cost-card h6 {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+        
+        .cost-card ul {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        
+        .cost-card ul li {
+            margin-bottom: 5px;
+        }
+        
+        .cost-card ul ul {
+            margin-top: 5px;
+            margin-left: 15px;
+        }
+        
+        .cost-card ul ul li {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .accessory-checkbox {
+            margin: 10px 0;
+        }
+
+        .accessory-checkbox label {
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        @media (max-width: 768px) {
+            .printing-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-section h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1><i class="fas fa-id-card"></i> Liston Porta Gafetes (LANYARD)</h1>
+                <div class="subtitle">
+                    <strong>CREADO POR:</strong> JOEL ADRIAN MTZ MEZA
+                </div>
+                <a href="https://wa.me/528341446103" target="_blank" class="whatsapp-contact">
+                    <i class="fab fa-whatsapp"></i>
+                    8341446103
+                </a>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                <form id="cotizadorForm">
+                    <!-- 1. Cantidad -->
+                    <div class="form-group">
+                        <label for="cantidad"><i class="fas fa-calculator"></i> Cantidad a Cotizar:</label>
+                        <input type="number" class="form-control" id="cantidad" min="1" required>
+                    </div>
+
+                    <!-- 2. Medida de Portagafetes -->
+                    <div class="form-group">
+                        <label><i class="fas fa-ruler"></i> Medida de Portagafetes:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="medida" id="medida19" value="19" checked>
+                            <label class="form-check-label" for="medida19">
+                                19 MM de Ancho
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="medida" id="medida25" value="25">
+                            <label class="form-check-label" for="medida25">
+                                25 MM de Ancho
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 3. Método de Impresión -->
+                    <div class="form-group">
+                        <label><i class="fas fa-print"></i> Método de Impresión:</label>
+                        <div class="printing-methods">
+                            <div class="method-box">
+                                <h5>FRENTE</h5>
+                                <select class="form-select" id="impresionFrente">
+                                    <option value="color">Color</option>
+                                    <option value="byn">Blanco y Negro</option>
+                                </select>
+                            </div>
+                            <div class="method-box">
+                                <h5>REVERSO</h5>
+                                <select class="form-select" id="impresionReverso">
+                                    <option value="no">No Lleva (Solo Frente)</option>
+                                    <option value="color">Color</option>
+                                    <option value="byn">Blanco y Negro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Tipo de Bandola -->
+                    <div class="form-group">
+                        <label for="bandola"><i class="fas fa-link"></i> Tipo de Bandola (Destorcedor):</label>
+                        <select class="form-select" id="bandola">
+                            <option value="sencilla">Bandola Sencilla (Tipo Alambre)</option>
+                            <option value="perico">Bandola de Perico</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. Accesorios -->
+                    <div class="form-group">
+                        <label><i class="fas fa-tools"></i> Accesorios:</label>
+                        <div class="accessory-checkbox">
+                            <input type="checkbox" id="noAccesorios" name="accesorios" value="no">
+                            <label for="noAccesorios">No Lleva Accesorios</label>
+                        </div>
+                        <div class="accessory-checkbox">
+                            <input type="checkbox" id="hebilla" name="accesorios" value="hebilla">
+                            <label for="hebilla">Hebilla Antiahorcamiento</label>
+                        </div>
+                        <div class="accessory-checkbox">
+                            <input type="checkbox" id="broche" name="accesorios" value="broche">
+                            <label for="broche">Broche Desprendible en 2 Partes</label>
+                        </div>
+                    </div>
+
+                    <!-- 6. Tipo de Diseño -->
+                    <div class="form-group">
+                        <label for="diseno"><i class="fas fa-palette"></i> Tipo de Diseño:</label>
+                        <select class="form-select" id="diseno">
+                            <option value="cliente">Cliente Envía Diseño</option>
+                            <option value="realizar">Realizar Diseño</option>
+                            <option value="guardado">Diseño Guardado Aquí</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-cotizar me-3" onclick="calcularCotizacion()">
+                            <i class="fas fa-calculator"></i> COTIZAR
+                        </button>
+                        <button type="button" class="btn btn-borrar" onclick="borrarFormulario()">
+                            <i class="fas fa-trash"></i> BORRAR FORMULARIO
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section">
+                <!-- Resumen de Costos -->
+                <div class="cost-summary">
+                    <h4><i class="fas fa-receipt"></i> Resumen de Costos</h4>
+                    <div id="costDetails"></div>
+                </div>
+
+                <!-- Resumen Simplificado -->
+                <div class="summary-simplified">
+                    <h4><i class="fas fa-file-invoice"></i> Resumen Simplificado para Cliente</h4>
+                    <div id="summarySimplified"></div>
+                    <button class="btn btn-primary mt-3" onclick="copiarResumen()">
+                        <i class="fas fa-copy"></i> Copiar al Portapapeles
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección Collapsible de Costos -->
+            <button class="collapsible" onclick="toggleCollapsible()">
+                <i class="fas fa-plus-circle"></i> COSTOS (Click para expandir)
+            </button>
+            <div class="content" id="costosSection">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-file-alt"></i> PAPEL E IMPRESIÓN</h6>
+                            <ul>
+                                <li><strong>Costo por tramo:</strong> $33.50 (21x100cm)</li>
+                                <li><strong>Rendimiento:</strong>
+                                    <ul>
+                                        <li>• 19mm: 8 piezas por tramo</li>
+                                        <li>• 25mm: 6 piezas por tramo</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Utilidad por tramo:</strong>
+                                    <ul>
+                                        <li>• 1-2 tramos: 4x</li>
+                                        <li>• 3-5 tramos: 3x</li>
+                                        <li>• 6-10 tramos: 2.8x</li>
+                                        <li>• 11-20 tramos: 2.5x</li>
+                                        <li>• 21+ tramos: 2.1x</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-ribbon"></i> LISTÓN (CINTA)</h6>
+                            <ul>
+                                <li><strong>Costo por pieza:</strong> $1.60 (1 metro)</li>
+                                <li><strong>Presentación:</strong> Rollo 100m ($160)</li>
+                                <li><strong>Utilidad por cantidad:</strong>
+                                    <ul>
+                                        <li>• 1-10 piezas: 4x</li>
+                                        <li>• 11-25 piezas: 3.5x</li>
+                                        <li>• 26-50 piezas: 3.3x</li>
+                                        <li>• 51-100 piezas: 2.8x</li>
+                                        <li>• 101-300 piezas: 2.5x</li>
+                                        <li>• 301-500 piezas: 2.3x</li>
+                                        <li>• 501+ piezas: 2x</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-fire"></i> PLANCHADO</h6>
+                            <ul>
+                                <li><strong>Costo por tramo planchado:</strong>
+                                    <ul>
+                                        <li>• 1-2 tramos: $100 c/u</li>
+                                        <li>• 3-10 tramos: $60 c/u</li>
+                                        <li>• 11-25 tramos: $50 c/u</li>
+                                        <li>• 26-50 tramos: $45 c/u</li>
+                                        <li>• 51-100 tramos: $40 c/u</li>
+                                        <li>• 100+ tramos: $35 c/u</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Nota:</strong> Se cobra por cada tramo impreso</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-link"></i> BANDOLAS</h6>
+                            <ul>
+                                <li><strong>Bandola Sencilla:</strong>
+                                    <ul>
+                                        <li>• 19mm: $0.89 (rollo $890/1000pz)</li>
+                                        <li>• 25mm: $1.10 (rollo $1100/1000pz)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Bandola de Perico:</strong>
+                                    <ul>
+                                        <li>• 19mm: $2.10 (paquete $210/100pz)</li>
+                                        <li>• 25mm: $2.20 (paquete $220/100pz)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Utilidad:</strong> 1-10pz (3x) → 301+pz (1.8x)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-tools"></i> ACCESORIOS</h6>
+                            <ul>
+                                <li><strong>Hebilla Antiahorcamiento:</strong>
+                                    <ul>
+                                        <li>• 19mm: $0.80 (paquete $80/100pz)</li>
+                                        <li>• 25mm: $0.90 (paquete $90/100pz)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Broche Desprendible:</strong>
+                                    <ul>
+                                        <li>• 19mm: $0.50 (paquete $50/100pz)</li>
+                                        <li>• 25mm: $0.80 (paquete $80/100pz)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Utilidad:</strong> 1-10pz (3x) → 301+pz (1.8x)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="cost-card">
+                            <h6><i class="fas fa-cog"></i> OTROS COSTOS</h6>
+                            <ul>
+                                <li><strong>Remaches:</strong>
+                                    <ul>
+                                        <li>• Base: $1.25 c/u (millar $125)</li>
+                                        <li>• 1-10pz: $10 c/u</li>
+                                        <li>• 11-25pz: $5 c/u</li>
+                                        <li>• 26-50pz: $4 c/u</li>
+                                        <li>• 51-100pz: $3.50 c/u</li>
+                                        <li>• 101+pz: $3 c/u</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Diseño:</strong>
+                                    <ul>
+                                        <li>• Cliente envía: $120</li>
+                                        <li>• Realizar: $250</li>
+                                        <li>• Guardado: $180</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cost-card">
+                    <h6><i class="fas fa-truck"></i> COSTOS DE ENVÍO</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <ul>
+                                <li><strong>Rollos de Cinta:</strong>
+                                    <ul>
+                                        <li>• 1-10 rollos: $350</li>
+                                        <li>• 11-20 rollos: $450</li>
+                                        <li>• 21+ rollos: $550</li>
+                                        <li>• 1 rollo: Sin envío</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul>
+                                <li><strong>Bandolas:</strong>
+                                    <ul>
+                                        <li>• +500 piezas: $300</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <ul>
+                                <li><strong>Accesorios:</strong>
+                                    <ul>
+                                        <li>• +100 piezas: $300</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Función para calcular utilidad según cantidad
+        function calcularUtilidad(cantidad, tipo) {
+            if (tipo === 'papel') {
+                if (cantidad <= 2) return 4;
+                if (cantidad <= 5) return 3;
+                if (cantidad <= 10) return 2.8;
+                if (cantidad <= 20) return 2.5;
+                return 2.1;
+            } else if (tipo === 'cinta') {
+                if (cantidad <= 10) return 4;
+                if (cantidad <= 25) return 3.5;
+                if (cantidad <= 50) return 3.3;
+                if (cantidad <= 100) return 2.8;
+                if (cantidad <= 300) return 2.5;
+                if (cantidad <= 500) return 2.3;
+                return 2;
+            } else if (tipo === 'bandola' || tipo === 'accesorios') {
+                if (cantidad <= 10) return 3;
+                if (cantidad <= 25) return 2.8;
+                if (cantidad <= 50) return 2.5;
+                if (cantidad <= 100) return 2.3;
+                if (cantidad <= 300) return 2;
+                return 1.8;
+            } else if (tipo === 'remache') {
+                if (cantidad <= 10) return 10;
+                if (cantidad <= 25) return 5;
+                if (cantidad <= 50) return 4;
+                if (cantidad <= 100) return 3.5;
+                return 3;
+            }
+            return 1;
+        }
+
+        // Función para calcular costo de planchado
+        function calcularCostoPlanchado(cantidad) {
+            if (cantidad <= 2) return 100;
+            if (cantidad <= 10) return 60;
+            if (cantidad <= 25) return 50;
+            if (cantidad <= 50) return 45;
+            if (cantidad <= 100) return 40;
+            return 35;
+        }
+
+        // Función para calcular cotización
+        function calcularCotizacion() {
+            const cantidadInput = document.getElementById('cantidad');
+            const cantidad = parseInt(cantidadInput.value);
+            
+            // Validar que la cantidad sea válida
+            if (!cantidad || cantidad < 1) {
+                alert('Por favor, ingrese una cantidad válida mayor a 0');
+                cantidadInput.focus();
+                return;
+            }
+
+            const medida = document.querySelector('input[name="medida"]:checked').value;
+            const impresionFrente = document.getElementById('impresionFrente').value;
+            const impresionReverso = document.getElementById('impresionReverso').value;
+            const bandola = document.getElementById('bandola').value;
+            const diseno = document.getElementById('diseno').value;
+
+            // Validar accesorios
+            const accesorios = [];
+            const checkboxes = document.querySelectorAll('input[name="accesorios"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('⚠️ FALTA SELECCIONAR ACCESORIOS\n\nPor favor, seleccione una opción:\n• "No lleva accesorios" O\n• Los accesorios deseados');
+                return;
+            }
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.value !== 'no') {
+                    accesorios.push(checkbox.value);
+                }
+            });
+
+            if (checkboxes.length === 0 || (checkboxes.length === 1 && checkboxes[0].value === 'no')) {
+                accesorios.push('no');
+            }
+
+            // Calcular costos
+            let costos = {};
+            let resumen = [];
+
+            // 1. Costo del papel con impresión - CORREGIDO
+            const piezasPorTramo = medida === '19' ? 8 : 6; // 19mm = 8 pz, 25mm = 6 pz por tramo de 21x100cm
+            const tramosNecesarios = Math.ceil(cantidad / piezasPorTramo); // Tramos de papel necesarios
+            const ladosImpresion = (impresionReverso !== 'no') ? 2 : 1; // Si es por ambos lados, se usan 2 tramos
+            const tramosTotales = tramosNecesarios * ladosImpresion; // Total de tramos de papel a usar
+            const costoPapelBase = tramosTotales * 33.50; // $33.50 por cada tramo de 21x100cm
+            const utilidadPapel = calcularUtilidad(tramosTotales, 'papel'); // Utilidad según cantidad de tramos
+            const costoPapel = costoPapelBase * utilidadPapel;
+            
+            costos.papel = costoPapel;
+            resumen.push(`Papel (${tramosTotales} tramos de 21x100cm x $33.50): $${costoPapel.toFixed(2)}`);
+
+            // 2. Costo del listón (cinta) - POR PIEZA INDIVIDUAL
+            const metrosNecesarios = cantidad;
+            const rollosNecesarios = Math.ceil(metrosNecesarios / 100);
+            
+            // Costo base por pieza de listón
+            let costoListonUnitario = 1.60; // $160 por rollo / 100 piezas
+            let costoListonBase = cantidad * costoListonUnitario;
+            
+            // Agregar envío de cinta si es necesario
+            if (rollosNecesarios > 1) {
+                if (rollosNecesarios <= 10) costoListonBase += 350;
+                else if (rollosNecesarios <= 20) costoListonBase += 450;
+                else costoListonBase += 550;
+            }
+            
+            const utilidadCinta = calcularUtilidad(cantidad, 'cinta');
+            const costoCinta = costoListonBase * utilidadCinta;
+            
+            costos.cinta = costoCinta;
+            resumen.push(`Listón (${cantidad} piezas x $${costoListonUnitario.toFixed(2)} c/u): $${costoCinta.toFixed(2)}`);
+
+            // 3. Costo de planchado - CORREGIDO: Por cada tramo que se plancha
+            const costoPlanchadoUnitario = calcularCostoPlanchado(tramosTotales); // Precio según cantidad de tramos
+            const costoPlanchadoTotal = costoPlanchadoUnitario * tramosTotales; // Se cobra por cada tramo planchado
+            
+            costos.planchado = costoPlanchadoTotal;
+            resumen.push(`Planchado (${tramosTotales} tramos x $${costoPlanchadoUnitario} c/u): $${costoPlanchadoTotal.toFixed(2)}`);
+
+            // 4. Costo de bandola
+            let costoBandolaUnitario = 0;
+            if (bandola === 'sencilla') {
+                costoBandolaUnitario = medida === '19' ? 0.89 : 1.10;
+            } else {
+                costoBandolaUnitario = medida === '19' ? 2.10 : 2.20;
+            }
+            
+            let costoBandolaBase = cantidad * costoBandolaUnitario;
+            if (cantidad > 500) costoBandolaBase += 300;
+            const utilidadBandola = calcularUtilidad(cantidad, 'bandola');
+            const costoBandola = costoBandolaBase * utilidadBandola;
+            
+            costos.bandola = costoBandola;
+            resumen.push(`Bandola ${bandola} (${medida}mm): $${costoBandola.toFixed(2)}`);
+
+            // 5. Costo de accesorios
+            let costoAccesorios = 0;
+            if (accesorios.length > 0 && !accesorios.includes('no')) {
+                accesorios.forEach(accesorio => {
+                    let costoAccesorioUnitario = 0;
+                    if (accesorio === 'hebilla') {
+                        costoAccesorioUnitario = medida === '19' ? 0.80 : 0.90;
+                    } else if (accesorio === 'broche') {
+                        costoAccesorioUnitario = medida === '19' ? 0.50 : 0.80;
+                    }
+                    
+                    let costoAccesorioBase = cantidad * costoAccesorioUnitario;
+                    if (cantidad > 100) costoAccesorioBase += 300;
+                    const utilidadAccesorio = calcularUtilidad(cantidad, 'accesorios');
+                    costoAccesorios += costoAccesorioBase * utilidadAccesorio;
+                });
+                resumen.push(`Accesorios (${accesorios.join(', ')}): $${costoAccesorios.toFixed(2)}`);
+            } else {
+                resumen.push('Accesorios: No lleva');
+            }
+            costos.accesorios = costoAccesorios;
+
+            // 6. Costo de diseño
+            let costoDiseno = 0;
+            let disenoTexto = '';
+            if (diseno === 'cliente') {
+                costoDiseno = 120;
+                disenoTexto = 'Cliente envía diseño';
+            } else if (diseno === 'realizar') {
+                costoDiseno = 250;
+                disenoTexto = 'Realizar diseño';
+            } else {
+                costoDiseno = 180;
+                disenoTexto = 'Diseño guardado aquí';
+            }
+            
+            costos.diseno = costoDiseno;
+            resumen.push(`Diseño (${disenoTexto}): $${costoDiseno.toFixed(2)}`);
+
+            // 7. Costo de remaches
+            let costoRemacheUnitario = 1.25;
+            if (cantidad <= 10) costoRemacheUnitario = 10;
+            else if (cantidad <= 25) costoRemacheUnitario = 5;
+            else if (cantidad <= 50) costoRemacheUnitario = 4;
+            else if (cantidad <= 100) costoRemacheUnitario = 3.5;
+            else costoRemacheUnitario = 3;
+            
+            let cantidadRemaches = cantidad;
+            if (accesorios.length > 0 && !accesorios.includes('no')) {
+                cantidadRemaches += (accesorios.length * 2 * cantidad);
+            }
+            
+            const costoRemaches = cantidadRemaches * costoRemacheUnitario;
+            costos.remaches = costoRemaches;
+            resumen.push(`Remaches (${cantidadRemaches} unidades): $${costoRemaches.toFixed(2)}`);
+
+            // Calcular totales
+            const subtotal = Object.values(costos).reduce((a, b) => a + b, 0);
+            const iva = subtotal * 0.16;
+            const total = subtotal + iva;
+            const unitario = total / cantidad;
+
+            // Mostrar resultados
+            mostrarResultados(costos, resumen, subtotal, iva, total, unitario, cantidad, medida, impresionFrente, impresionReverso, bandola, accesorios, diseno);
+        }
+
+        // Función para mostrar resultados
+        function mostrarResultados(costos, resumen, subtotal, iva, total, unitario, cantidad, medida, impresionFrente, impresionReverso, bandola, accesorios, diseno) {
+            const resultsSection = document.getElementById('resultsSection');
+            const costDetails = document.getElementById('costDetails');
+            const summarySimplified = document.getElementById('summarySimplified');
+
+            // Recalcular variables necesarias para el detalle
+            const costoListonUnitario = 1.60; // $160 por rollo / 100 piezas
+            const piezasPorTramo = medida === '19' ? 8 : 6;
+            const tramosNecesarios = Math.ceil(cantidad / piezasPorTramo);
+            const ladosImpresion = (impresionReverso !== 'no') ? 2 : 1;
+            const tramosTotales = tramosNecesarios * ladosImpresion; // Total de tramos de papel
+            const metrosNecesarios = cantidad;
+            const rollosNecesarios = Math.ceil(metrosNecesarios / 100);
+            const utilidadPapel = calcularUtilidad(tramosTotales, 'papel'); // Utilidad según tramos totales
+            const utilidadCinta = calcularUtilidad(cantidad, 'cinta');
+            const costoPlanchadoUnitario = calcularCostoPlanchado(tramosTotales); // Según tramos totales
+            let costoBandolaUnitario = 0;
+            if (bandola === 'sencilla') {
+                costoBandolaUnitario = medida === '19' ? 0.89 : 1.10;
+            } else {
+                costoBandolaUnitario = medida === '19' ? 2.10 : 2.20;
+            }
+            const utilidadBandola = calcularUtilidad(cantidad, 'bandola');
+            let costoRemacheUnitario = 1.25;
+            if (cantidad <= 10) costoRemacheUnitario = 10;
+            else if (cantidad <= 25) costoRemacheUnitario = 5;
+            else if (cantidad <= 50) costoRemacheUnitario = 4;
+            else if (cantidad <= 100) costoRemacheUnitario = 3.5;
+            else costoRemacheUnitario = 3;
+            let cantidadRemaches = cantidad;
+            if (accesorios.length > 0 && !accesorios.includes('no')) {
+                cantidadRemaches += (accesorios.length * 2 * cantidad);
+            }
+            let disenoTexto = '';
+            if (diseno === 'cliente') {
+                disenoTexto = 'Cliente envía diseño';
+            } else if (diseno === 'realizar') {
+                disenoTexto = 'Realizar diseño';
+            } else {
+                disenoTexto = 'Diseño guardado aquí';
+            }
+
+            // Detalle de costos específicos
+            let costDetailsHTML = `
+                <h6><strong>📋 DETALLE COMPLETO DE COSTOS</strong></h6>
+                
+                <div class="cost-item"><strong>📄 PAPEL CON IMPRESIÓN:</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${piezasPorTramo} piezas por tramo de 21x100cm</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${tramosNecesarios} tramos necesarios para ${cantidad} piezas</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${ladosImpresion} lado(s) de impresión</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${tramosTotales} tramos totales de papel a usar</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo base: ${tramosTotales} tramos x $33.50 = $${(tramosTotales * 33.50).toFixed(2)}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Utilidad: ${utilidadPapel}x (según ${tramosTotales} tramos)</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Papel:</strong></span><span>$${costos.papel.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🎀 LISTÓN (CINTA SUBLIMABLE):</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${cantidad} piezas (1 metro por pieza)</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo unitario: $${costoListonUnitario.toFixed(2)} (rollo $160/100pz)</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${rollosNecesarios} rollo(s) de 100m necesarios</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo base: $${(cantidad * costoListonUnitario).toFixed(2)}</span><span></span>
+                </div>
+                ${rollosNecesarios > 1 ? `<div class="cost-item" style="margin-left: 20px;">
+                    <span>• Envío rollos: $${rollosNecesarios <= 10 ? '350' : rollosNecesarios <= 20 ? '450' : '550'}</span><span></span>
+                </div>` : ''}
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Utilidad: ${utilidadCinta}x</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Listón:</strong></span><span>$${costos.cinta.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🔥 PLANCHADO:</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${tramosTotales} tramo(s) a planchar</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo por tramo: $${costoPlanchadoUnitario} (según cantidad de tramos)</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Cálculo: ${tramosTotales} tramos x $${costoPlanchadoUnitario} = $${costos.planchado.toFixed(2)}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Planchado:</strong></span><span>$${costos.planchado.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🔗 BANDOLA:</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Tipo: ${bandola === 'sencilla' ? 'Sencilla (alambre)' : 'De perico'}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Medida: ${medida}mm</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo unitario: $${costoBandolaUnitario.toFixed(2)}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${cantidad} piezas</span><span></span>
+                </div>
+                ${cantidad > 500 ? '<div class="cost-item" style="margin-left: 20px;"><span>• Envío bandola: $300</span><span></span></div>' : ''}
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Utilidad: ${utilidadBandola}x</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Bandola:</strong></span><span>$${costos.bandola.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🔧 ACCESORIOS:</strong></div>
+                ${accesorios.length > 0 && !accesorios.includes('no') ? 
+                    accesorios.map(acc => {
+                        let costoAccUnitario = acc === 'hebilla' ? (medida === '19' ? 0.80 : 0.90) : (medida === '19' ? 0.50 : 0.80);
+                        return `<div class="cost-item" style="margin-left: 20px;">
+                            <span>• ${acc.toUpperCase()}: ${cantidad} pz x $${costoAccUnitario.toFixed(2)}</span><span></span>
+                        </div>`;
+                    }).join('') + 
+                    (cantidad > 100 ? '<div class="cost-item" style="margin-left: 20px;"><span>• Envío accesorios: $300</span><span></span></div>' : '') +
+                    `<div class="cost-item" style="margin-left: 20px;">
+                        <span>• Utilidad: ${calcularUtilidad(cantidad, 'accesorios')}x</span><span></span>
+                    </div>`
+                    : '<div class="cost-item" style="margin-left: 20px;"><span>• No lleva accesorios</span><span></span></div>'
+                }
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Accesorios:</strong></span><span>$${costos.accesorios.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🎨 DISEÑO:</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${disenoTexto.toUpperCase()}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Diseño:</strong></span><span>$${costos.diseno.toFixed(2)}</span>
+                </div>
+                
+                <div class="cost-item"><strong>🔩 REMACHES:</strong></div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• ${cantidadRemaches} unidades</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span>• Costo unitario: $${costoRemacheUnitario.toFixed(2)}</span><span></span>
+                </div>
+                <div class="cost-item" style="margin-left: 20px;">
+                    <span><strong>• Subtotal Remaches:</strong></span><span>$${costos.remaches.toFixed(2)}</span>
+                </div>
+                
+                <hr style="margin: 20px 0;">
+                <div class="cost-item"><strong>SUBTOTAL:</strong><span>$${subtotal.toFixed(2)}</span></div>
+                <div class="cost-item"><strong>IVA (16%):</strong><span>$${iva.toFixed(2)}</span></div>
+                <div class="cost-item" style="font-size: 1.3rem; color: #27ae60;"><strong>TOTAL NETO:</strong><span>$${total.toFixed(2)}</span></div>
+                <div class="cost-item"><strong>COSTO UNITARIO:</strong><span>$${unitario.toFixed(2)}</span></div>
+            `;
+
+            costDetails.innerHTML = costDetailsHTML;
+
+            // Resumen simplificado para cliente
+            const ladosImpresionTexto = (impresionReverso !== 'no') ? 'AMBOS LADOS' : 'SOLO FRENTE';
+            const colorImpresion = impresionFrente === 'color' ? 'COLOR' : 'BLANCO Y NEGRO';
+            const accesoriosTexto = accesorios.includes('no') || accesorios.length === 0 ? 'SIN ACCESORIOS' : accesorios.join(', ').toUpperCase();
+            
+            const resumenCliente = `(${cantidad} PORTAGAFETES MEDIDA ${medida} MM DE ANCHO IMPRESAS A ${colorImpresion} ${ladosImpresionTexto}, BANDOLA ${bandola.toUpperCase()}, ${disenoTexto.toUpperCase()} = $${unitario.toFixed(2)} C/U, TOTAL $${total.toFixed(2)} NETO)`;
+
+            summarySimplified.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${resumenCliente}</pre>`;
+
+            // Mostrar sección de resultados
+            resultsSection.style.display = 'block';
+            
+            // Scroll a resultados
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función para borrar formulario
+        function borrarFormulario() {
+            document.getElementById('cotizadorForm').reset();
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // Desmarcar todos los checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        // Función para copiar resumen
+        function copiarResumen() {
+            const summaryElement = document.querySelector('#summarySimplified pre');
+            if (!summaryElement) {
+                alert('No hay resumen para copiar. Por favor, realice una cotización primero.');
+                return;
+            }
+            
+            const summaryText = summaryElement.textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(summaryText).then(() => {
+                    alert('¡Resumen copiado al portapapeles!');
+                }).catch(err => {
+                    console.error('Error al copiar:', err);
+                    // Método alternativo
+                    copiarResumenAlternativo(summaryText);
+                });
+            } else {
+                // Método alternativo para navegadores antiguos
+                copiarResumenAlternativo(summaryText);
+            }
+        }
+
+        // Método alternativo para copiar
+        function copiarResumenAlternativo(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('¡Resumen copiado al portapapeles!');
+            } catch (err) {
+                console.error('Error al copiar:', err);
+                alert('No se pudo copiar el resumen. Por favor, copie manualmente.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Función para toggle collapsible
+        function toggleCollapsible() {
+            const content = document.getElementById('costosSection');
+            const button = document.querySelector('.collapsible');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                button.classList.remove('active');
+            } else {
+                content.classList.add('show');
+                button.classList.add('active');
+            }
+        }
+
+        // Manejar checkboxes de accesorios
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('input[name="accesorios"]');
+            const noAccesoriosCheckbox = document.getElementById('noAccesorios');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.id === 'noAccesorios' && this.checked) {
+                        // Desmarcar otros accesorios
+                        checkboxes.forEach(cb => {
+                            if (cb.id !== 'noAccesorios') {
+                                cb.checked = false;
+                            }
+                        });
+                    } else if (this.id !== 'noAccesorios' && this.checked) {
+                        // Desmarcar "No lleva accesorios"
+                        noAccesoriosCheckbox.checked = false;
+                    }
+                });
+            });
+
+            // Validar formulario al enviar
+            const form = document.getElementById('cotizadorForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                calcularCotizacion();
+            });
+
+            // Agregar validación de entrada para cantidad
+            const cantidadInput = document.getElementById('cantidad');
+            cantidadInput.addEventListener('input', function() {
+                // Solo permitir números positivos
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value < 0) this.value = '';
+            });
+
+            // Agregar evento Enter para cotizar
+            form.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    calcularCotizacion();
+                }
+            });
+        });
+    </script>
+
+    <!-- Botón Flotante de Regreso al Menú -->
+    <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap;
+        }
+
+        /* Responsive: en móviles solo mostrar el icono */
+        @media (max-width: 768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn-home-flotante span {
+                display: none;
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+</body>
+
+</html>
