@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Botones y Brazaletes | Sistema de Producción</title>
+
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --background-color: #0f172a;
+            --card-background: #1e293b;
+            --text-color: #f1f5f9;
+            --header-color: #ffffff;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+        }
+
+        /* Universal box-sizing and base font settings */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #1a1f3a 50%, #2d1b69 100%);
+            color: var(--text-color);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* --- General Text Overrides --- */
+        p, span, strong, label, legend, h4, h5, h6, .form-label, .form-check-label, .list-group-item, .card-body {
+            color: var(--text-color) !important;
+        }
+        .form-check-label,
+        .list-group-item,
+        .card-body {
+            color: var(--text-color) !important;
+        }
+
+        .container {
+            max-width: 900px;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2 {
+            color: var(--header-color);
+            text-shadow: 0 0 10px var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Keep the special color for the total */
+        #total_botones,
+        #total_brazaletes {
+            color: var(--success-color) !important;
+            text-shadow: 0 0 8px var(--success-color);
+        }
+
+        /* Keep the special color for the muted text */
+        .text-muted {
+            color: #aaa !important;
+        }
+
+        .card {
+            background: linear-gradient(145deg, var(--card-background), #334155);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            color: var(--header-color) !important;
+            border-bottom: none;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Degradado especial para brazaletes */
+        .brazaletes-card .card-header {
+            background: linear-gradient(135deg, #ff6b35, #f72585, #b5179e) !important;
+        }
+
+        .card-header i {
+            margin-right: 10px;
+        }
+
+        .form-control,
+        .form-check-input {
+            background: linear-gradient(145deg, #334155, #475569);
+            color: var(--text-color);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            background: linear-gradient(145deg, #475569, #64748b);
+            color: var(--text-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+            outline: none;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .badge.bg-info {
+            background-color: var(--primary-color) !important;
+            font-size: 1.1rem;
+        }
+
+        .list-group-item {
+            background-color: transparent;
+            border-color: rgba(0, 170, 255, 0.2);
+        }
+
+        .costs-summary-card .card-header {
+            background: linear-gradient(45deg, var(--warning-color), #ff8c00);
+        }
+
+        .costs-summary-card {
+            border-color: var(--warning-color);
+        }
+
+        .summary-card .card-header {
+            background: linear-gradient(45deg, var(--success-color), #28a745);
+        }
+
+        .summary-card {
+            border-color: var(--success-color);
+        }
+
+        .btn {
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            padding: 12px 24px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            border: none;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #0891b2);
+            border: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transform: none;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            border: none;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .table-dark {
+            background-color: rgba(30, 41, 59, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-dark th {
+            background-color: rgba(51, 65, 85, 0.9);
+            border-color: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+        }
+
+        .table-dark td {
+            border-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .collapse .card {
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        /* Asegurar visibilidad en cuadros de costos */
+        .costs-summary-card .card-body,
+        .collapse .card-body {
+            color: var(--text-color) !important;
+        }
+
+        .costs-summary-card strong,
+        .collapse .card-body strong,
+        .costs-summary-card p,
+        .collapse .card-body p {
+            color: var(--text-color) !important;
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .form-check {
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-check:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        h1, h2 {
+            color: #ffffff !important;
+            background: none;
+            -webkit-text-fill-color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .card-header h2 {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .badge.bg-info {
+            background: linear-gradient(135deg, var(--info-color), #0891b2) !important;
+        }
+
+        /* Estilos para botones de categoría de brazaletes */
+        .btn-group .btn-check:checked + .btn {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-outline-info {
+            color: var(--text-color);
+            border-color: var(--info-color);
+            background-color: transparent;
+        }
+
+        .btn-outline-info:hover {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+            color: white;
+        }
+
+        /* Estilos para el contenedor de opciones específicas */
+        #opcionesEspecificas {
+            min-height: 120px;
+            border: 2px solid rgba(99, 102, 241, 0.3) !important;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #1e293b, #334155) !important;
+        }
+
+        #opcionesEspecificas .form-check {
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        #opcionesEspecificas .form-check:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        #opcionesEspecificas .form-check-input:checked {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+
+        /* Badge de costos */
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057) !important;
+            font-size: 0.75rem;
+        }
+
+            hr {
+            border-color: rgba(0, 170, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-cogs"></i> Cotizador de Botones y Brazaletes</h1>
+        <p class="text-center text-muted small">Creado por: Adrian Mtz 8341446103</p>
+
+        <!-- =========== SECCIÓN COTIZADOR DE BOTONES =========== -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-dot-circle"></i> BOTONES TIPO PIN 5.5 CM</h2>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label for="cantidad_botones" class="form-label fw-bold text-white"><i class="fas fa-sort-numeric-up"></i>
+                            Cantidad a cotizar:</label>
+                        <input type="number" class="form-control" id="cantidad_botones" min="1"
+                            placeholder="Escribe la cantidad...">
+                    </div>
+                    <div class="col-md-6 mt-3 mt-md-0 text-end">
+                        <h4>Precio Unitario: <span id="precioUnitarioVenta_botones" class="badge bg-info">$0.00</span>
+                        </h4>
+                        <div class="mt-2">
+                            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#botonModal">
+                                <i class="fas fa-image"></i> Ver Tipo de Botón
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <fieldset class="form-group">
+                    <legend class="col-form-label col-sm-4 pt-0 fw-bold"><i class="fas fa-palette"></i> Costo de Diseño:
+                    </legend>
+                    <div id="opcionesDiseno_botones">
+                        <div class="form-check"><input class="form-check-input" type="radio" name="costoDiseno_botones"
+                                value="150" data-label="Cliente envía diseño"><label class="form-check-label">Cliente
+                                envía diseño ($150.00)</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" name="costoDiseno_botones"
+                                value="215.52" data-label="Realizar diseño"><label class="form-check-label">Realizar
+                                diseño ($215.52)</label></div>
+                        <div class="form-check"><input class="form-check-input" type="radio" name="costoDiseno_botones"
+                                value="160" data-label="Diseño guardado"><label class="form-check-label">Diseño guardado
+                                ($160.00)</label></div>
+                    </div>
+                </fieldset>
+
+                <hr>
+
+                <div class="row mt-4">
+                    <div class="col-md-7">
+                        <h4><i class="fas fa-calculator"></i> Resultado (Botones):</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Subtotal
+                                (Botones):<span id="subtotal_botones" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo de
+                                Diseño:<span id="costoDisenoTotal_botones" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">IVA
+                                (16%):<span id="iva_botones" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
+                                <strong>Total:</strong><strong id="total_botones">$0.00</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo Unitario
+                                (sin IVA):<span id="costoUnitarioSinIva_botones" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo Unitario
+                                (Neto):<span id="costoUnitarioNeto_botones" class="fw-bold">$0.00</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-5 mt-4 mt-md-0">
+                        <div class="card costs-summary-card">
+                            <div class="card-header"><i class="fas fa-microchip"></i> Resumen de Costos (Interno)</div>
+                            <div class="card-body small p-3">
+                                <p><strong>Hojas a usar:</strong> <span id="cantidadHojas_botones"
+                                        class="fw-bold">0</span></p>
+                                <p><strong>Utilidad aplicada:</strong> <span id="utilidadAplicada_botones"
+                                        class="fw-bold">N/A</span></p>
+                                <p><strong>Costo Botones:</strong><br><span id="detalleCostoBase_botones"></span><span
+                                        id="costoBaseTotal_botones" class="fw-bold">$0.00</span></p>
+                                <p><strong>Costo Impresión:</strong><br><span
+                                        id="detalleCostoImpresion_botones"></span><span id="costoImpresionTotal_botones"
+                                        class="fw-bold">$0.00</span></p>
+                                <p><strong>Costo Corte:</strong><br><span id="detalleCostoCorte_botones"></span><span
+                                        id="costoCorteTotal_botones" class="fw-bold">$0.00</span></p>
+                                <hr>
+                                <p><strong>Costo Total Producción:</strong> <strong
+                                        id="costoProduccionTotal_botones">$0.00</strong></p>
+                                <p class="mt-2"><strong>Utilidad Bruta (Botones):</strong> <strong
+                                        id="utilidadBruta_botones" class="text-success">$0.00</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-4"><button id="limpiar_botones" class="btn btn-danger"><i
+                            class="fas fa-trash-alt"></i> Limpiar Campos de Botones</button></div>
+            </div>
+        </div>
+
+        <div class="card summary-card">
+            <div class="card-header"><i class="fas fa-clipboard"></i> Resumen Simplificado (Botones)</div>
+            <div class="card-body p-4">
+                <textarea id="resumenCliente_botones" class="form-control" rows="4" readonly></textarea>
+                <div class="d-grid gap-2 mt-3"><button id="copiar_botones" class="btn btn-primary"><i
+                            class="fas fa-copy"></i> Copiar Resumen de Botones</button></div>
+            </div>
+        </div>
+
+        <!-- =========== SECCIÓN COTIZADOR DE BRAZALETES =========== -->
+        <div class="card mt-5 brazaletes-card">
+            <div class="card-header">
+                <h2><i class="fas fa-ring"></i> BRAZALETE SERIGRAFÍA 1 TINTA</h2>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-white"><i class="fas fa-tags"></i> Categoría de Brazalete:</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="categoriaBrazalete" id="catPapel" value="papel" checked autocomplete="off">
+                                <label class="btn btn-outline-info" for="catPapel">Papel</label>
+                                
+                                <input type="radio" class="btn-check" name="categoriaBrazalete" id="catPlastico" value="plastico" autocomplete="off">
+                                <label class="btn btn-outline-info" for="catPlastico">Plástico</label>
+                                
+                                <input type="radio" class="btn-check" name="categoriaBrazalete" id="catVinil" value="vinil" autocomplete="off">
+                                <label class="btn btn-outline-info" for="catVinil">Vinil</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-white"><i class="fas fa-ring"></i> Tipo Específico:</label>
+                            <div id="opcionesEspecificas" class="border rounded p-3 bg-dark">
+                                <!-- Opciones específicas se cargarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <button class="btn btn-info w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#galeriaBrazaletes" aria-expanded="false" aria-controls="galeriaBrazaletes">
+                                <i class="fas fa-images"></i> Ver Tipos de Brazaletes
+                            </button>
+                            <div class="collapse" id="galeriaBrazaletes">
+                                <div class="card card-body bg-dark text-light p-3">
+                                    <h6 class="text-info mb-3"><i class="fas fa-info-circle"></i> Selecciona el tipo de brazalete que necesitas:</h6>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/PAPEL-34.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Papel 3/4" data-tipo="papel_34">
+                                                <small class="text-muted d-block mt-2">Papel 3/4" (Chico)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/PAPEL-1.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Papel 1" data-tipo="papel_1">
+                                                <small class="text-muted d-block mt-2">Papel 1" (Grande)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/PAPEL-34-IMPRESION.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Papel 3/4 Impresión Color" data-tipo="papel_34_impresion">
+                                                <small class="text-muted d-block mt-2">Papel 3/4" Color</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/plastico-holografico-circulo.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Plástico Holográfico Círculo" data-tipo="plastico_holografico_circulo">
+                                                <small class="text-muted d-block mt-2">Holográfico Círculo</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/plastico-holografico-glitter.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Plástico Glitter" data-tipo="plastico_glitter">
+                                                <small class="text-muted d-block mt-2">Glitter (Sparkle)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/plastico-holografico-techno.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Plástico Techno" data-tipo="plastico_techno">
+                                                <small class="text-muted d-block mt-2">Techno</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/vinil-normal.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Vinil Normal" data-tipo="vinil_normal">
+                                                <small class="text-muted d-block mt-2">Vinil Normal</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/vinil-cristal.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Vinil Cristal" data-tipo="vinil_cristal">
+                                                <small class="text-muted d-block mt-2">Vinil Cristal</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="text-center">
+                                                <img src="assets/images/brazaletes/vinil-neon.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                                                     style="height: 80px; object-fit: cover; cursor: pointer;" 
+                                                     alt="Vinil Neon" data-tipo="vinil_neon">
+                                                <small class="text-muted d-block mt-2">Vinil Neon</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cantidad_brazaletes" class="form-label fw-bold text-white"><i
+                                class="fas fa-sort-numeric-up"></i> Cantidad a cotizar:</label>
+                        <input type="number" class="form-control" id="cantidad_brazaletes" min="1"
+                            placeholder="Escribe la cantidad...">
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <fieldset class="form-group">
+                            <legend class="col-form-label pt-0 fw-bold"><i class="fas fa-palette"></i> Costo de Diseño:
+                            </legend>
+                            <div id="opcionesDiseno_brazaletes">
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="costoDiseno_brazaletes" value="150"
+                                        data-label="Cliente envía diseño"><label class="form-check-label">Cliente envía
+                                        diseño ($150.00)</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="costoDiseno_brazaletes" value="215.52" data-label="Realizar diseño"><label
+                                        class="form-check-label">Realizar diseño ($215.52)</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="costoDiseno_brazaletes" value="160" data-label="Diseño guardado"><label
+                                        class="form-check-label">Diseño guardado ($160.00)</label></div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-6">
+                        <fieldset class="form-group">
+                            <legend class="col-form-label pt-0 fw-bold"><i class="fas fa-box-open"></i> ¿En stock?
+                            </legend>
+                            <div id="stock_brazalete">
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="stockBrazalete" value="si" checked><label class="form-check-label">Sí (sin
+                                        costo extra)</label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio"
+                                        name="stockBrazalete" value="no"><label class="form-check-label">No (+$300.00
+                                        paquetería)</label></div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mt-4">
+                    <div class="col-md-7">
+                        <h4><i class="fas fa-calculator"></i> Resultado (Brazaletes):</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Subtotal
+                                (Brazaletes):<span id="subtotal_brazaletes" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo de
+                                Diseño:<span id="costoDisenoTotal_brazaletes" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo de
+                                Paquetería:<span id="costoPaqueteria_brazaletes" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">IVA
+                                (16%):<span id="iva_brazaletes" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
+                                <strong>Total:</strong><strong id="total_brazaletes" class="text-success">$0.00</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo Unitario
+                                (sin IVA):<span id="costoUnitarioSinIva_brazaletes" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Costo Unitario
+                                (con IVA):<span id="costoUnitarioNeto_brazaletes" class="fw-bold">$0.00</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-5 mt-4 mt-md-0">
+                        <div class="card costs-summary-card">
+                            <div class="card-header"><i class="fas fa-microchip"></i> Resumen de Costos (Interno)</div>
+                            <div class="card-body small p-3">
+                                <p><strong>Utilidad aplicada:</strong> <span id="utilidadAplicada_brazaletes"
+                                        class="fw-bold">N/A</span></p>
+                                <p><strong>Costo Brazaletes (+10):</strong><br><span
+                                        id="detalleCostoBase_brazaletes"></span><span id="costoBaseTotal_brazaletes"
+                                        class="fw-bold">$0.00</span></p>
+                                <p><strong>Costo Marco:</strong> <span id="costoMarco_brazaletes"
+                                        class="fw-bold">$0.00</span></p>
+                                <p><strong>Costo Impresión:</strong> <span id="costoImpresionTotal_brazaletes"
+                                        class="fw-bold">$0.00</span></p>
+                                <hr>
+                                <p><strong>Costo Total Producción:</strong> <strong
+                                        id="costoProduccionTotal_brazaletes">$0.00</strong></p>
+                                <p class="mt-2"><strong>Utilidad Bruta (Brazaletes):</strong> <strong
+                                        id="utilidadBruta_brazaletes" class="text-success">$0.00</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-4"><button id="limpiar_brazaletes" class="btn btn-danger"><i
+                            class="fas fa-trash-alt"></i> Limpiar Campos de Brazaletes</button></div>
+            </div>
+        </div>
+
+        <div class="card summary-card">
+            <div class="card-header"><i class="fas fa-clipboard"></i> Resumen Simplificado (Brazaletes)</div>
+            <div class="card-body p-4">
+                <textarea id="resumenCliente_brazaletes" class="form-control" rows="4" readonly></textarea>
+                <div class="d-grid gap-2 mt-3"><button id="copiar_brazaletes" class="btn btn-primary"><i
+                            class="fas fa-copy"></i> Copiar Resumen de Brazaletes</button></div>
+            </div>
+        </div>
+
+        <!-- =========== SECCIÓN DE COSTOS =========== -->
+        <div class="card mt-5">
+            <div class="card-header">
+                <h2><i class="fas fa-coins"></i> COSTOS DE PRODUCCIÓN</h2>
+            </div>
+            <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#costosBotones" aria-expanded="false" aria-controls="costosBotones">
+                                <i class="fas fa-dot-circle"></i> Ver Costos de Botones
+                            </button>
+                        </div>
+                        <div class="collapse mt-3" id="costosBotones">
+                            <div class="card card-body bg-dark text-light">
+                                <h5 class="text-info"><i class="fas fa-dot-circle"></i> Costos Botones Tipo PIN 5.5 CM</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-warning">Costos Variables:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Costo base por botón:</strong> $3.63 MXN</li>
+                                            <li><strong>Costo impresión por hoja:</strong> $7.50 MXN</li>
+                                            <li><strong>Costo corte por hoja:</strong> $18.00 MXN</li>
+                                            <li><strong>Botones por hoja:</strong> 8 unidades</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-warning">Costos de Diseño:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Cliente envía diseño:</strong> $150.00 MXN</li>
+                                            <li><strong>Realizar diseño:</strong> $215.52 MXN</li>
+                                            <li><strong>Diseño guardado:</strong> $160.00 MXN</li>
+                                        </ul>
+                                    </div>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Costo base por botón:</strong> $3.63 MXN</li>
+                                        <li><strong>Costo impresión por hoja:</strong> $7.50 MXN</li>
+                                        <li><strong>Costo corte por hoja:</strong> $18.00 MXN</li>
+                                        <li><strong>Botones por hoja:</strong> 8 unidades</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-warning">Costos de Diseño:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Cliente envía diseño:</strong> $150.00 MXN</li>
+                                        <li><strong>Realizar diseño:</strong> $215.52 MXN</li>
+                                        <li><strong>Diseño guardado:</strong> $160.00 MXN</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="text-warning">Tabla de Precios y Utilidades:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Cantidad</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Utilidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>1-10</td><td>$18.15</td><td>x5</td></tr>
+                                            <tr><td>11-20</td><td>$16.335</td><td>x4.5</td></tr>
+                                            <tr><td>21-50</td><td>$14.52</td><td>x4</td></tr>
+                                            <tr><td>51-100</td><td>$12.705</td><td>x3.5</td></tr>
+                                            <tr><td>101-200</td><td>$10.89</td><td>x3</td></tr>
+                                            <tr><td>201+</td><td>$9.075</td><td>x2.5</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brazaletes -->
+                <div class="mb-4">
+                    <button class="btn btn-success w-100" type="button" data-bs-toggle="collapse" data-bs-target="#costosBrazaletes" aria-expanded="false" aria-controls="costosBrazaletes">
+                        <i class="fas fa-ring"></i> Ver Costos de Brazaletes
+                    </button>
+                    <div class="collapse mt-3" id="costosBrazaletes">
+                        <div class="card card-body bg-dark text-light">
+                            <h5 class="text-success"><i class="fas fa-ring"></i> Costos Brazaletes Serigrafía 1 Tinta</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-warning">Costos Base por Unidad:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Papel 3/4" (Chico):</strong> $1.60 MXN</li>
+                                        <li><strong>Papel 1" (Grande):</strong> $1.80 MXN</li>
+                                        <li><strong>Papel 3/4" Impresión Color:</strong> $2.10 MXN</li>
+                                        <li><strong>Plástico Holográfico Círculo:</strong> $4.00 MXN</li>
+                                        <li><strong>Plástico Glitter (Sparkle):</strong> $4.50 MXN</li>
+                                        <li><strong>Plástico Techno:</strong> $4.50 MXN</li>
+                                        <li><strong>Vinil Normal (Confort):</strong> $4.00 MXN</li>
+                                        <li><strong>Vinil Cristal (Semi Transparente):</strong> $4.00 MXN</li>
+                                        <li><strong>Vinil Neon (Electric):</strong> $4.50 MXN</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-warning">Costos Adicionales:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Costo de marco:</strong> $130.00 MXN (fijo)</li>
+                                        <li><strong>Costo de paquetería:</strong> $300.00 MXN (si no hay stock)</li>
+                                        <li><strong>Costo mínimo impresión:</strong> $280.00 MXN</li>
+                                        <li><strong>Costo adicional impresión:</strong> $20.00 MXN por cada 10 unidades</li>
+                                        <li><strong>Sobrante producción:</strong> +10 unidades</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="text-warning">Costos de Diseño:</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Cliente envía diseño:</strong> $150.00 MXN</li>
+                                    <li><strong>Realizar diseño:</strong> $215.52 MXN</li>
+                                    <li><strong>Diseño guardado:</strong> $160.00 MXN</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="text-warning">Tabla de Precios y Utilidades - Papel:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Cantidad</th>
+                                                <th>Utilidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>1-100</td><td>x4.5</td></tr>
+                                            <tr><td>101-200</td><td>x4</td></tr>
+                                            <tr><td>201-300</td><td>x3.5</td></tr>
+                                            <tr><td>301-500</td><td>x3</td></tr>
+                                            <tr><td>501+</td><td>x2.5</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="text-warning">Tabla de Precios y Utilidades - Plástico/Vinil:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Cantidad</th>
+                                                <th>Utilidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>1-100</td><td>x4</td></tr>
+                                            <tr><td>101-200</td><td>x3</td></tr>
+                                            <tr><td>201-300</td><td>x2.8</td></tr>
+                                            <tr><td>301-500</td><td>x2.5</td></tr>
+                                            <tr><td>501+</td><td>x2</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal para expandir imágenes -->
+    <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white" id="imagenModalLabel">Vista Ampliada</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="imagenExpandida" src="" class="img-fluid rounded" alt="Imagen ampliada">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver tipo de botón -->
+    <div class="modal fade" id="botonModal" tabindex="-1" aria-labelledby="botonModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white" id="botonModalLabel">Botón Tipo PIN 5.5 CM</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="assets/images/BOTON/BOTON.jpg" class="img-fluid rounded cursor-pointer imagen-expandible" 
+                         style="max-height: 500px; object-fit: contain;" 
+                         alt="Botón Tipo PIN 5.5 CM">
+                    <div class="mt-3">
+                        <p class="text-white">Botón tipo PIN de 5.5 cm de diámetro, ideal para eventos, promociones y merchandising.</p>
+                        <p class="text-muted small">Haz clic en la imagen para expandirla</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- UTILIDADES GENERALES ---
+        function formatoMoneda(numero) {
+            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numero);
+        }
+
+        // ====================================================================
+        // =========== LÓGICA DEL COTIZADOR DE BOTONES ========================
+        // ====================================================================
+        {
+            const cantidadInput = document.getElementById('cantidad_botones');
+            const opcionesDisenoEl = document.getElementById('opcionesDiseno_botones');
+            const precioUnitarioVentaEl = document.getElementById('precioUnitarioVenta_botones');
+            const subtotalEl = document.getElementById('subtotal_botones');
+            const costoDisenoTotalEl = document.getElementById('costoDisenoTotal_botones');
+            const ivaEl = document.getElementById('iva_botones');
+            const totalEl = document.getElementById('total_botones');
+            const costoUnitarioNetoEl = document.getElementById('costoUnitarioNeto_botones');
+            const costoUnitarioSinIvaEl = document.getElementById('costoUnitarioSinIva_botones');
+            const cantidadHojasEl = document.getElementById('cantidadHojas_botones');
+            const utilidadAplicadaEl = document.getElementById('utilidadAplicada_botones');
+            const costoBaseTotalEl = document.getElementById('costoBaseTotal_botones');
+            const costoImpresionTotalEl = document.getElementById('costoImpresionTotal_botones');
+            const costoCorteTotalEl = document.getElementById('costoCorteTotal_botones');
+            const costoProduccionTotalEl = document.getElementById('costoProduccionTotal_botones');
+            const utilidadBrutaEl = document.getElementById('utilidadBruta_botones');
+            const detalleCostoBaseEl = document.getElementById('detalleCostoBase_botones');
+            const detalleCostoImpresionEl = document.getElementById('detalleCostoImpresion_botones');
+            const detalleCostoCorteEl = document.getElementById('detalleCostoCorte_botones');
+            const resumenClienteEl = document.getElementById('resumenCliente_botones');
+            const limpiarBtn = document.getElementById('limpiar_botones');
+            const copiarBtn = document.getElementById('copiar_botones');
+
+            const COSTO_BASE_BOTON = 3.63;
+            const COSTO_HOJA_IMPRESION = 7.50;
+            const COSTO_HOJA_CORTE = 18.00;
+            const BOTONES_POR_HOJA = 8;
+            const IVA_PERCENT = 0.16;
+
+            function getPrecioVentaUnitario(cantidad) {
+                if (cantidad >= 1 && cantidad <= 10) return 18.15;
+                if (cantidad >= 11 && cantidad <= 20) return 16.335;
+                if (cantidad >= 21 && cantidad <= 50) return 14.52;
+                if (cantidad >= 51 && cantidad <= 100) return 12.705;
+                if (cantidad >= 101 && cantidad <= 200) return 10.89;
+                if (cantidad >= 201) return 9.075;
+                return 0;
+            }
+
+            function getUtilidadMultiplicador(cantidad) {
+                if (cantidad >= 1 && cantidad <= 10) return "x5";
+                if (cantidad >= 11 && cantidad <= 20) return "x4.5";
+                if (cantidad >= 21 && cantidad <= 50) return "x4";
+                if (cantidad >= 51 && cantidad <= 100) return "x3.5";
+                if (cantidad >= 101 && cantidad <= 200) return "x3";
+                if (cantidad >= 201) return "x2.5";
+                return "N/A";
+            }
+
+            function cotizar() {
+                const cantidad = parseInt(cantidadInput.value, 10) || 0;
+                const opcionDisenoSeleccionada = document.querySelector('input[name="costoDiseno_botones"]:checked');
+                const costoDiseno = opcionDisenoSeleccionada ? parseFloat(opcionDisenoSeleccionada.value) : 0;
+                const etiquetaDiseno = opcionDisenoSeleccionada ? opcionDisenoSeleccionada.dataset.label : "";
+
+                if (cantidad <= 0) {
+                    limpiarCampos();
+                    return;
+                }
+
+                const precioVentaUnitario = getPrecioVentaUnitario(cantidad);
+                const subtotalBotones = cantidad * precioVentaUnitario;
+                const subtotalGeneral = subtotalBotones + costoDiseno;
+                const iva = subtotalGeneral * IVA_PERCENT;
+                const total = subtotalGeneral + iva;
+                const costoUnitarioNeto = total / cantidad;
+
+                const hojasNecesarias = Math.ceil(cantidad / BOTONES_POR_HOJA);
+                const costoBaseTotal = cantidad * COSTO_BASE_BOTON;
+                const costoImpresionTotal = hojasNecesarias * COSTO_HOJA_IMPRESION;
+                const costoCorteTotal = hojasNecesarias * COSTO_HOJA_CORTE;
+                const costoProduccionTotal = costoBaseTotal + costoImpresionTotal + costoCorteTotal;
+                const multiplicador = getUtilidadMultiplicador(cantidad);
+                const utilidadBruta = subtotalBotones - costoProduccionTotal;
+
+                precioUnitarioVentaEl.textContent = formatoMoneda(precioVentaUnitario);
+                subtotalEl.textContent = formatoMoneda(subtotalBotones);
+                costoDisenoTotalEl.textContent = formatoMoneda(costoDiseno);
+                ivaEl.textContent = formatoMoneda(iva);
+                totalEl.textContent = formatoMoneda(total);
+                costoUnitarioNetoEl.textContent = formatoMoneda(costoUnitarioNeto);
+                costoUnitarioSinIvaEl.textContent = formatoMoneda(precioVentaUnitario);
+
+                cantidadHojasEl.textContent = hojasNecesarias;
+                utilidadAplicadaEl.textContent = multiplicador;
+                detalleCostoBaseEl.textContent = `(${cantidad} pz x ${formatoMoneda(COSTO_BASE_BOTON)}) = `;
+                costoBaseTotalEl.textContent = formatoMoneda(costoBaseTotal);
+                detalleCostoImpresionEl.textContent = `(${hojasNecesarias} hojas x ${formatoMoneda(COSTO_HOJA_IMPRESION)}) = `;
+                costoImpresionTotalEl.textContent = formatoMoneda(costoImpresionTotal);
+                detalleCostoCorteEl.textContent = `(${hojasNecesarias} cortes x ${formatoMoneda(COSTO_HOJA_CORTE)}) = `;
+                costoCorteTotalEl.textContent = formatoMoneda(costoCorteTotal);
+                costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
+                utilidadBrutaEl.textContent = formatoMoneda(utilidadBruta);
+
+                generarResumenCliente(cantidad, costoUnitarioNeto, total, costoDiseno, etiquetaDiseno);
+            }
+
+            function generarResumenCliente(cantidad, costoUnitarioFinal, total, costoDiseno, etiquetaDiseno) {
+                const nombreProducto = "Boton impresos a color tipo pin medida 5.5 cm diametro";
+                let resumen = `Hola, te comparto la cotización: ${cantidad} pz de ${nombreProducto}, precio unitario: ${formatoMoneda(costoUnitarioFinal)}, total a pagar: ${formatoMoneda(total)} (IVA incluido).`;
+                if (costoDiseno > 0) {
+                    resumen += ` ${etiquetaDiseno}.`;
+                }
+                resumenClienteEl.value = resumen;
+            }
+
+            function limpiarCampos() {
+                cantidadInput.value = '';
+                const opcionDisenoSeleccionada = document.querySelector('input[name="costoDiseno_botones"]:checked');
+                if (opcionDisenoSeleccionada) opcionDisenoSeleccionada.checked = false;
+
+                precioUnitarioVentaEl.textContent = formatoMoneda(0);
+                subtotalEl.textContent = formatoMoneda(0);
+                costoDisenoTotalEl.textContent = formatoMoneda(0);
+                ivaEl.textContent = formatoMoneda(0);
+                totalEl.textContent = formatoMoneda(0);
+                costoUnitarioNetoEl.textContent = formatoMoneda(0);
+                costoUnitarioSinIvaEl.textContent = formatoMoneda(0);
+                cantidadHojasEl.textContent = '0';
+                utilidadAplicadaEl.textContent = 'N/A';
+                detalleCostoBaseEl.textContent = '';
+                costoBaseTotalEl.textContent = formatoMoneda(0);
+                detalleCostoImpresionEl.textContent = '';
+                costoImpresionTotalEl.textContent = formatoMoneda(0);
+                detalleCostoCorteEl.textContent = '';
+                costoCorteTotalEl.textContent = formatoMoneda(0);
+                costoProduccionTotalEl.textContent = formatoMoneda(0);
+                utilidadBrutaEl.textContent = formatoMoneda(0);
+                resumenClienteEl.value = '';
+            }
+
+            function copiarResumen() {
+                if (!resumenClienteEl.value) return;
+                navigator.clipboard.writeText(resumenClienteEl.value).then(() => {
+                    const originalText = copiarBtn.innerHTML;
+                    copiarBtn.innerHTML = '¡Copiado!';
+                    copiarBtn.classList.add('btn-success');
+                    setTimeout(() => {
+                        copiarBtn.innerHTML = originalText;
+                        copiarBtn.classList.remove('btn-success');
+                    }, 2000);
+                }).catch(err => console.error('Error al copiar: ', err));
+            }
+
+            cantidadInput.addEventListener('input', cotizar);
+            opcionesDisenoEl.addEventListener('change', cotizar);
+            limpiarBtn.addEventListener('click', limpiarCampos);
+            copiarBtn.addEventListener('click', copiarResumen);
+        }
+
+        // ====================================================================
+        // =========== LÓGICA DEL COTIZADOR DE BRAZALETES =====================
+        // ====================================================================
+        {
+            const cantidadInput = document.getElementById('cantidad_brazaletes');
+            const tipoBrazaleteEl = document.getElementById('tipo_brazalete');
+            const opcionesDisenoEl = document.getElementById('opcionesDiseno_brazaletes');
+            const stockBrazaleteEl = document.getElementById('stock_brazalete');
+            const subtotalEl = document.getElementById('subtotal_brazaletes');
+            const costoDisenoTotalEl = document.getElementById('costoDisenoTotal_brazaletes');
+            const costoPaqueteriaEl = document.getElementById('costoPaqueteria_brazaletes');
+            const ivaEl = document.getElementById('iva_brazaletes');
+            const totalEl = document.getElementById('total_brazaletes');
+            const costoUnitarioSinIvaEl = document.getElementById('costoUnitarioSinIva_brazaletes');
+            const costoUnitarioNetoEl = document.getElementById('costoUnitarioNeto_brazaletes');
+            const utilidadAplicadaEl = document.getElementById('utilidadAplicada_brazaletes');
+            const costoBaseTotalEl = document.getElementById('costoBaseTotal_brazaletes');
+            const detalleCostoBaseEl = document.getElementById('detalleCostoBase_brazaletes');
+            const costoMarcoEl = document.getElementById('costoMarco_brazaletes');
+            const costoImpresionTotalEl = document.getElementById('costoImpresionTotal_brazaletes');
+            const costoProduccionTotalEl = document.getElementById('costoProduccionTotal_brazaletes');
+            const utilidadBrutaEl = document.getElementById('utilidadBruta_brazaletes');
+            const resumenClienteEl = document.getElementById('resumenCliente_brazaletes');
+            const limpiarBtn = document.getElementById('limpiar_brazaletes');
+            const copiarBtn = document.getElementById('copiar_brazaletes');
+
+            const IVA_PERCENT = 0.16;
+            const COSTO_MARCO = 130;
+            const COSTO_PAQUETERIA = 300;
+
+            const costosBase = { 
+                papel_34: 1.60, 
+                papel_1: 1.80, 
+                papel_34_impresion: 2.10,
+                plastico_holografico_circulo: 4.00,
+                plastico_glitter: 4.50,
+                plastico_techno: 4.50,
+                vinil_normal: 4.00,
+                vinil_cristal: 4.00,
+                vinil_neon: 4.50
+            };
+            
+            // Opciones específicas por categoría
+            const opcionesPorCategoria = {
+                papel: [
+                    { value: 'papel_34', label: 'Papel 3/4" (Chico)', costo: 1.60 },
+                    { value: 'papel_1', label: 'Papel 1" (Grande)', costo: 1.80 },
+                    { value: 'papel_34_impresion', label: 'Papel 3/4" Impresión Color', costo: 2.10 }
+                ],
+                plastico: [
+                    { value: 'plastico_holografico_circulo', label: 'Plástico Holográfico Círculo', costo: 4.00 },
+                    { value: 'plastico_glitter', label: 'Plástico Glitter (Sparkle)', costo: 4.50 },
+                    { value: 'plastico_techno', label: 'Plástico Techno', costo: 4.50 }
+                ],
+                vinil: [
+                    { value: 'vinil_normal', label: 'Vinil Normal (Confort)', costo: 4.00 },
+                    { value: 'vinil_cristal', label: 'Vinil Cristal (Semi Transparente)', costo: 4.00 },
+                    { value: 'vinil_neon', label: 'Vinil Neon (Electric)', costo: 4.50 }
+                ]
+            };
+            
+            const preciosVenta = {
+                // Papel
+                papel_34: [
+                    { min: 1, max: 100, utilidad: 'x4.5' },
+                    { min: 101, max: 200, utilidad: 'x4' },
+                    { min: 201, max: 300, utilidad: 'x3.5' },
+                    { min: 301, max: 500, utilidad: 'x3' },
+                    { min: 501, max: Infinity, utilidad: 'x2.5' },
+                ],
+                papel_1: [
+                    { min: 1, max: 100, utilidad: 'x4.5' },
+                    { min: 101, max: 200, utilidad: 'x4' },
+                    { min: 201, max: 300, utilidad: 'x3.5' },
+                    { min: 301, max: 500, utilidad: 'x3' },
+                    { min: 501, max: Infinity, utilidad: 'x2.5' },
+                ],
+                papel_34_impresion: [
+                    { min: 1, max: 100, utilidad: 'x4.5' },
+                    { min: 101, max: 200, utilidad: 'x4' },
+                    { min: 201, max: 300, utilidad: 'x3.5' },
+                    { min: 301, max: 500, utilidad: 'x3' },
+                    { min: 501, max: Infinity, utilidad: 'x2.5' },
+                ],
+                // Plástico
+                plastico_holografico_circulo: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ],
+                plastico_glitter: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ],
+                plastico_techno: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ],
+                // Vinil
+                vinil_normal: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ],
+                vinil_cristal: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ],
+                vinil_neon: [
+                    { min: 1, max: 100, utilidad: 'x4' },
+                    { min: 101, max: 200, utilidad: 'x3' },
+                    { min: 201, max: 300, utilidad: 'x2.8' },
+                    { min: 301, max: 500, utilidad: 'x2.5' },
+                    { min: 501, max: Infinity, utilidad: 'x2' },
+                ]
+            };
+
+            // Función para cargar opciones específicas según categoría
+            function cargarOpcionesEspecificas(categoria) {
+                const opcionesEspecificasEl = document.getElementById('opcionesEspecificas');
+                const opciones = opcionesPorCategoria[categoria];
+                
+                opcionesEspecificasEl.innerHTML = '';
+                
+                opciones.forEach((opcion, index) => {
+                    const checked = index === 0 ? 'checked' : '';
+                    const div = document.createElement('div');
+                    div.className = 'form-check mb-2';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="radio" name="tipoBrazalete"
+                                id="${opcion.value}" value="${opcion.value}" ${checked}>
+                        <label class="form-check-label text-white" for="${opcion.value}">
+                            <i class="fas fa-circle text-info me-2"></i>${opcion.label}
+                            <span class="badge bg-secondary ms-2">$${opcion.costo.toFixed(2)} MXN</span>
+                        </label>
+                    `;
+                    opcionesEspecificasEl.appendChild(div);
+                });
+                
+                // Agregar event listeners a los nuevos radio buttons
+                opcionesEspecificasEl.querySelectorAll('input[name="tipoBrazalete"]').forEach(radio => {
+                    radio.addEventListener('change', cotizar);
+                });
+            }
+
+            // Función para expandir imágenes
+            function setupImagenExpandible() {
+                const modal = new bootstrap.Modal(document.getElementById('imagenModal'));
+                const imagenExpandida = document.getElementById('imagenExpandida');
+                
+                document.querySelectorAll('.imagen-expandible').forEach(img => {
+                    img.addEventListener('click', function() {
+                        imagenExpandida.src = this.src;
+                        const modalTitle = document.getElementById('imagenModalLabel');
+                        modalTitle.textContent = this.alt;
+                        modal.show();
+                    });
+                });
+            }
+
+            // Inicializar
+            document.addEventListener('DOMContentLoaded', function() {
+                // Cargar opciones iniciales (papel)
+                cargarOpcionesEspecificas('papel');
+                
+                // Configurar expansión de imágenes
+                setupImagenExpandible();
+                
+                // Event listener para cambio de categoría
+                document.querySelectorAll('input[name="categoriaBrazalete"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        cargarOpcionesEspecificas(this.value);
+                        cotizar(); // Recalcular cotización
+                    });
+                });
+            });
+
+            function getPrecioVenta(cantidad, tipo) {
+                const tabla = preciosVenta[tipo];
+                const tier = tabla.find(t => cantidad >= t.min && cantidad <= t.max);
+                const costoBase = costosBase[tipo];
+                const multiplicador = parseFloat(tier ? tier.utilidad.replace('x', '') : 1);
+                const precioVenta = costoBase * multiplicador;
+                return { precio: precioVenta, utilidad: tier ? tier.utilidad : 'N/A' };
+            }
+
+            function cotizar() {
+                const cantidad = parseInt(cantidadInput.value, 10) || 0;
+                const tipo = document.querySelector('input[name="tipoBrazalete"]:checked').value;
+                const opcionDiseno = document.querySelector('input[name="costoDiseno_brazaletes"]:checked');
+                const enStock = document.querySelector('input[name="stockBrazalete"]:checked').value === 'si';
+
+                if (cantidad <= 0) {
+                    limpiarCampos();
+                    return;
+                }
+
+                const costoDiseno = opcionDiseno ? parseFloat(opcionDiseno.value) : 0;
+                const etiquetaDiseno = opcionDiseno ? opcionDiseno.dataset.label : "";
+                const costoPaqueteria = enStock ? 0 : COSTO_PAQUETERIA;
+
+                const { precio: precioVentaUnitario, utilidad } = getPrecioVenta(cantidad, tipo);
+                const subtotalBrazaletes = cantidad * precioVentaUnitario;
+                const subtotalGeneral = subtotalBrazaletes + costoDiseno + costoPaqueteria;
+                const iva = subtotalGeneral * IVA_PERCENT;
+                const total = subtotalGeneral + iva;
+                const costoUnitarioNeto = total / cantidad;
+
+                const costoBaseUnitario = costosBase[tipo];
+                const costoBaseTotal = (cantidad + 10) * costoBaseUnitario; // +10 de sobrante
+                const costoImpresion = Math.max(280, Math.ceil(cantidad / 10) * 20);
+                const costoProduccionTotal = costoBaseTotal + COSTO_MARCO + costoImpresion;
+                const utilidadBruta = subtotalBrazaletes - costoProduccionTotal;
+
+                subtotalEl.textContent = formatoMoneda(subtotalBrazaletes);
+                costoDisenoTotalEl.textContent = formatoMoneda(costoDiseno);
+                costoPaqueteriaEl.textContent = formatoMoneda(costoPaqueteria);
+                ivaEl.textContent = formatoMoneda(iva);
+                totalEl.textContent = formatoMoneda(total);
+                costoUnitarioSinIvaEl.textContent = formatoMoneda(precioVentaUnitario);
+                costoUnitarioNetoEl.textContent = formatoMoneda(costoUnitarioNeto);
+
+                utilidadAplicadaEl.textContent = utilidad;
+                detalleCostoBaseEl.textContent = `(${cantidad} + 10 pz) x ${formatoMoneda(costoBaseUnitario)} = `;
+                costoBaseTotalEl.textContent = formatoMoneda(costoBaseTotal);
+                costoMarcoEl.textContent = formatoMoneda(COSTO_MARCO);
+                costoImpresionTotalEl.textContent = formatoMoneda(costoImpresion);
+                costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
+                utilidadBrutaEl.textContent = formatoMoneda(utilidadBruta);
+
+                generarResumenCliente(cantidad, tipo, costoUnitarioNeto, total, costoDiseno, etiquetaDiseno, costoPaqueteria);
+            }
+
+            function generarResumenCliente(cantidad, tipo, costoUnitarioFinal, total, costoDiseno, etiquetaDiseno, costoPaqueteria) {
+                const nombresTipo = {
+                    papel_34: 'Papel 3/4" (Chico)',
+                    papel_1: 'Papel 1" (Grande)',
+                    papel_34_impresion: 'Papel 3/4" Impresión Color',
+                    plastico_holografico_circulo: 'Plástico Holográfico Círculo',
+                    plastico_glitter: 'Plástico Glitter (Sparkle)',
+                    plastico_techno: 'Plástico Techno',
+                    vinil_normal: 'Vinil Normal (Confort)',
+                    vinil_cristal: 'Vinil Cristal (Semi Transparente)',
+                    vinil_neon: 'Vinil Neon (Electric)'
+                };
+                const nombreProducto = `Brazalete de ${nombresTipo[tipo]} impreso a 1 tinta en serigrafía`;
+                let resumen = `Hola, te comparto la cotización: ${cantidad} pz de ${nombreProducto}, precio unitario: ${formatoMoneda(costoUnitarioFinal)}, total a pagar: ${formatoMoneda(total)} (IVA incluido).`;
+                if (costoDiseno > 0) {
+                    resumen += ` ${etiquetaDiseno}.`;
+                }
+                if (costoPaqueteria > 0) {
+                    resumen += ` Incluye costo de paquetería.`;
+                }
+                resumenClienteEl.value = resumen;
+            }
+
+            function limpiarCampos() {
+                cantidadInput.value = '';
+
+                const radiosDiseno = document.getElementsByName('costoDiseno_brazaletes');
+                for (const radio of radiosDiseno) radio.checked = false;
+
+                subtotalEl.textContent = formatoMoneda(0);
+                costoDisenoTotalEl.textContent = formatoMoneda(0);
+                costoPaqueteriaEl.textContent = formatoMoneda(0);
+                ivaEl.textContent = formatoMoneda(0);
+                totalEl.textContent = formatoMoneda(0);
+                costoUnitarioSinIvaEl.textContent = formatoMoneda(0);
+                costoUnitarioNetoEl.textContent = formatoMoneda(0);
+                utilidadAplicadaEl.textContent = 'N/A';
+                detalleCostoBaseEl.textContent = '';
+                costoBaseTotalEl.textContent = formatoMoneda(0);
+                costoMarcoEl.textContent = formatoMoneda(0);
+                costoImpresionTotalEl.textContent = formatoMoneda(0);
+                costoProduccionTotalEl.textContent = formatoMoneda(0);
+                utilidadBrutaEl.textContent = formatoMoneda(0);
+                resumenClienteEl.value = '';
+            }
+
+            function copiarResumen() {
+                if (!resumenClienteEl.value) return;
+                navigator.clipboard.writeText(resumenClienteEl.value).then(() => {
+                    const originalText = copiarBtn.innerHTML;
+                    copiarBtn.innerHTML = '¡Copiado!';
+                    copiarBtn.classList.add('btn-success');
+                    setTimeout(() => {
+                        copiarBtn.innerHTML = originalText;
+                        copiarBtn.classList.remove('btn-success');
+                    }, 2000);
+                }).catch(err => console.error('Error al copiar: ', err));
+            }
+
+            cantidadInput.addEventListener('input', cotizar);
+            tipoBrazaleteEl.addEventListener('change', cotizar);
+            opcionesDisenoEl.addEventListener('change', cotizar);
+            stockBrazaleteEl.addEventListener('change', cotizar);
+            limpiarBtn.addEventListener('click', limpiarCampos);
+            copiarBtn.addEventListener('click', copiarResumen);
+        }
+
+    </script>
+
+    <!-- Botón Flotante de Regreso al Menú -->
+    <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap;
+        }
+
+        /* Responsive: en móviles solo mostrar el icono */
+        @media (max-width: 768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .btn-home-flotante span {
+                display: none;
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+
+    <!-- Bootstrap 5.3.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
