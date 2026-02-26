@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador Gran Formato (Portable)</title>
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <style>
+        @import url('assets/css/poppins.css');
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --background-color: #f0f2f5;
+            --text-color: #333;
+            --input-bg-color: #fff;
+            --input-border-color: #ced4da;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            position: relative;
+        }
+
+        .notificacion-container {
+            position: sticky;
+            top: 10px;
+            z-index: 10000;
+            padding: 0 20px;
+            margin-bottom: 15px;
+        }
+
+        .alerta-notificacion {
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alerta-notificacion.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .alerta-notificacion.danger {
+            background-color: var(--danger-color);
+        }
+
+        .alerta-notificacion.success {
+            background-color: var(--success-color);
+        }
+
+        .alerta-notificacion.info {
+            background-color: var(--info-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        h1 .fas {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-top: 0px;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        label .fas {
+            margin-right: 8px;
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .radio-group input[type="radio"] {
+            display: none;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: 2px solid var(--input-border-color);
+            transition: all 0.3s ease;
+            font-weight: 400;
+        }
+
+        .radio-group input[type="radio"]:checked+label {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .medidas-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 100px;
+            gap: 10px;
+        }
+
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-principal {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-principal:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-rojo {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-rojo:hover {
+            background-color: #c82333;
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: white;
+            white-space: nowrap;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        #copiar-btn {
+            background-color: var(--success-color);
+            color: white;
+            margin-top: 10px;
+        }
+
+        #copiar-btn:hover {
+            background-color: #218838;
+        }
+
+        #desglose-container,
+        #cotizacion-resumen-container,
+        #resumen-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        #desglose-container h3,
+        #cotizacion-resumen-container h2,
+        #resumen-container h2 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        #resultados-container {
+            padding-top: 10px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #cotizacion-lista {
+            margin-top: 20px;
+        }
+
+        .cotizacion-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .cotizacion-item-descripcion {
+            flex-grow: 1;
+        }
+
+        .cotizacion-item-descripcion .item-material {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .cotizacion-item-descripcion .item-detalles {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        .cotizacion-item-precio {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: var(--primary-color);
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .remover-item-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.4em;
+            cursor: pointer;
+            padding: 5px;
+            width: auto;
+        }
+
+        .remover-item-btn:hover {
+            color: #a02430;
+            transform: scale(1.1);
+        }
+
+        #cotizacion-total-container {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--primary-color);
+            text-align: right;
+        }
+
+        #cotizacion-total-container h3 {
+            margin: 5px 0;
+            font-size: 1.2em;
+        }
+
+        #cotizacion-total-container h2 {
+            margin: 5px 0;
+            font-size: 1.8em;
+            color: var(--success-color);
+        }
+
+        .costos-materiales-container {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .collapsible {
+            background-color: var(--dark-color);
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.2em;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapsible:hover {
+            background-color: #4a525a;
+        }
+
+        .collapsible .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible .fa-chevron-down.rotated {
+            transform: rotate(180deg);
+        }
+
+        .content-collapsible {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #f9f9f9;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #eee;
+            border-top: none;
+        }
+
+        .costos-section {
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .costos-section:last-child {
+            border-bottom: none;
+        }
+
+        .costos-section h2 {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .costos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .item-costo {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-costo strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+            font-size: 1.1em;
+        }
+
+        .rango-precio {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .rango-precio span {
+            font-size: 0.95em;
+            color: var(--secondary-color);
+        }
+
+        .rango-precio input {
+            width: 100px;
+            padding: 5px 8px;
+            text-align: right;
+        }
+
+        #guardar-precios-btn {
+            background-color: var(--primary-color);
+            color: white;
+            margin: 20px auto;
+            display: block;
+            width: fit-content;
+        }
+
+        #guardar-precios-btn:hover {
+            background-color: #0056b3;
+        }
+
+        h4 {
+            font-size: 1.5em;
+            color: var(--success-color);
+            text-align: right;
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .collapsible-inner {
+            background-color: #f1f1f1;
+            color: #444;
+            cursor: pointer;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .collapsible-inner:first-child {
+            margin-top: 15px;
+        }
+
+        .collapsible-inner.active,
+        .collapsible-inner:hover {
+            background-color: #ddd;
+        }
+
+        .collapsible-inner .fas {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .content-collapsible-inner {
+            padding: 0 18px;
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            border-bottom: 1px solid #eee;
+        }
+
+        .content-collapsible .costos-list {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        .opciones-adicionales-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .opcion-adicional {
+            border: 2px solid var(--input-border-color);
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .opcion-adicional:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+
+        .opcion-adicional.selected {
+            border-color: var(--danger-color);
+            background-color: rgba(220, 53, 69, 0.05);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+        }
+
+        .opcion-adicional input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .opcion-adicional label {
+            display: block;
+            cursor: pointer;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .opcion-titulo {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .opcion-descripcion {
+            display: block;
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        .opcion-adicional.selected .opcion-titulo {
+            color: var(--danger-color);
+        }
+
+        /* Estilos para Modal de Materiales */
+        .materiales-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+
+        .materiales-modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .materiales-modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .materiales-modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .materiales-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .materiales-modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .materiales-modal-body {
+            padding: 0;
+            max-height: calc(90vh - 80px);
+            overflow-y: auto;
+        }
+
+        .materiales-categorias {
+            display: flex;
+            background-color: #f8f9fa;
+            padding: 15px 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .categoria-btn {
+            background-color: white;
+            border: 2px solid #dee2e6;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .categoria-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #f8f9ff;
+        }
+
+        .categoria-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .materiales-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .material-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .material-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .material-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .material-item-info {
+            padding: 15px;
+        }
+
+        .material-item-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 1em;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .material-item-info p {
+            margin: 0;
+            font-size: 0.85em;
+            color: var(--secondary-color);
+        }
+
+        /* Modal Imagen Expandida */
+        .imagen-expandida-modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+
+        .imagen-expandida-content {
+            position: relative;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .imagen-expandida-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: background-color 0.3s;
+        }
+
+        .imagen-expandida-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        #imagen-expandida-src {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            background: #f8f9fa;
+        }
+
+        .imagen-expandida-info {
+            padding: 20px 30px;
+        }
+
+        .imagen-expandida-info h3 {
+            margin: 0 0 10px 0;
+            color: var(--dark-color);
+            font-size: 1.3em;
+        }
+
+        .imagen-expandida-info p {
+            margin: 0;
+            color: var(--secondary-color);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .materiales-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .materiales-categorias {
+                padding: 10px 15px;
+            }
+            
+            .categoria-btn {
+                font-size: 0.8em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="notificacion-container"></div>
+        <h1><i class="fas fa-calculator"></i> Cotizador Gran Formato</h1>
+        <p class="subtitle">Creado por Joel Adrián Mtz 8341446103</p>
+        <form id="cotizador-form">
+            <div class="form-group">
+                <label for="cantidad"><i class="fas fa-sort-numeric-up"></i> Cantidad:</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-ruler-combined"></i> Medidas:</label>
+                <div class="medidas-group">
+                    <input type="number" id="ancho" name="ancho" placeholder="Ancho">
+                    <input type="number" id="largo" name="largo" placeholder="Largo">
+                    <select id="unidades" name="unidades">
+                        <option value="cm">cm</option>
+                        <option value="m">m</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label><i class="fas fa-paint-roller"></i> ¿Va rotulado sobre algo?</label>
+                        <div class="radio-group">
+                            <input type="radio" id="rotulado-si" name="rotulado" value="si">
+                            <label for="rotulado-si">Sí</label>
+                            <input type="radio" id="rotulado-no" name="rotulado" value="no" checked>
+                            <label for="rotulado-no">No</label>
+                        </div>
+                    </div>
+                    <div style="flex-shrink: 0;">
+                        <button type="button" id="ver-fotos-materiales-btn" class="btn-info">
+                            <i class="fas fa-images"></i> Ver fotos de materiales
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="materiales-no-rotulado-container">
+                <div class="form-group">
+                    <label for="categoria-no-rotulado"><i class="fas fa-tags"></i> Categoría:</label>
+                    <select id="categoria-no-rotulado" name="categoria-no-rotulado">
+                        <option value="">Seleccione una categoría</option>
+                        <option value="lonas">Lonas</option>
+                        <option value="viniles">Viniles</option>
+                        <option value="telas">Telas</option>
+                        <option value="papeles">Papeles</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-lonas-container" style="display: none;">
+                    <label for="material-no-rotulado-lonas"><i class="fas fa-scroll"></i> Material:</label>
+                    <select id="material-no-rotulado-lonas" name="material-no-rotulado-lonas">
+                        <option value="Lona Brillante 13oz">Lona Brillante 13oz</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-viniles-container" style="display: none;">
+                    <label for="material-no-rotulado-viniles"><i class="fas fa-sticky-note"></i> Material:</label>
+                    <select id="material-no-rotulado-viniles" name="material-no-rotulado-viniles">
+                        <option value="Vinil Brillante 140gr">Vinil Brillante 140gr</option>
+                        <option value="Vinil Trasparente Brillante">Vinil Trasparente Brillante</option>
+                        <option value="Vinil Trasparente Mate">Vinil Trasparente Mate</option>
+                        <option value="Vinil Microperforado">Vinil Microperforado</option>
+                        <option value="Vinil Electroestatico Blanco">Vinil Electroestatico Blanco</option>
+                        <option value="Vinil Metalico Aluminio de 8mm Peso 215gr">Vinil Metalico Aluminio de 8mm Peso
+                            215gr</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-telas-container" style="display: none;">
+                    <label for="material-no-rotulado-telas"><i class="fas fa-tshirt"></i> Material:</label>
+                    <select id="material-no-rotulado-telas" name="material-no-rotulado-telas">
+                        <option value="Canvas">Canvas</option>
+                    </select>
+                </div>
+                <div class="form-group" id="material-no-rotulado-papeles-container" style="display: none;">
+                    <label for="material-no-rotulado-papeles"><i class="fas fa-file-alt"></i> Material:</label>
+                    <select id="material-no-rotulado-papeles" name="material-no-rotulado-papeles">
+                        <option value="Poster 200gr">Poster 200gr</option>
+                        <option value="Papel Fotografico">Papel Fotografico</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="materiales-rotulado-container" style="display: none;">
+                <div class="form-group">
+                    <label for="material-rotulado-vinil"><i class="fas fa-sticky-note"></i> Vinil:</label>
+                    <select id="material-rotulado-vinil" name="material-rotulado-vinil">
+                        <option value="Vinil Brillante 140gr">Vinil Brillante 140gr</option>
+                        <option value="Vinil Trasparente Brillante">Vinil Trasparente Brillante</option>
+                        <option value="Vinil Trasparente Mate">Vinil Trasparente Mate</option>
+                        <option value="Vinil Microperforado">Vinil Microperforado</option>
+                        <option value="Vinil Electroestatico Blanco">Vinil Electroestatico Blanco</option>
+                        <option value="Vinil Metalico Aluminio de 8mm Peso 215gr">Vinil Metalico Aluminio de 8mm Peso
+                            215gr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="material-rotulado-base"><i class="fas fa-layer-group"></i> Material a rotular:</label>
+                    <select id="material-rotulado-base" name="material-rotulado-base">
+                        <option value="CORROPLAST BLANCO DE 4MM">CORROPLAST BLANCO DE 4MM</option>
+                        <option value="TROVICEL(PVC ESPUMADO)BLANCO DE 3MM">TROVICEL(PVC ESPUMADO)BLANCO DE 3MM</option>
+                        <option value="TROVICEL(PVC ESPUMADO)BLANCO DE 6MM">TROVICEL(PVC ESPUMADO)BLANCO DE 6MM</option>
+                        <option value="FORAM BOARD 5MM">FORAM BOARD 5MM</option>
+                        <option value="FORAM BOARD 10 MM">FORAM BOARD 10 MM</option>
+                        <option value="ACRILICO TRASPARENTE DE 3MM">ACRILICO TRASPARENTE DE 3MM</option>
+                        <option value="ACRILICO TRASPARENTE DE 6MM">ACRILICO TRASPARENTE DE 6MM</option>
+                        <option value="Iman Magnetico Calibre 20">Iman Magnetico Calibre 20 (Ancho 60cm)</option>
+                        <option value="Iman Magnetico Calibre 30">Iman Magnetico Calibre 30 (Ancho 60cm)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo-diseno"><i class="fas fa-palette"></i> Tipo de Diseño:</label>
+                <select id="tipo-diseno" name="tipo-diseno">
+                    <option value="cliente">Cliente envia diseño</option>
+                    <option value="guardado">Diseño guardado aqui</option>
+                    <option value="nuevo">Realizar diseño</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-tags"></i> Opciones Adicionales:</label>
+                <div class="opciones-adicionales-container">
+                    <div class="opcion-adicional" id="opcion-maquila">
+                        <input type="checkbox" id="maquila-check" name="opciones-adicionales" value="maquila">
+                        <label for="maquila-check">
+                            <span class="opcion-titulo" style="color: var(--danger-color);">Precios Maquila</span>
+                            <span class="opcion-descripcion">Descuento del 20% por concepto de maquila</span>
+                        </label>
+                    </div>
+                    <div class="opcion-adicional" id="opcion-expres">
+                        <input type="checkbox" id="expres-check" name="opciones-adicionales" value="expres">
+                        <label for="expres-check">
+                            <span class="opcion-titulo">Servicio Expres</span>
+                            <span class="opcion-descripcion">Recargo del 30% por servicio express</span>
+                        </label>
+                    </div>
+                    <div class="opcion-adicional" id="opcion-copavisa">
+                        <input type="checkbox" id="copavisa-check" name="opciones-adicionales" value="copavisa">
+                        <label for="copavisa-check">
+                            <span class="opcion-titulo">Costo COPAVISA</span>
+                            <span class="opcion-descripcion">Costos más económicos por concepto COPAVISA</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="agregar-btn" class="btn-principal">
+                    <i class="fas fa-plus"></i> Agregar a la Cotización
+                </button>
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="limpiar-btn" class="btn-rojo">
+                    <i class="fas fa-trash"></i> Limpiar Formulario
+                </button>
+            </div>
+        </form>
+
+        <div id="desglose-container" style="display: none;">
+            <h3><i class="fas fa-chart-pie"></i> Desglose del Último Artículo Agregado</h3>
+            <div id="resultados-container"></div>
+        </div>
+
+        <div id="cotizacion-resumen-container">
+            <h2><i class="fas fa-shopping-cart"></i> Resumen de Cotización</h2>
+            <div id="cotizacion-lista"></div>
+            <div id="cotizacion-total-container"></div>
+        </div>
+
+        <div id="resumen-container">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Resumen General para Copiar</h2>
+            <textarea id="resumen-texto" rows="5" readonly></textarea>
+            <button type="button" id="copiar-btn">
+                <i class="fas fa-copy"></i> Copiar Resumen General
+            </button>
+            <button type="button" id="limpiar-todo-btn" class="btn-rojo" style="margin-top: 10px;">
+                <i class="fas fa-trash-alt"></i> Limpiar Toda la Cotización
+            </button>
+        </div>
+
+        <div class="costos-materiales-container">
+            <button type="button" class="collapsible">
+                <i class="fas fa-dollar-sign"></i> Costos de Materiales <i class="fas fa-chevron-down icon-right"></i>
+            </button>
+            <div class="content-collapsible">
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-scroll"></i> Lonas</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-lonas-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-sticky-note"></i> Viniles</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-viniles-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-tshirt"></i> Telas</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-telas-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-file-alt"></i> Papeles</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-papeles-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-layer-group"></i> Materiales para
+                    Rotulación (Bases)</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-rotulacion-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-palette"></i> Costos de Diseño</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-diseno-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" class="collapsible-inner"><i class="fas fa-wrench"></i> Costos de Montaje</button>
+                <div class="content-collapsible-inner">
+                    <div id="costos-montaje-list" class="costos-list"></div>
+                </div>
+
+                <button type="button" id="guardar-precios-btn">
+                    <i class="fas fa-save"></i> Guardar Nuevos Precios
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Visualizador de Materiales -->
+    <div id="materiales-modal" class="materiales-modal">
+        <div class="materiales-modal-content">
+            <div class="materiales-modal-header">
+                <h2><i class="fas fa-images"></i> Catálogo de Materiales</h2>
+                <button class="materiales-modal-close" id="cerrar-modal-materiales">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="materiales-modal-body">
+                <div class="materiales-categorias">
+                    <button class="categoria-btn active" data-categoria="lonas">
+                        <i class="fas fa-scroll"></i> Lonas
+                    </button>
+                    <button class="categoria-btn" data-categoria="viniles">
+                        <i class="fas fa-sticky-note"></i> Viniles
+                    </button>
+                    <button class="categoria-btn" data-categoria="telas">
+                        <i class="fas fa-tshirt"></i> Telas
+                    </button>
+                    <button class="categoria-btn" data-categoria="papeles">
+                        <i class="fas fa-file-alt"></i> Papeles
+                    </button>
+                    <button class="categoria-btn" data-categoria="rotulacion">
+                        <i class="fas fa-layer-group"></i> Materiales para Rotulación
+                    </button>
+                </div>
+                <div class="materiales-grid" id="materiales-grid">
+                    <!-- Las imágenes se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Imagen Expandida -->
+    <div id="imagen-expandida-modal" class="imagen-expandida-modal">
+        <div class="imagen-expandida-content">
+            <button class="imagen-expandida-close" id="cerrar-imagen-expandida">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="imagen-expandida-src" src="" alt="Material expandido">
+            <div class="imagen-expandida-info">
+                <h3 id="imagen-expandida-titulo"></h3>
+                <p id="imagen-expandida-descripcion"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        const preciosData = {
+            preciosImpresion: {
+                "Lona Brillante 13oz": { precios: [{ min: 0, max: 5, precio: 300 }, { min: 5, max: 10, precio: 280 }, { min: 10, max: 20, precio: 270 }, { min: 20, max: 50, precio: 260 }, { min: 50, max: null, precio: 250 }] },
+                "Vinil Brillante 140gr": { precios: [{ min: 0, max: 5, precio: 310 }, { min: 5, max: 10, precio: 290 }, { min: 10, max: 20, precio: 280 }, { min: 20, max: 50, precio: 265 }, { min: 50, max: null, precio: 250 }] },
+                "Vinil Trasparente Brillante": { precios: [{ min: 0, max: 5, precio: 310 }, { min: 5, max: 10, precio: 290 }, { min: 10, max: 20, precio: 280 }, { min: 20, max: 50, precio: 265 }, { min: 50, max: null, precio: 250 }] },
+                "Vinil Trasparente Mate": { precios: [{ min: 0, max: 5, precio: 310 }, { min: 5, max: 10, precio: 290 }, { min: 10, max: 20, precio: 280 }, { min: 20, max: 50, precio: 265 }, { min: 50, max: null, precio: 250 }] },
+                "Vinil Microperforado": { precios: [{ min: 0, max: 5, precio: 415 }, { min: 5, max: 10, precio: 390 }, { min: 10, max: 20, precio: 368 }, { min: 20, max: 50, precio: 350 }, { min: 50, max: null, precio: 345 }] },
+                "Vinil Electroestatico Blanco": { precios: [{ min: 0, max: 5, precio: 350 }, { min: 5, max: 10, precio: 340 }, { min: 10, max: 20, precio: 330 }, { min: 20, max: 50, precio: 320 }, { min: 50, max: null, precio: 310 }] },
+                "Poster 200gr": { precios: [{ min: 0, max: 5, precio: 300 }, { min: 5, max: 10, precio: 280 }, { min: 10, max: 20, precio: 270 }, { min: 20, max: 50, precio: 260 }, { min: 50, max: null, precio: 250 }] },
+                "Papel Fotografico": { precios: [{ min: 0, max: 5, precio: 380 }, { min: 5, max: 10, precio: 370 }, { min: 10, max: 20, precio: 360 }, { min: 20, max: 50, precio: 350 }, { min: 50, max: null, precio: 320 }] },
+                Canvas: { precios: [{ min: 0, max: 5, precio: 400 }, { min: 5, max: 10, precio: 390 }, { min: 10, max: 20, precio: 380 }, { min: 20, max: 50, precio: 370 }, { min: 50, max: null, precio: 350 }] },
+                "Vinil Metalico Aluminio de 8mm Peso 215gr": { precios: [{ min: 0, max: 20, precio: 830 }, { min: 20, max: null, precio: 700 }] },
+            },
+            // Precios económicos COPAVISA
+            preciosEconomicos: {
+                "Lona Brillante 13oz": { precios: [{ min: 0, max: 5, precio: 250 }, { min: 5, max: 10, precio: 240 }, { min: 10, max: 20, precio: 230 }, { min: 20, max: 50, precio: 220 }, { min: 50, max: null, precio: 210 }] },
+                "Vinil Brillante 140gr": { precios: [{ min: 0, max: 5, precio: 260 }, { min: 5, max: 10, precio: 250 }, { min: 10, max: 20, precio: 240 }, { min: 20, max: 50, precio: 230 }, { min: 50, max: null, precio: 220 }] },
+                "Vinil Trasparente Brillante": { precios: [{ min: 0, max: 5, precio: 260 }, { min: 5, max: 10, precio: 250 }, { min: 10, max: 20, precio: 240 }, { min: 20, max: 50, precio: 230 }, { min: 50, max: null, precio: 220 }] },
+                "Vinil Trasparente Mate": { precios: [{ min: 0, max: 5, precio: 260 }, { min: 5, max: 10, precio: 250 }, { min: 10, max: 20, precio: 240 }, { min: 20, max: 50, precio: 230 }, { min: 50, max: null, precio: 220 }] },
+                "Vinil Microperforado": { precios: [{ min: 0, max: 5, precio: 350 }, { min: 5, max: 10, precio: 340 }, { min: 10, max: 20, precio: 330 }, { min: 20, max: 50, precio: 320 }, { min: 50, max: null, precio: 310 }] },
+                "Vinil Electroestatico Blanco": { precios: [{ min: 0, max: 5, precio: 300 }, { min: 5, max: 10, precio: 290 }, { min: 10, max: 20, precio: 280 }, { min: 20, max: 50, precio: 270 }, { min: 50, max: null, precio: 260 }] },
+                "Poster 200gr": { precios: [{ min: 0, max: 5, precio: 250 }, { min: 5, max: 10, precio: 240 }, { min: 10, max: 20, precio: 230 }, { min: 20, max: 50, precio: 220 }, { min: 50, max: null, precio: 210 }] },
+                "Papel Fotografico": { precios: [{ min: 0, max: 5, precio: 320 }, { min: 5, max: 10, precio: 310 }, { min: 10, max: 20, precio: 300 }, { min: 20, max: 50, precio: 290 }, { min: 50, max: null, precio: 280 }] },
+                Canvas: { precios: [{ min: 0, max: 5, precio: 350 }, { min: 5, max: 10, precio: 340 }, { min: 10, max: 20, precio: 330 }, { min: 20, max: 50, precio: 320 }, { min: 50, max: null, precio: 310 }] },
+                "Vinil Metalico Aluminio de 8mm Peso 215gr": { precios: [{ min: 0, max: 20, precio: 730 }, { min: 20, max: null, precio: 650 }] },
+            },
+            preciosBases: {
+                "CORROPLAST BLANCO DE 4MM": { precios: { "1/4": 140, "1/2": 240, "3/4": 325, "1": 415 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "TROVICEL(PVC ESPUMADO)BLANCO DE 3MM": { precios: { "1/4": 150, "1/2": 290, "3/4": 416, "1": 504 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "TROVICEL(PVC ESPUMADO)BLANCO DE 6MM": { precios: { "1/4": 243, "1/2": 446, "3/4": 670, "1": 810 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "FORAM BOARD 5MM": { precios: { "1/4": 100, "1/2": 190, "3/4": 271, "1": 330 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "FORAM BOARD 10 MM": { precios: { "1/4": 150, "1/2": 280, "3/4": 400, "1": 490 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "ACRILICO TRASPARENTE DE 3MM": { precios: { "1/4": 630, "1/2": 1200, "3/4": 1730, "1": 2090 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "ACRILICO TRASPARENTE DE 6MM": { precios: { "1/4": 1140, "1/2": 2200, "3/4": 3150, "1": 3800 }, pliegoArea: { "1/4": 0.72, "1/2": 1.44, "3/4": 2.16, "1": 2.88 } },
+                "Iman Magnetico Calibre 20": {
+                    tipo: 'rollo',
+                    anchoRollo: 0.60,
+                    costoMetro: 90,
+                    costoMontajeLineal: 80
+                },
+                "Iman Magnetico Calibre 30": {
+                    tipo: 'rollo',
+                    anchoRollo: 0.60,
+                    costoMetro: 120,
+                    costoMontajeLineal: 80
+                },
+            },
+            preciosMontaje: { "1/4": 85, "1/2": 120, "3/4": 180, "1": 240 },
+            preciosDiseno: { cliente: 0, guardado: 50, nuevo: 150 },
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const styleSheet = document.createElement("style");
+            styleSheet.type = "text/css";
+            styleSheet.innerText = `
+                .cotizacion-item { display: block; padding: 10px; }
+                .item-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+                .item-descripcion-linea { flex-grow: 1; font-weight: 500; }
+                .item-controles { display: flex; align-items: center; gap: 15px; }
+                .item-total-preview { font-weight: bold; min-width: 80px; text-align: right; }
+                .item-desglose-content { padding: 15px; border-top: 1px solid #eee; margin-top: 10px; background: #fdfdfd; border-radius: 4px; }
+                .toggle-desglose-btn { width: auto; padding: 5px 10px; font-size: 0.8em; background-color: var(--secondary-color); color: white; border-radius: 5px; }
+                .remover-item-btn { padding: 5px; font-size: 1.2em; }
+            `;
+            document.head.appendChild(styleSheet);
+
+            const form = document.getElementById("cotizador-form");
+            const resumenTexto = document.getElementById("resumen-texto");
+            const rotuladoSi = document.getElementById("rotulado-si");
+            const rotuladoNo = document.getElementById("rotulado-no");
+            const noRotuladoContainer = document.getElementById("materiales-no-rotulado-container");
+            const rotuladoContainer = document.getElementById("materiales-rotulado-container");
+            const categoriaNoRotulado = document.getElementById("categoria-no-rotulado");
+            const desgloseContainer = document.getElementById("desglose-container");
+            const cotizacionLista = document.getElementById("cotizacion-lista");
+            const cotizacionTotalContainer = document.getElementById("cotizacion-total-container");
+            const notificacionContainer = document.getElementById('notificacion-container');
+
+            let preciosGlobales = {};
+            let cotizacionActual = [];
+
+            const init = async () => {
+                await cargarPrecios();
+                configurarEventListeners();
+                toggleMateriales();
+                toggleMaterialesNoRotulado();
+                popularFormulariosDeCostos();
+                renderCotizacion();
+                desgloseContainer.style.display = "none";
+            };
+
+            const mostrarNotificacion = (mensaje, tipo = 'danger', duracion = 4000) => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alerta-notificacion ${tipo}`;
+                alertDiv.textContent = mensaje;
+                notificacionContainer.appendChild(alertDiv);
+                setTimeout(() => alertDiv.classList.add('show'), 10);
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    alertDiv.addEventListener('transitionend', () => alertDiv.remove());
+                }, duracion);
+            };
+
+            const cargarPrecios = async () => {
+                try {
+                    const preciosGuardados = localStorage.getItem("preciosCotizadorGranFormato");
+                    preciosGlobales = preciosGuardados ? JSON.parse(preciosGuardados) : JSON.parse(JSON.stringify(preciosData));
+                } catch (e) {
+                    console.error("Error al cargar precios:", e);
+                    preciosGlobales = JSON.parse(JSON.stringify(preciosData));
+                    mostrarNotificacion("No se pudieron cargar precios guardados, se usaron los de por defecto.", "info");
+                }
+            };
+
+            const getFormInputs = () => {
+                const rotulado = document.getElementById("rotulado-si").checked;
+                const cantidad = parseInt(document.getElementById("cantidad").value) || 1;
+                let ancho = parseFloat(document.getElementById("ancho").value) || 0;
+                let largo = parseFloat(document.getElementById("largo").value) || 0;
+                const unidades = document.getElementById("unidades").value;
+                const anchoOriginal = ancho, largoOriginal = largo;
+                if (unidades === "cm") { ancho /= 100; largo /= 100; }
+                const tipoDiseno = document.getElementById("tipo-diseno").value;
+                const categoria = document.getElementById("categoria-no-rotulado").value;
+                const materialImpresion = rotulado ? document.getElementById("material-rotulado-vinil").value : categoria ? document.getElementById(`material-no-rotulado-${categoria}`).value : null;
+                const materialBase = rotulado ? document.getElementById("material-rotulado-base").value : null;
+                
+                // Capturar opciones adicionales
+                const opcionesAdicionales = [];
+                if (document.getElementById("maquila-check").checked) opcionesAdicionales.push("maquila");
+                if (document.getElementById("expres-check").checked) opcionesAdicionales.push("expres");
+                if (document.getElementById("copavisa-check").checked) opcionesAdicionales.push("copavisa");
+                
+                return { rotulado, cantidad, ancho, largo, anchoOriginal, largoOriginal, unidades, tipoDiseno, materialImpresion, materialBase, opcionesAdicionales };
+            };
+
+            const encontrarPrecio = (precios, area) => precios.find((p) => area >= p.min && (p.max === null || area < p.max));
+            const getCostoDiseno = (tipoDiseno) => {
+                const costo = preciosGlobales.preciosDiseno?.[tipoDiseno] || 0;
+                const optionElement = document.querySelector(`#tipo-diseno option[value="${tipoDiseno}"]`);
+                const texto = optionElement ? optionElement.textContent : tipoDiseno;
+                return { costo, texto };
+            };
+
+            const calcularItem = () => {
+                if (Object.keys(preciosGlobales).length === 0) return null;
+                const inputs = getFormInputs();
+                if (inputs.ancho === 0 || inputs.largo === 0 || !inputs.materialImpresion) {
+                    mostrarNotificacion("Por favor, complete todos los campos: medidas y material.");
+                    return null;
+                }
+
+                const materialBaseData = inputs.rotulado ? preciosGlobales.preciosBases[inputs.materialBase] : null;
+                if (materialBaseData && materialBaseData.maxWidthCm) {
+                    const anchoEnCmCheck = inputs.unidades === "m" ? inputs.anchoOriginal * 100 : inputs.anchoOriginal;
+                    if (anchoEnCmCheck > materialBaseData.maxWidthCm) {
+                        mostrarNotificacion(`ERROR: El ANCHO de '${inputs.materialBase}' no puede ser mayor a ${materialBaseData.maxWidthCm} cm.`);
+                        return null;
+                    }
+                }
+
+                const areaPieza = inputs.ancho * inputs.largo;
+                const areaTotalImpresion = areaPieza * inputs.cantidad;
+                const areaDeCalculoImpresion = areaTotalImpresion > 0 && areaTotalImpresion < 1 ? 1 : areaTotalImpresion;
+                const seAplicaMinimo = areaDeCalculoImpresion === 1 && areaTotalImpresion < 1;
+                
+                // Determinar si se usan precios económicos COPAVISA
+                const usaPreciosEconomicos = inputs.opcionesAdicionales.includes("copavisa");
+                const preciosImpresionSource = usaPreciosEconomicos ? 
+                    preciosGlobales.preciosEconomicos[inputs.materialImpresion] : 
+                    preciosGlobales.preciosImpresion[inputs.materialImpresion];
+
+                if (!preciosImpresionSource || !preciosImpresionSource.precios) {
+                    const preciosTipo = usaPreciosEconomicos ? "económicos COPAVISA" : "normales";
+                    mostrarNotificacion(`No se encontraron precios ${preciosTipo} para el material: ${inputs.materialImpresion}`);
+                    return null;
+                }
+                const precioTierImpresion = encontrarPrecio(preciosImpresionSource.precios, areaTotalImpresion);
+                if (!precioTierImpresion) {
+                    mostrarNotificacion(`No se pudo encontrar un rango de precio para '${inputs.materialImpresion}' con un área total de ${areaTotalImpresion.toFixed(2)} m².`);
+                    return null;
+                }
+
+                const costoImpresion = precioTierImpresion.precio * areaDeCalculoImpresion;
+                let costoBase = 0, costoMontaje = 0;
+                let pliego = "";
+                let pliegos_necesarios = 0;
+                let items_por_pliego = 0;
+
+                if (inputs.rotulado) {
+                    if (materialBaseData && materialBaseData.tipo === 'rollo') {
+                        // Lógica para Imanes (por metro lineal de rollo 60cm)
+                        const anchoPieza = inputs.unidades === 'cm' ? inputs.anchoOriginal / 100 : inputs.anchoOriginal;
+                        const largoPieza = inputs.unidades === 'cm' ? inputs.largoOriginal / 100 : inputs.largoOriginal;
+                        const anchoRollo = materialBaseData.anchoRollo; // 0.60
+
+                        // Calcular cuántos caben a lo ancho (simple, sin rotación compleja automática por ahora, o sí?)
+                        // Asumimos orientación óptima simple: Fit in Width
+                        let itemsPorFila = Math.floor(anchoRollo / anchoPieza);
+                        // Si no cabe a lo ancho, probar rotando si largoPieza <= anchoRollo
+                        let usarLargoComoAncho = false;
+                        if (itemsPorFila === 0 && largoPieza <= anchoRollo) {
+                            itemsPorFila = Math.floor(anchoRollo / largoPieza);
+                            usarLargoComoAncho = true;
+                        }
+
+                        if (itemsPorFila === 0) {
+                            mostrarNotificacion(`La pieza (${anchoPieza}m x ${largoPieza}m) es demasiado ancha para el rollo de ${anchoRollo}m.`);
+                            return null;
+                        }
+
+                        const filasNecesarias = Math.ceil(inputs.cantidad / itemsPorFila);
+                        const avancePorFila = usarLargoComoAncho ? anchoPieza : largoPieza;
+
+                        let metrosLinealesTotales = filasNecesarias * avancePorFila;
+
+                        // Regla especial de mínimos
+                        // Si es menor a 0.5m -> Se cobra como 0.5m * costoMetro * 2 (Es decir: costoMetro)
+                        // Si es mayor a 0.5m -> Metros * costoMetro * 1.85
+
+                        let costoBaseIman = 0;
+                        let factorUtilidad = 0;
+                        let metrosCobrados = 0;
+
+                        if (metrosLinealesTotales <= 0.5) {
+                            // "si utiliza 1/2 metro lineal... (costo del metro linal entre 2 que es el 1/2 metro x 2 de utilidad)"
+                            // = (Costo / 2) * 2 = Costo
+                            costoBaseIman = materialBaseData.costoMetro;
+                            metrosCobrados = 0.5; // Referencia visual
+                            factorUtilidad = 2.0; // Implícito en la fórmula del mínimo
+                        } else {
+                            // Mayor a 0.5m
+                            // "si es mas grande que 1/2 metro se cobra como metro lineal... x 1.85 de utilidad"
+                            costoBaseIman = metrosLinealesTotales * materialBaseData.costoMetro * 1.85;
+                            metrosCobrados = metrosLinealesTotales;
+                            factorUtilidad = 1.85;
+                        }
+
+                        costoBase = costoBaseIman;
+                        costoMontaje = metrosLinealesTotales * materialBaseData.costoMontajeLineal;
+
+                        // Guardar datos para desglose
+                        pliego = `Metro Lineal (${materialBaseData.anchoRollo}m ancho)`; // Reusamos variable pliego para descripción
+                        pliegos_necesarios = metrosLinealesTotales; // Reusamos para cantidad
+
+                    } else if (materialBaseData && materialBaseData.costoPorTramo) {
+                        const areaTotalParaElItem = areaPieza * inputs.cantidad;
+                        const tramoCosto = materialBaseData.costoPorTramo.find((t) => t.areaMax === null || areaTotalParaElItem <= t.areaMax);
+                        costoBase = tramoCosto ? tramoCosto.costo : 0;
+                        const metrosLinealesNecesarios = Math.ceil(areaTotalParaElItem / materialBaseData.areaPorMetroLineal);
+                        costoMontaje = metrosLinealesNecesarios * materialBaseData.costoMontajePorMetroLineal;
+                    } else {
+                        const anchoCm = inputs.ancho * 100, largoCm = inputs.largo * 100;
+                        if ((anchoCm <= 60 && largoCm <= 120) || (anchoCm <= 120 && largoCm <= 60)) pliego = "1/4";
+                        else if (anchoCm <= 120 && largoCm <= 120) pliego = "1/2";
+                        else if ((anchoCm <= 180 && largoCm <= 120) || (anchoCm <= 120 && largoCm <= 180)) pliego = "3/4";
+                        else if ((anchoCm <= 120 && largoCm <= 240) || (anchoCm <= 240 && largoCm <= 120)) pliego = "1";
+
+                        if (pliego && materialBaseData && materialBaseData.precios) {
+                            const areaPliego = materialBaseData.pliegoArea[pliego];
+                            items_por_pliego = areaPliego > 0 && areaPieza > 0 ? Math.floor(areaPliego / areaPieza) : 0;
+                            if (items_por_pliego < 1) items_por_pliego = 1; // Cada pieza necesita al menos su propia placa si no cabe.
+
+                            pliegos_necesarios = Math.ceil(inputs.cantidad / items_por_pliego);
+
+                            costoBase = (materialBaseData.precios[pliego] || 0) * pliegos_necesarios;
+                            costoMontaje = (preciosGlobales.preciosMontaje[pliego] || 0) * pliegos_necesarios;
+                        }
+                    }
+                }
+
+                const { costo: costoDiseno, texto: textoDiseno } = getCostoDiseno(inputs.tipoDiseno);
+                const subtotal = costoImpresion + costoBase + costoMontaje + costoDiseno;
+                
+                // Calcular descuentos y recargos según opciones adicionales
+                let descuentoMaquila = 0;
+                let recargoExpres = 0;
+                let conceptoCopavisa = null;
+                let conceptosAdicionales = [];
+                
+                if (inputs.opcionesAdicionales.includes("maquila")) {
+                    descuentoMaquila = subtotal * 0.20;
+                    conceptosAdicionales.push({ 
+                        nombre: "Precio de maquila", 
+                        valor: -descuentoMaquila,
+                        formula: "Subtotal × 20% = $" + subtotal.toFixed(2) + " × 0.20 = $" + descuentoMaquila.toFixed(2)
+                    });
+                }
+                
+                if (inputs.opcionesAdicionales.includes("expres")) {
+                    recargoExpres = subtotal * 0.35; // Cambiado de 30% a 35%
+                    conceptosAdicionales.push({ 
+                        nombre: "Servicio Expres", 
+                        valor: recargoExpres,
+                        formula: "Subtotal × 35% = $" + subtotal.toFixed(2) + " × 0.35 = $" + recargoExpres.toFixed(2)
+                    });
+                }
+                
+                if (inputs.opcionesAdicionales.includes("copavisa")) {
+                    // COPAVISA ya usa precios económicos, solo guardamos el concepto
+                    conceptoCopavisa = { 
+                        nombre: "Costos COPAVISA", 
+                        valor: 0, // No afecta el cálculo ya que usa precios económicos
+                        formula: "Precio económico aplicado: $" + precioTierImpresion.precio.toFixed(2) + "/m²"
+                    };
+                    conceptosAdicionales.push(conceptoCopavisa);
+                }
+                
+                const subtotalConDescuentos = subtotal - descuentoMaquila + recargoExpres;
+                const iva = subtotalConDescuentos * 0.16;
+                const total = subtotalConDescuentos + iva;
+                
+                const materialDesc = inputs.rotulado ? `${inputs.materialImpresion} sobre ${inputs.materialBase}` : inputs.materialImpresion;
+                const descripcion = `${inputs.cantidad}pz de ${materialDesc} medida ${inputs.anchoOriginal}x${inputs.largoOriginal}${inputs.unidades} impreso en alta resolución, ${textoDiseno}`;
+
+                let desgloseHTML = `<p><strong>Detalles del Artículo:</strong></p><ul>`;
+                if (seAplicaMinimo) desgloseHTML += `<li><strong style="color: var(--danger-color);">Nota: Se cobra mínimo 1 m² de impresión (Área real: ${areaTotalImpresion.toFixed(3)} m²).</strong></li>`;
+                desgloseHTML += `<li>Costo Impresión (${areaDeCalculoImpresion.toFixed(2)} m² @ $${precioTierImpresion.precio.toFixed(2)}/m²): $${costoImpresion.toFixed(2)}</li>`;
+
+
+                if (inputs.rotulado) {
+                    if (materialBaseData && materialBaseData.tipo === 'rollo') {
+                        desgloseHTML += `
+                            <li>Material Base (${inputs.materialBase}):
+                                <ul style="font-size:0.9em; color: #555; list-style-type: circle; margin-left: 20px;">
+                                    <li>Metros lineales reales: ${pliegos_necesarios.toFixed(2)} m</li>
+                                    <li>Costo por metro: $${materialBaseData.costoMetro.toFixed(2)}</li>
+                                    <li>Fórmula: ${pliegos_necesarios <= 0.5 ? 'Mínimo (Costo Metro)' : 'Metros * Costo * 1.85'}</li>
+                                    <li><strong>Subtotal Iman: $${costoBase.toFixed(2)}</strong></li>
+                                </ul>
+                            </li>
+                            <li>Costo Montaje ($${materialBaseData.costoMontajeLineal}/m): $${costoMontaje.toFixed(2)}</li>
+                        `;
+                    } else if (materialBaseData && materialBaseData.costoPorTramo) {
+                        desgloseHTML += `<li>Costo Base (${inputs.materialBase}): $${costoBase.toFixed(2)}</li>`;
+                        desgloseHTML += `<li>Costo Montaje: $${costoMontaje.toFixed(2)}</li>`;
+                    } else if (pliego) {
+                        const costoUnitarioBase = (materialBaseData.precios[pliego] || 0);
+                        const costoUnitarioMontaje = (preciosGlobales.preciosMontaje[pliego] || 0);
+                        desgloseHTML += `
+                            <li>Costo Base (${inputs.materialBase}):
+                                <ul style="font-size:0.9em; color: #555; list-style-type: circle; margin-left: 20px;">
+                                    <li>Piezas por placa '${pliego}': ${items_por_pliego}</li>
+                                    <li>Total placas necesarias: ${pliegos_necesarios}</li>
+                                    <li>Costo por placa: $${costoUnitarioBase.toFixed(2)}</li>
+                                    <li><strong>Subtotal Base: $${costoBase.toFixed(2)}</strong></li>
+                                </ul>
+                            </li>
+                            <li>Costo Montaje:
+                                <ul style="font-size:0.9em; color: #555; list-style-type: circle; margin-left: 20px;">
+                                    <li>Montaje por placa: $${costoUnitarioMontaje.toFixed(2)}</li>
+                                    <li>Total placas a montar: ${pliegos_necesarios}</li>
+                                    <li><strong>Subtotal Montaje: $${costoMontaje.toFixed(2)}</strong></li>
+                                </ul>
+                            </li>`;
+                    }
+                }
+
+                if (costoDiseno > 0) desgloseHTML += `<li>Costo Diseño (${textoDiseno}): $${costoDiseno.toFixed(2)}</li>`;
+                
+                // Agregar conceptos adicionales al desglose con fórmulas
+                if (conceptosAdicionales.length > 0) {
+                    desgloseHTML += `<li><strong>Conceptos Adicionales:</strong><ul style="font-size:0.9em; color: #555; list-style-type: circle; margin-left: 20px;">`;
+                    conceptosAdicionales.forEach(concepto => {
+                        if (concepto.nombre === "Costos COPAVISA") {
+                            // Para COPAVISA mostrar precio económico
+                            desgloseHTML += `<li style="color: var(--info-color);"><strong>${concepto.nombre}</strong><br>`;
+                            desgloseHTML += `<span style="font-size: 0.85em;">${concepto.formula}</span></li>`;
+                        } else {
+                            // Para maquila y expres mostrar fórmula
+                            const color = concepto.valor < 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                            const texto = concepto.valor < 0 ? 'Descuento' : 'Recargo';
+                            desgloseHTML += `<li style="color: ${color};"><strong>${concepto.nombre}</strong><br>`;
+                            desgloseHTML += `<span style="font-size: 0.85em;">${concepto.formula}</span><br>`;
+                            desgloseHTML += `<span>${texto}: $${Math.abs(concepto.valor).toFixed(2)}</span></li>`;
+                        }
+                    });
+                    desgloseHTML += `</ul></li>`;
+                }
+                
+                desgloseHTML += `</ul>
+                                <p style="margin-top: 10px;">Subtotal: $${subtotal.toFixed(2)}</p>`;
+                
+                if (descuentoMaquila > 0 || recargoExpres > 0) {
+                    if (descuentoMaquila > 0) {
+                        desgloseHTML += `<p style="color: var(--success-color);">Descuento Maquila: -$${descuentoMaquila.toFixed(2)}</p>`;
+                    }
+                    if (recargoExpres > 0) {
+                        desgloseHTML += `<p style="color: var(--danger-color);">Recargo Servicio Expres: $${recargoExpres.toFixed(2)}</p>`;
+                    }
+                    desgloseHTML += `<p><strong>Subtotal con ajustes: $${subtotalConDescuentos.toFixed(2)}</strong></p>`;
+                }
+                
+                desgloseHTML += `<p>IVA (16%): $${iva.toFixed(2)}</p>
+                                <h4 style="margin-top: 5px;">Total Artículo: $${total.toFixed(2)}</h4>`;
+
+                return { id: Date.now(), descripcion, total, desgloseHTML, datos: { ...inputs, areaTotalImpresion, costoImpresion, costoBase, costoMontaje, costoDiseno, subtotal, conceptosAdicionales } };
+            };
+
+            const agregarArticulo = () => {
+                const nuevoItem = calcularItem();
+                if (nuevoItem) {
+                    cotizacionActual.push(nuevoItem);
+                    renderCotizacion();
+                    mostrarNotificacion("Artículo agregado", "success", 2000);
+                }
+            };
+
+            const removerArticulo = (id) => {
+                cotizacionActual = cotizacionActual.filter((item) => item.id !== id);
+                renderCotizacion();
+                mostrarNotificacion("Artículo removido", "info", 2000);
+            };
+
+            const renderCotizacion = () => {
+                cotizacionLista.innerHTML = cotizacionActual.length === 0 ? "<p>No hay artículos en la cotización.</p>" : "";
+                cotizacionActual.forEach((item) => {
+                    cotizacionLista.innerHTML += `
+                        <div class="cotizacion-item">
+                            <div class="item-header" style="display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 15px;">
+                                <span class="item-descripcion-linea" style="flex-grow: 1;">${item.descripcion}</span>
+                                <div class="item-controles" style="display: flex; align-items: center; gap: 15px;">
+                                    <strong class="item-total-preview" style="font-weight: bold; min-width: 80px; text-align: right;">$${item.total.toFixed(2)}</strong>
+                                    <button class="toggle-desglose-btn" data-id="${item.id}">Ver Desglose</button>
+                                    <button class="remover-item-btn" data-id="${item.id}"><i class="fas fa-times-circle"></i></button>
+                                </div>
+                            </div>
+                            <div class="item-desglose-content" id="desglose-${item.id}" style="display: none;">
+                                ${item.desgloseHTML}
+                            </div>
+                        </div>
+                    `;
+                });
+                renderTotal();
+            };
+
+            const renderTotal = () => {
+                if (cotizacionActual.length === 0) {
+                    cotizacionTotalContainer.innerHTML = "";
+                    resumenTexto.value = "";
+                    return;
+                }
+                const subtotal = cotizacionActual.reduce((sum, item) => sum + item.datos.subtotal, 0);
+                
+                // Calcular totales de conceptos adicionales
+                let totalDescuentos = 0;
+                let totalRecargos = 0;
+                let todosConceptos = [];
+                
+                cotizacionActual.forEach(item => {
+                    if (item.datos.conceptosAdicionales) {
+                        item.datos.conceptosAdicionales.forEach(concepto => {
+                            todosConceptos.push({
+                                nombre: concepto.nombre,
+                                valor: concepto.valor
+                            });
+                            if (concepto.valor < 0) {
+                                totalDescuentos += Math.abs(concepto.valor);
+                            } else {
+                                totalRecargos += concepto.valor;
+                            }
+                        });
+                    }
+                });
+                
+                const subtotalConAjustes = subtotal - totalDescuentos + totalRecargos;
+                const iva = subtotalConAjustes * 0.16;
+                const totalFinal = subtotalConAjustes + iva;
+                
+                let totalHTML = `<h3>Subtotal: $${subtotal.toFixed(2)}</h3>`;
+                
+                if (totalDescuentos > 0) {
+                    totalHTML += `<h3 style="color: var(--success-color);">Descuentos: -$${totalDescuentos.toFixed(2)}</h3>`;
+                }
+                
+                if (totalRecargos > 0) {
+                    totalHTML += `<h3 style="color: var(--danger-color);">Recargos: $${totalRecargos.toFixed(2)}</h3>`;
+                }
+                
+                if (totalDescuentos > 0 || totalRecargos > 0) {
+                    totalHTML += `<h3>Subtotal con ajustes: $${subtotalConAjustes.toFixed(2)}</h3>`;
+                }
+                
+                totalHTML += `<h3>IVA (16%): $${iva.toFixed(2)}</h3><h2>Total General: $${totalFinal.toFixed(2)}</h2>`;
+                
+                cotizacionTotalContainer.innerHTML = totalHTML;
+                
+                let resumenGeneralTexto = cotizacionActual.map((item) => {
+                    const precioIndividual = item.datos.cantidad > 0 ? item.total / item.datos.cantidad : item.total;
+                    let textoItem = `- ${item.descripcion} -> $${precioIndividual.toFixed(2)} c/u, total $${item.total.toFixed(2)} neto`;
+                    
+                    // Agregar solo nombres de conceptos adicionales del item
+                    if (item.datos.conceptosAdicionales && item.datos.conceptosAdicionales.length > 0) {
+                        const nombresConceptos = item.datos.conceptosAdicionales
+                            .map(c => c.nombre)
+                            .join(', ');
+                        textoItem += ` (${nombresConceptos})`;
+                    }
+                    
+                    return textoItem;
+                }).join("\n");
+                
+                if (cotizacionActual.length > 1) {
+                    resumenGeneralTexto += `\n--------------------\n`;
+                    resumenGeneralTexto += `Subtotal: $${subtotal.toFixed(2)}\n`;
+                    
+                    if (totalDescuentos > 0) {
+                        resumenGeneralTexto += `Descuentos: -$${totalDescuentos.toFixed(2)}\n`;
+                    }
+                    
+                    if (totalRecargos > 0) {
+                        resumenGeneralTexto += `Recargos: $${totalRecargos.toFixed(2)}\n`;
+                    }
+                    
+                    if (totalDescuentos > 0 || totalRecargos > 0) {
+                        resumenGeneralTexto += `Subtotal con ajustes: $${subtotalConAjustes.toFixed(2)}\n`;
+                    }
+                    
+                    resumenGeneralTexto += `IVA (16%): $${iva.toFixed(2)}\n`;
+                    resumenGeneralTexto += `Total General: $${totalFinal.toFixed(2)} (IVA incluido)`;
+                }
+                
+                resumenTexto.value = resumenGeneralTexto;
+            };
+
+            const configurarEventListeners = () => {
+                document.getElementById("agregar-btn").addEventListener("click", agregarArticulo);
+                document.getElementById("limpiar-todo-btn").addEventListener("click", () => {
+                    if (cotizacionActual.length > 0 && confirm("¿Estás seguro de que quieres borrar todos los artículos de la cotización?")) {
+                        cotizacionActual = []; renderCotizacion(); form.reset();
+                    }
+                });
+                
+                // Event listeners para opciones adicionales
+                document.querySelectorAll('.opcion-adicional').forEach(opcion => {
+                    opcion.addEventListener('click', function() {
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        checkbox.checked = !checkbox.checked;
+                        this.classList.toggle('selected', checkbox.checked);
+                    });
+                });
+                
+                cotizacionLista.addEventListener("click", (e) => {
+                    const removerBtn = e.target.closest(".remover-item-btn");
+                    if (removerBtn) removerArticulo(parseInt(removerBtn.dataset.id));
+                    const desgloseBtn = e.target.closest(".toggle-desglose-btn");
+                    if (desgloseBtn) {
+                        const content = document.getElementById(`desglose-${desgloseBtn.dataset.id}`);
+                        if (content) {
+                            const isVisible = content.style.display === "block";
+                            content.style.display = isVisible ? "none" : "block";
+                            desgloseBtn.textContent = isVisible ? "Ocultar Desglose" : "Ver Desglose";
+                        }
+                    }
+                });
+                rotuladoSi.addEventListener("change", toggleMateriales);
+                rotuladoNo.addEventListener("change", toggleMateriales);
+                categoriaNoRotulado.addEventListener("change", toggleMaterialesNoRotulado);
+                document.getElementById("limpiar-btn").addEventListener("click", () => { 
+                    form.reset(); 
+                    toggleMateriales(); 
+                    toggleMaterialesNoRotulado();
+                    // Resetear opciones adicionales
+                    document.querySelectorAll('.opcion-adicional').forEach(opcion => {
+                        opcion.classList.remove('selected');
+                        opcion.querySelector('input[type="checkbox"]').checked = false;
+                    });
+                });
+                document.getElementById("copiar-btn").addEventListener("click", () => {
+                    if (resumenTexto.value) navigator.clipboard.writeText(resumenTexto.value.replace(/\n/g, "\r\n")).then(() => mostrarNotificacion("Resumen copiado", "success", 2000), () => mostrarNotificacion("Error al copiar", "danger"));
+                });
+                const mainCollapsible = document.querySelector(".collapsible");
+                mainCollapsible.addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    const content = this.nextElementSibling;
+                    content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+                    this.querySelector(".fa-chevron-down")?.classList.toggle("rotated");
+                });
+                const innerCollapsibles = document.querySelectorAll(".collapsible-inner");
+                const mainContent = document.querySelector(".content-collapsible");
+                innerCollapsibles.forEach((clickedColl) => {
+                    clickedColl.addEventListener("click", function () {
+                        const content = this.nextElementSibling;
+                        const wasActive = this.classList.contains("active");
+                        innerCollapsibles.forEach((coll) => {
+                            if (coll !== this) { coll.classList.remove("active"); coll.nextElementSibling.style.maxHeight = null; }
+                        });
+                        if (wasActive) {
+                            this.classList.remove("active");
+                            content.style.maxHeight = null;
+                        } else {
+                            this.classList.add("active");
+                            content.style.maxHeight = content.scrollHeight + "px";
+                        }
+                        if (mainContent.style.maxHeight) {
+                            setTimeout(() => { mainContent.style.maxHeight = mainContent.scrollHeight + "px"; }, 210);
+                        }
+                    });
+                });
+                document.getElementById("guardar-precios-btn").addEventListener("click", guardarNuevosPrecios);
+                
+                // Event listeners para visualizador de materiales
+                document.getElementById("ver-fotos-materiales-btn").addEventListener("click", abrirModalMateriales);
+                document.getElementById("cerrar-modal-materiales").addEventListener("click", cerrarModalMateriales);
+                document.getElementById("cerrar-imagen-expandida").addEventListener("click", cerrarImagenExpandida);
+                
+                // Event listeners para categorías
+                document.querySelectorAll('.categoria-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        cargarMaterialesPorCategoria(this.dataset.categoria);
+                    });
+                });
+                
+                // Cerrar modales al hacer clic fuera
+                window.addEventListener('click', function(event) {
+                    const materialesModal = document.getElementById('materiales-modal');
+                    const imagenModal = document.getElementById('imagen-expandida-modal');
+                    
+                    if (event.target === materialesModal) {
+                        cerrarModalMateriales();
+                    }
+                    if (event.target === imagenModal) {
+                        cerrarImagenExpandida();
+                    }
+                });
+            };
+
+            const guardarNuevosPrecios = () => {
+                const inputs = document.querySelectorAll('.content-collapsible input[type="number"]');
+                inputs.forEach(input => {
+                    const tipo = input.dataset.tipo;
+                    if (!tipo) return;
+                    const val = parseFloat(input.value);
+
+                    if (tipo === 'preciosImpresion') {
+                        const material = input.dataset.material;
+                        const index = parseInt(input.dataset.index);
+                        if (preciosGlobales.preciosImpresion[material] && preciosGlobales.preciosImpresion[material].precios[index]) {
+                            preciosGlobales.preciosImpresion[material].precios[index].precio = val;
+                        }
+                    } else if (tipo === 'preciosBases') {
+                        const material = input.dataset.material;
+                        const pliego = input.dataset.pliego;
+                        const prop = input.dataset.prop;
+
+                        if (preciosGlobales.preciosBases[material]) {
+                            if (prop) {
+                                preciosGlobales.preciosBases[material][prop] = val;
+                            } else if (pliego && preciosGlobales.preciosBases[material].precios) {
+                                preciosGlobales.preciosBases[material].precios[pliego] = val;
+                            }
+                        }
+                    } else if (tipo === 'preciosMontaje') {
+                        const pliego = input.dataset.pliego;
+                        if (preciosGlobales.preciosMontaje) preciosGlobales.preciosMontaje[pliego] = val;
+                    } else if (tipo === 'preciosDiseno') {
+                        const disenoTipo = input.dataset.disenoTipo;
+                        if (preciosGlobales.preciosDiseno) preciosGlobales.preciosDiseno[disenoTipo] = val;
+                    }
+                });
+                try {
+                    localStorage.setItem("preciosCotizadorGranFormato", JSON.stringify(preciosGlobales));
+                    mostrarNotificacion("¡Precios actualizados y guardados!", "success");
+                } catch (e) {
+                    mostrarNotificacion("Hubo un error al guardar los precios.", "danger");
+                }
+            };
+
+            const toggleMateriales = () => {
+                rotuladoContainer.style.display = rotuladoSi.checked ? "block" : "none";
+                noRotuladoContainer.style.display = rotuladoNo.checked ? "block" : "none";
+            };
+
+            const toggleMaterialesNoRotulado = () => {
+                const categoria = categoriaNoRotulado.value;
+                ["lonas", "viniles", "telas", "papeles"].forEach((c) => {
+                    const container = document.getElementById(`material-no-rotulado-${c}-container`);
+                    if (container) container.style.display = categoria === c ? "block" : "none";
+                });
+            };
+
+            const popularFormulariosDeCostos = () => {
+                if (!preciosGlobales.preciosImpresion) return;
+                const { preciosImpresion, preciosBases, preciosMontaje, preciosDiseno } = preciosGlobales;
+                const listas = {
+                    lonas: document.getElementById('costos-lonas-list'),
+                    viniles: document.getElementById('costos-viniles-list'),
+                    telas: document.getElementById('costos-telas-list'),
+                    papeles: document.getElementById('costos-papeles-list'),
+                    rotulacion: document.getElementById('costos-rotulacion-list'),
+                    montaje: document.getElementById('costos-montaje-list'),
+                    diseno: document.getElementById('costos-diseno-list')
+                };
+                for (const key in listas) { if (listas[key]) listas[key].innerHTML = ''; }
+
+                const crearCamposPrecioImpresion = (material, rangos) => {
+                    const el = document.createElement('div');
+                    el.className = 'item-costo';
+                    el.innerHTML = `<strong>${material}</strong>`;
+                    rangos.forEach((r, i) => {
+                        el.innerHTML += `<div class="rango-precio"><span>Rango (${r.min} - ${r.max || 'adelante'} m²):</span><input type="number" value="${r.precio}" data-tipo="preciosImpresion" data-material="${material}" data-index="${i}"></div>`;
+                    });
+                    return el;
+                };
+
+                Object.keys(preciosImpresion).forEach(material => {
+                    const data = preciosImpresion[material];
+                    if (data.precios) {
+                        let categoria = 'lonas'; // default
+                        if (material.toLowerCase().includes('vinil')) categoria = 'viniles';
+                        else if (material.toLowerCase().includes('tela') || material.toLowerCase().includes('canvas')) categoria = 'telas';
+                        else if (material.toLowerCase().includes('papel') || material.toLowerCase().includes('poster')) categoria = 'papeles';
+                        listas[categoria]?.appendChild(crearCamposPrecioImpresion(material, data.precios));
+                    }
+                });
+
+                if (listas.rotulacion && preciosBases) {
+                    for (const material in preciosBases) {
+                        const data = preciosBases[material];
+                        if (!data.precios && data.tipo !== 'rollo') continue;
+
+                        const el = document.createElement('div');
+                        el.className = 'item-costo';
+                        el.innerHTML = `<strong>${material}</strong>`;
+
+                        if (data.tipo === 'rollo') {
+                            el.innerHTML += `<div class="rango-precio"><span>Costo Metro Lineal:</span><input type="number" value="${data.costoMetro}" data-tipo="preciosBases" data-material="${material}" data-prop="costoMetro"></div>`;
+                            el.innerHTML += `<div class="rango-precio"><span>Uti. Min (<=0.5m):</span><input type="number" value="${data.utilidadMin || 2}" readonly disabled title="Fijo por lógica interna" style="background:#eee;color:#888;"></div>`;
+                            el.innerHTML += `<div class="rango-precio"><span>Uti. Mayor (>0.5m):</span><input type="number" value="${data.utilidadMayor || 1.85}" readonly disabled title="Fijo por lógica interna" style="background:#eee;color:#888;"></div>`;
+                            el.innerHTML += `<div class="rango-precio"><span>Montaje /m:</span><input type="number" value="${data.costoMontajeLineal}" data-tipo="preciosBases" data-material="${material}" data-prop="costoMontajeLineal"></div>`;
+                        } else {
+                            for (const pliego in data.precios) {
+                                el.innerHTML += `<div class="rango-precio"><span>Pliego ${pliego}:</span><input type="number" value="${data.precios[pliego]}" data-tipo="preciosBases" data-material="${material}" data-pliego="${pliego}"></div>`;
+                            }
+                        }
+                        listas.rotulacion.appendChild(el);
+                    }
+                }
+                if (listas.montaje && preciosMontaje) {
+                    for (const pliego in preciosMontaje) {
+                        const el = document.createElement('div');
+                        el.className = 'item-costo';
+                        el.innerHTML = `<strong>Montaje Pliego ${pliego}</strong><div class="rango-precio"><span>Costo:</span><input type="number" value="${preciosMontaje[pliego]}" data-tipo="preciosMontaje" data-pliego="${pliego}"></div>`;
+                        listas.montaje.appendChild(el);
+                    }
+                }
+                if (listas.diseno && preciosDiseno) {
+                    for (const tipo in preciosDiseno) {
+                        const optionElement = document.querySelector(`#tipo-diseno option[value="${tipo}"]`);
+                        const texto = optionElement ? optionElement.textContent : tipo;
+                        const el = document.createElement('div');
+                        el.className = 'item-costo';
+                        el.innerHTML = `<strong>${texto}</strong><div class="rango-precio"><span>Costo:</span><input type="number" value="${preciosDiseno[tipo]}" data-tipo="preciosDiseno" data-diseno-tipo="${tipo}"></div>`;
+                        listas.diseno.appendChild(el);
+                    }
+                }
+            };
+
+            // Funciones para el visualizador de materiales
+            const materialesData = {
+                lonas: [
+                    { nombre: 'Lona Brillante 13oz', imagen: 'lona.jpg', descripcion: 'Lona brillante ideal para exteriores e interiores, alta resistencia a la intemperie.' }
+                ],
+                viniles: [
+                    { nombre: 'Vinil Brillante 140gr', imagen: 'vinil.jpg', descripcion: 'Vinil brillante para alta calidad de impresión, perfecto para interiores.' },
+                    { nombre: 'Vinil Trasparente', imagen: 'vinil-trasparente.jpg', descripcion: 'Vinil transparente para efectos especiales y aplicaciones sobre cristal.' },
+                    { nombre: 'Vinil Microperforado', imagen: 'microperforado.jpg', descripcion: 'Vinil microperforado para ventanería y superficies de cristal.' },
+                    { nombre: 'Vinil Electroestático', imagen: 'vinil-electroestatico.jpg', descripcion: 'Vinil electrostático para aplicaciones temporales sin adhesivo.' },
+                    { nombre: 'Vinil Metálico', imagen: 'vinil-metalico.jpg', descripcion: 'Vinil metálico con acabado brillante para efectos especiales.' }
+                ],
+                telas: [
+                    { nombre: 'Canvas', imagen: 'canvas.jpg', descripcion: 'Tela canvas de alta calidad para reproducciones artísticas.' },
+                    { nombre: 'Tela Roll-Up', imagen: 'tela-rollup.jpg', descripcion: 'Tela especial para sistemas roll-up y banners retráctiles.' }
+                ],
+                papeles: [
+                    { nombre: 'Poster 200gr', imagen: 'poster.jpg', descripcion: 'Papel poster de 200gr para impresiones de alta calidad.' },
+                    { nombre: 'Papel Fotográfico', imagen: 'papel-fotografico.jpg', descripcion: 'Papel fotográfico para reproducciones de alta resolución.' }
+                ],
+                rotulacion: [
+                    { nombre: 'Corroplast', imagen: 'corroplast.jpg', descripcion: 'Plástico corrugado ligero, ideal para señalización temporal.' },
+                    { nombre: 'Trovicel 3mm', imagen: 'trovicel.jpg', descripcion: 'PVC espumado de 3mm, ligero y resistente.' },
+                    { nombre: 'Foam Board 5mm', imagen: 'foamboard-5.jpg', descripcion: 'Tabla de espuma de 5mm, perfecta para montaje interior.' },
+                    { nombre: 'Foam Board 10mm', imagen: 'foamboard-10.jpg', descripcion: 'Tabla de espuma de 10mm para mayor rigidez.' },
+                    { nombre: 'Imán Calibre 20', imagen: 'iman-20.jpg', descripcion: 'Imán de calibre 20 para aplicaciones magnéticas.' },
+                    { nombre: 'Imán Calibre 30', imagen: 'iman-30.jpg', descripcion: 'Imán de calibre 30 para mayor fuerza magnética.' }
+                ]
+            };
+
+            const abrirModalMateriales = () => {
+                document.getElementById('materiales-modal').style.display = 'block';
+                cargarMaterialesPorCategoria('lonas'); // Cargar la primera categoría por defecto
+            };
+
+            const cerrarModalMateriales = () => {
+                document.getElementById('materiales-modal').style.display = 'none';
+            };
+
+            const cerrarImagenExpandida = () => {
+                document.getElementById('imagen-expandida-modal').style.display = 'none';
+            };
+
+            const cargarMaterialesPorCategoria = (categoria) => {
+                const grid = document.getElementById('materiales-grid');
+                const materiales = materialesData[categoria] || [];
+                
+                grid.innerHTML = '';
+                
+                materiales.forEach(material => {
+                    const item = document.createElement('div');
+                    item.className = 'material-item';
+                    item.innerHTML = `
+                        <img src="assets/images/gran-formato/${material.imagen}" alt="${material.nombre}" 
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik04NSA2MEgxMTVWOTBIODVWNjBaIiBzdHJva2U9IiNDQ0MiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Ik04NSA3MEgxMTVWMTAwSDg1VjcwWiIgc3Ryb2tlPSIjQ0NDMiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K'">
+                        <div class="material-item-info">
+                            <h4>${material.nombre}</h4>
+                            <p>${material.descripcion}</p>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', () => expandirImagen(material));
+                    grid.appendChild(item);
+                });
+            };
+
+            const expandirImagen = (material) => {
+                document.getElementById('imagen-expandida-src').src = `assets/images/gran-formato/${material.imagen}`;
+                document.getElementById('imagen-expandida-titulo').textContent = material.nombre;
+                document.getElementById('imagen-expandida-descripcion').textContent = material.descripcion;
+                document.getElementById('imagen-expandida-modal').style.display = 'block';
+            };
+
+            init();
+        });
+    </script>
+
+    <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, .4);
+            font-weight: 600;
+            font-size: .95rem;
+            transition: all .3s cubic-bezier(.4, 0, .2, 1);
+            z-index: 9999;
+            font-family: 'Poppins', 'Inter', sans-serif
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, .5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%)
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02)
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap
+        }
+
+        @media (max-width:768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                right: 20px
+            }
+
+            .btn-home-flotante span {
+                display: none
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px
+            }
+        }
+    </style>
+</body>
+
+</html>
