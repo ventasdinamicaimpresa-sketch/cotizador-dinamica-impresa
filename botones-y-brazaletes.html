@@ -336,6 +336,20 @@
             background: linear-gradient(145deg, #1e293b, #334155) !important;
         }
 
+        /* Estilos para servicios adicionales - círculo rojo cuando está seleccionado */
+        .form-check-input[name="precioMaquila"]:checked,
+        .form-check-input[name="servicioExpress"]:checked,
+        .form-check-input[name="costoCopavisa"]:checked {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .form-check-input[name="precioMaquila"]:checked:focus,
+        .form-check-input[name="servicioExpress"]:checked:focus,
+        .form-check-input[name="costoCopavisa"]:checked:focus {
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+        }
+
         #opcionesEspecificas .form-check {
             padding: 8px 12px;
             border-radius: 8px;
@@ -413,6 +427,30 @@
 
                 <hr>
 
+                <fieldset class="form-group">
+                    <legend class="col-form-label col-sm-4 pt-0 fw-bold"><i class="fas fa-cogs"></i> Servicios Adicionales:
+                    </legend>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check"><input class="form-check-input" type="checkbox" name="servicioAdicional"
+                                    id="precioMaquila" value="maquila"><label class="form-check-label" for="precioMaquila">Precio Maquila<br>
+                                    <small class="text-muted">20% descuento</small></label></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check"><input class="form-check-input" type="checkbox" name="servicioAdicional"
+                                    id="servicioExpress" value="express"><label class="form-check-label" for="servicioExpress">Servicio Exprés<br>
+                                    <small class="text-muted">35% adicional</small></label></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check"><input class="form-check-input" type="checkbox" name="servicioAdicional"
+                                    id="costoCopavisa" value="copavisa"><label class="form-check-label" for="costoCopavisa">Costo Copavisa<br>
+                                    <small class="text-muted">Utilidad x2.5, Impresión $5.50, Corte $10.00</small></label></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <hr>
+
                 <div class="row mt-4">
                     <div class="col-md-7">
                         <h4><i class="fas fa-calculator"></i> Resultado (Botones):</h4>
@@ -421,6 +459,16 @@
                                 (Botones):<span id="subtotal_botones" class="fw-bold">$0.00</span></li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">Costo de
                                 Diseño:<span id="costoDisenoTotal_botones" class="fw-bold">$0.00</span></li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>Subtotal Total:</strong><strong id="subtotalTotal_botones" class="text-info">$0.00</strong>
+                            </li>
+                            <li id="descuentoCargoAdicional_li" class="list-group-item d-flex justify-content-between align-items-center" style="display: none;">
+                                <span id="descuentoCargoLabel">Descuento Servicio Adicional:</span>
+                                <span id="descuentoCargoAdicional_botones" class="fw-bold text-warning">$0.00</span>
+                            </li>
+                            <li id="subtotalConDescuento_li" class="list-group-item d-flex justify-content-between align-items-center" style="display: none;">
+                                <strong>Subtotal con Descuento:</strong><strong id="subtotalConDescuento_botones" class="text-success">$0.00</strong>
+                            </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">IVA
                                 (16%):<span id="iva_botones" class="fw-bold">$0.00</span></li>
                             <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
@@ -800,14 +848,17 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr><td>1-10</td><td>$18.15</td><td>x5</td></tr>
-                                                <tr><td>11-20</td><td>$16.335</td><td>x4.5</td></tr>
-                                                <tr><td>21-50</td><td>$14.52</td><td>x4</td></tr>
-                                                <tr><td>51-100</td><td>$12.705</td><td>x3.5</td></tr>
-                                                <tr><td>101-200</td><td>$10.89</td><td>x3</td></tr>
-                                                <tr><td>201+</td><td>$9.075</td><td>x2.5</td></tr>
+                                                <tr><td>1-10</td><td>$28.89</td><td>x5</td></tr>
+                                                <tr><td>11-20</td><td>$26.60</td><td>x4.5</td></tr>
+                                                <tr><td>21-50</td><td>$24.31</td><td>x4</td></tr>
+                                                <tr><td>51-100</td><td>$22.02</td><td>x3.5</td></tr>
+                                                <tr><td>101-200</td><td>$19.73</td><td>x3</td></tr>
+                                                <tr><td>201+</td><td>$17.44</td><td>x2.5</td></tr>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="alert alert-info mt-3">
+                                        <small><i class="fas fa-info-circle"></i> <strong>Nota:</strong> Los precios incluyen costo de botón (con utilidad) + impresión + corte (sin utilidad). La utilidad solo aplica al costo del botón.</small>
                                     </div>
                                 </div>
                             </div>
@@ -1040,7 +1091,9 @@
         // ====================================================================
         // =========== LÓGICA DEL COTIZADOR DE BOTONES ========================
         // ====================================================================
-        {
+        
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
             const cantidadInput = document.getElementById('cantidad_botones');
             const opcionesDisenoEl = document.getElementById('opcionesDiseno_botones');
             const precioUnitarioVentaEl = document.getElementById('precioUnitarioVenta_botones');
@@ -1070,16 +1123,7 @@
             const BOTONES_POR_HOJA = 8;
             const IVA_PERCENT = 0.16;
 
-            function getPrecioVentaUnitario(cantidad) {
-                if (cantidad >= 1 && cantidad <= 10) return 18.15;
-                if (cantidad >= 11 && cantidad <= 20) return 16.335;
-                if (cantidad >= 21 && cantidad <= 50) return 14.52;
-                if (cantidad >= 51 && cantidad <= 100) return 12.705;
-                if (cantidad >= 101 && cantidad <= 200) return 10.89;
-                if (cantidad >= 201) return 9.075;
-                return 0;
-            }
-
+            
             function getUtilidadMultiplicador(cantidad) {
                 if (cantidad >= 1 && cantidad <= 10) return "x5";
                 if (cantidad >= 11 && cantidad <= 20) return "x4.5";
@@ -1093,54 +1137,286 @@
             function cotizar() {
                 const cantidad = parseInt(cantidadInput.value, 10) || 0;
                 const opcionDisenoSeleccionada = document.querySelector('input[name="costoDiseno_botones"]:checked');
-                const costoDiseno = opcionDisenoSeleccionada ? parseFloat(opcionDisenoSeleccionada.value) : 0;
-                const etiquetaDiseno = opcionDisenoSeleccionada ? opcionDisenoSeleccionada.dataset.label : "";
+                const opcionMaquila = document.getElementById('precioMaquila');
+                const opcionExpress = document.getElementById('servicioExpress');
+                const opcionCopavisa = document.getElementById('costoCopavisa');
 
                 if (cantidad <= 0) {
                     limpiarCampos();
                     return;
                 }
 
-                const precioVentaUnitario = getPrecioVentaUnitario(cantidad);
-                const subtotalBotones = cantidad * precioVentaUnitario;
-                const subtotalGeneral = subtotalBotones + costoDiseno;
-                const iva = subtotalGeneral * IVA_PERCENT;
-                const total = subtotalGeneral + iva;
-                const costoUnitarioNeto = total / cantidad;
+                // Validar que se seleccione diseño solo si hay cantidad
+                if (!opcionDisenoSeleccionada) {
+                    // Mostrar mensaje claro pero permitir ver cálculos básicos
+                    console.log('FALTA SELECCIONAR DISEÑO - Mostrando cálculos básicos');
+                    
+                    // Calcular costo base sin diseño para mostrar servicios
+                    const hojasNecesarias = Math.ceil(cantidad / BOTONES_POR_HOJA);
+                    let costoBaseUnitario = COSTO_BASE_BOTON;
+                    let costoImpresionUnitario = COSTO_HOJA_IMPRESION;
+                    let costoCorteUnitario = COSTO_HOJA_CORTE;
+                    let multiplicador = getUtilidadMultiplicador(cantidad);
+                    
+                    // Costos base
+                    const costoBaseTotal = cantidad * costoBaseUnitario;
+                    const costoImpresionTotal = hojasNecesarias * costoImpresionUnitario;
+                    const costoCorteTotal = hojasNecesarias * costoCorteUnitario;
+                    const multiplicadorNum = parseFloat(multiplicador.replace('x', ''));
+                    const costoBaseConUtilidad = costoBaseTotal * multiplicadorNum;
+                    const costoProduccionTotal = costoBaseConUtilidad + costoImpresionTotal + costoCorteTotal;
+                    
+                    // Variables para servicios
+                    let subtotalBotones = costoProduccionTotal;
+                    let subtotalTotal = subtotalBotones;
+                    let descuentoCargoAdicional = 0;
+                    let subtotalConDescuento = subtotalTotal;
+                    let tipoServicio = "";
+                    let mostrarDescuentoCargo = false;
+                    
+                    // Aplicar servicios adicionales
+                    if (opcionMaquila && opcionMaquila.checked) {
+                        descuentoCargoAdicional = -subtotalTotal * 0.20;
+                        subtotalConDescuento = subtotalTotal + descuentoCargoAdicional;
+                        tipoServicio = " (Precio Maquila)";
+                        mostrarDescuentoCargo = true;
+                        document.getElementById('descuentoCargoLabel').textContent = "Descuento Servicio Adicional:";
+                    } else if (opcionExpress && opcionExpress.checked) {
+                        descuentoCargoAdicional = subtotalTotal * 0.35;
+                        subtotalConDescuento = subtotalTotal + descuentoCargoAdicional;
+                        tipoServicio = " (Servicio Exprés)";
+                        mostrarDescuentoCargo = true;
+                        document.getElementById('descuentoCargoLabel').textContent = "Cargo Servicio Adicional:";
+                    } else if (opcionCopavisa && opcionCopavisa.checked) {
+                        tipoServicio = " (Costo Copavisa)";
+                        mostrarDescuentoCargo = true;
+                        descuentoCargoAdicional = 0;
+                        document.getElementById('descuentoCargoLabel').textContent = "Costo Copavisa Aplicado:";
+                    }
+                    
+                    // Calcular totales
+                    const baseParaIVA = mostrarDescuentoCargo ? subtotalConDescuento : subtotalTotal;
+                    const iva = baseParaIVA * IVA_PERCENT;
+                    const total = baseParaIVA + iva;
+                    const costoUnitarioNeto = total / cantidad;
+                    const precioUnitarioSinIva = subtotalBotones / cantidad;
+                    
+                    // Actualizar interfaz
+                    precioUnitarioVentaEl.textContent = formatoMoneda(precioUnitarioSinIva);
+                    subtotalEl.textContent = formatoMoneda(subtotalBotones);
+                    costoDisenoTotalEl.textContent = formatoMoneda(0);
+                    document.getElementById('subtotalTotal_botones').textContent = formatoMoneda(subtotalTotal);
+                    
+                    // Mostrar/ocultar sección de descuento/cargo
+                    if (mostrarDescuentoCargo) {
+                        document.getElementById('descuentoCargoAdicional_li').style.display = 'flex';
+                        document.getElementById('subtotalConDescuento_li').style.display = 'flex';
+                        document.getElementById('descuentoCargoAdicional_botones').textContent = formatoMoneda(descuentoCargoAdicional);
+                        document.getElementById('subtotalConDescuento_botones').textContent = formatoMoneda(subtotalConDescuento);
+                    } else {
+                        document.getElementById('descuentoCargoAdicional_li').style.display = 'none';
+                        document.getElementById('subtotalConDescuento_li').style.display = 'none';
+                    }
+                    
+                    ivaEl.textContent = formatoMoneda(iva);
+                    totalEl.textContent = formatoMoneda(total);
+                    costoUnitarioNetoEl.textContent = formatoMoneda(costoUnitarioNeto);
+                    costoUnitarioSinIvaEl.textContent = formatoMoneda(precioUnitarioSinIva);
+                    
+                    // Resumen de costos
+                    cantidadHojasEl.textContent = hojasNecesarias;
+                    utilidadAplicadaEl.textContent = multiplicador;
+                    detalleCostoBaseEl.innerHTML = `
+                        <small class="text-muted">
+                            ${cantidad} botones × $${costoBaseUnitario.toFixed(2)} = ${formatoMoneda(costoBaseTotal)}<br>
+                            <span class="text-warning">Con utilidad ${multiplicador}: ${formatoMoneda(costoBaseConUtilidad)}</span>
+                        </small>`;
+                    costoBaseTotalEl.textContent = formatoMoneda(costoBaseConUtilidad);
+                    detalleCostoImpresionEl.innerHTML = `
+                        <small class="text-muted">
+                            ${hojasNecesarias} hojas × $${costoImpresionUnitario.toFixed(2)} = ${formatoMoneda(costoImpresionTotal)}<br>
+                            <span class="text-info">Sin utilidad (costo directo)</span>
+                        </small>`;
+                    costoImpresionTotalEl.textContent = formatoMoneda(costoImpresionTotal);
+                    detalleCostoCorteEl.innerHTML = `
+                        <small class="text-muted">
+                            ${hojasNecesarias} cortes × $${costoCorteUnitario.toFixed(2)} = ${formatoMoneda(costoCorteTotal)}<br>
+                            <span class="text-info">Sin utilidad (costo directo)</span>
+                        </small>`;
+                    costoCorteTotalEl.textContent = formatoMoneda(costoCorteTotal);
+                    costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
+                    utilidadBrutaEl.textContent = formatoMoneda(costoBaseConUtilidad - costoBaseTotal);
+                    
+                    // Resumen para cliente
+                    let resumen = `Hola, te comparto la cotización: ${cantidad} pz de Boton impresos a color tipo pin medida 5.5 cm diametro${tipoServicio}, precio unitario: ${formatoMoneda(costoUnitarioNeto)}, total a pagar: ${formatoMoneda(total)} (IVA incluido).`;
+                    resumen += ` Por favor selecciona una opción de diseño para completar la cotización.`;
+                    resumenClienteEl.value = resumen;
+                    
+                    return;
+                }
 
+                const costoDiseno = parseFloat(opcionDisenoSeleccionada.value) || 0;
+                const etiquetaDiseno = opcionDisenoSeleccionada.dataset.label || "";
+
+                // === CÁLCULO DE COSTOS DE PRODUCCIÓN ===
                 const hojasNecesarias = Math.ceil(cantidad / BOTONES_POR_HOJA);
-                const costoBaseTotal = cantidad * COSTO_BASE_BOTON;
-                const costoImpresionTotal = hojasNecesarias * COSTO_HOJA_IMPRESION;
-                const costoCorteTotal = hojasNecesarias * COSTO_HOJA_CORTE;
-                const costoProduccionTotal = costoBaseTotal + costoImpresionTotal + costoCorteTotal;
-                const multiplicador = getUtilidadMultiplicador(cantidad);
-                const utilidadBruta = subtotalBotones - costoProduccionTotal;
+                
+                // Costos base (sin utilidad)
+                let costoBaseUnitario = COSTO_BASE_BOTON;
+                let costoImpresionUnitario = COSTO_HOJA_IMPRESION;
+                let costoCorteUnitario = COSTO_HOJA_CORTE;
+                let multiplicador = getUtilidadMultiplicador(cantidad);
+                
+                // === REGLAS ESPECIALES PARA COSTO COPAVISA ===
+                if (opcionCopavisa && opcionCopavisa.checked) {
+                    multiplicador = "x2.5";
+                    costoImpresionUnitario = 5.50;
+                    costoCorteUnitario = 10.00;
+                }
+                
+                // Costos individuales
+                const costoBaseTotal = cantidad * costoBaseUnitario;
+                const costoImpresionTotal = hojasNecesarias * costoImpresionUnitario;
+                const costoCorteTotal = hojasNecesarias * costoCorteUnitario;
+                
+                // Aplicar utilidad SOLO a los botones
+                const multiplicadorNum = parseFloat(multiplicador.replace('x', ''));
+                const costoBaseConUtilidad = costoBaseTotal * multiplicadorNum;
+                
+                // Costo total de producción (botones con utilidad + impresión y corte sin utilidad)
+                const costoProduccionTotal = costoBaseConUtilidad + costoImpresionTotal + costoCorteTotal;
+                
+                // === VARIABLES PARA CÁLCULOS ===
+                let subtotalBotones = costoProduccionTotal;
+                let subtotalTotal = subtotalBotones + costoDiseno;
+                let descuentoCargoAdicional = 0;
+                let subtotalConDescuento = subtotalTotal;
+                let tipoServicio = "";
+                let mostrarDescuentoCargo = false;
+                
+                                
+                // === APLICAR SERVICIOS ADICIONALES ===
+                if (opcionMaquila && opcionMaquila.checked) {
+                    descuentoCargoAdicional = -subtotalTotal * 0.20; // 20% descuento
+                    subtotalConDescuento = subtotalTotal + descuentoCargoAdicional;
+                    tipoServicio = " (Precio Maquila)";
+                    mostrarDescuentoCargo = true;
+                    document.getElementById('descuentoCargoLabel').textContent = "Descuento Servicio Adicional:";
+                } else if (opcionExpress && opcionExpress.checked) {
+                    descuentoCargoAdicional = subtotalTotal * 0.35; // 35% adicional
+                    subtotalConDescuento = subtotalTotal + descuentoCargoAdicional;
+                    tipoServicio = " (Servicio Exprés)";
+                    mostrarDescuentoCargo = true;
+                    document.getElementById('descuentoCargoLabel').textContent = "Cargo Servicio Adicional:";
+                } else if (opcionCopavisa && opcionCopavisa.checked) {
+                    tipoServicio = " (Costo Copavisa)";
+                    // Para Copavisa, el subtotal ya incluye los costos especiales
+                    // Pero mostrar la sección de descuento/cargo para indicar que está activo
+                    mostrarDescuentoCargo = true;
+                    descuentoCargoAdicional = 0; // No hay descuento/cargo, pero mostramos la sección
+                    document.getElementById('descuentoCargoLabel').textContent = "Costo Copavisa Aplicado:";
+                } else {
+                    // NINGÚN SERVICIO SELECCIONADO - resetear todo
+                    console.log('=== DESELECCIONANDO SERVICIO ===');
+                    console.log('mostrarDescuentoCargo ANTES:', mostrarDescuentoCargo);
+                    descuentoCargoAdicional = 0;
+                    subtotalConDescuento = subtotalTotal;
+                    tipoServicio = "";
+                    mostrarDescuentoCargo = false;
+                    console.log('mostrarDescuentoCargo DESPUÉS:', mostrarDescuentoCargo);
+                }
+                
+                // === CÁLCULO DE TOTALES FINALES ===
+                const baseParaIVA = mostrarDescuentoCargo ? subtotalConDescuento : subtotalTotal;
+                const iva = baseParaIVA * IVA_PERCENT;
+                const total = baseParaIVA + iva;
+                
+                // Calcular precios unitarios
+                const precioUnitarioSinIva = subtotalBotones / cantidad;
+                const costoUnitarioNeto = total / cantidad;
+                
+                // === UTILIDAD BRUTA ===
+                const utilidadBruta = costoBaseConUtilidad - costoBaseTotal;
 
-                precioUnitarioVentaEl.textContent = formatoMoneda(precioVentaUnitario);
+                // === ACTUALIZAR INTERFAZ ===
+                // Resultado de Botones
+                precioUnitarioVentaEl.textContent = formatoMoneda(precioUnitarioSinIva);
                 subtotalEl.textContent = formatoMoneda(subtotalBotones);
                 costoDisenoTotalEl.textContent = formatoMoneda(costoDiseno);
+                document.getElementById('subtotalTotal_botones').textContent = formatoMoneda(subtotalTotal);
+                
+                // Mostrar/ocultar sección de descuento/cargo
+                console.log('=== INTERFAZ - mostrarDescuentoCargo:', mostrarDescuentoCargo);
+                if (mostrarDescuentoCargo) {
+                    console.log('MOSTRANDO secciones');
+                    document.getElementById('descuentoCargoAdicional_li').style.display = 'flex';
+                    document.getElementById('subtotalConDescuento_li').style.display = 'flex';
+                    document.getElementById('descuentoCargoAdicional_botones').textContent = formatoMoneda(descuentoCargoAdicional);
+                    document.getElementById('subtotalConDescuento_botones').textContent = formatoMoneda(subtotalConDescuento);
+                } else {
+                    console.log('OCULTANDO secciones');
+                    document.getElementById('descuentoCargoAdicional_li').style.display = 'none';
+                    document.getElementById('subtotalConDescuento_li').style.display = 'none';
+                }
+                
                 ivaEl.textContent = formatoMoneda(iva);
                 totalEl.textContent = formatoMoneda(total);
                 costoUnitarioNetoEl.textContent = formatoMoneda(costoUnitarioNeto);
-                costoUnitarioSinIvaEl.textContent = formatoMoneda(precioVentaUnitario);
+                costoUnitarioSinIvaEl.textContent = formatoMoneda(precioUnitarioSinIva);
 
+                // Resumen de Costos (Interno) - explicación detallada
                 cantidadHojasEl.textContent = hojasNecesarias;
                 utilidadAplicadaEl.textContent = multiplicador;
-                detalleCostoBaseEl.textContent = `(${cantidad} pz x ${formatoMoneda(COSTO_BASE_BOTON)}) = `;
-                costoBaseTotalEl.textContent = formatoMoneda(costoBaseTotal);
-                detalleCostoImpresionEl.textContent = `(${hojasNecesarias} hojas x ${formatoMoneda(COSTO_HOJA_IMPRESION)}) = `;
+                
+                // Costo de Botones explicado
+                detalleCostoBaseEl.innerHTML = `
+                    <small class="text-muted">
+                        ${cantidad} botones × $${costoBaseUnitario.toFixed(2)} = ${formatoMoneda(costoBaseTotal)}<br>
+                        <span class="text-warning">Con utilidad ${multiplicador}: ${formatoMoneda(costoBaseConUtilidad)}</span>
+                    </small>`;
+                costoBaseTotalEl.textContent = formatoMoneda(costoBaseConUtilidad);
+                
+                // Costo de Impresión explicado
+                detalleCostoImpresionEl.innerHTML = `
+                    <small class="text-muted">
+                        ${hojasNecesarias} hojas × $${costoImpresionUnitario.toFixed(2)} = ${formatoMoneda(costoImpresionTotal)}<br>
+                        <span class="text-info">Sin utilidad (costo directo)</span>
+                    </small>`;
                 costoImpresionTotalEl.textContent = formatoMoneda(costoImpresionTotal);
-                detalleCostoCorteEl.textContent = `(${hojasNecesarias} cortes x ${formatoMoneda(COSTO_HOJA_CORTE)}) = `;
+                
+                // Costo de Corte explicado
+                detalleCostoCorteEl.innerHTML = `
+                    <small class="text-muted">
+                        ${hojasNecesarias} cortes × $${costoCorteUnitario.toFixed(2)} = ${formatoMoneda(costoCorteTotal)}<br>
+                        <span class="text-info">Sin utilidad (costo directo)</span>
+                    </small>`;
                 costoCorteTotalEl.textContent = formatoMoneda(costoCorteTotal);
+                
+                // Costo total de producción
                 costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
                 utilidadBrutaEl.textContent = formatoMoneda(utilidadBruta);
 
-                generarResumenCliente(cantidad, costoUnitarioNeto, total, costoDiseno, etiquetaDiseno);
+                // Mostrar servicios adicionales si están seleccionados
+                let servicioInfo = "";
+                if (opcionMaquila && opcionMaquila.checked) {
+                    servicioInfo = `<br><span class="text-success">Descuento Maquila 20%: ${formatoMoneda(descuentoCargoAdicional)}</span>`;
+                } else if (opcionExpress && opcionExpress.checked) {
+                    servicioInfo = `<br><span class="text-warning">Cargo Exprés 35%: +${formatoMoneda(descuentoCargoAdicional)}</span>`;
+                } else if (opcionCopavisa && opcionCopavisa.checked) {
+                    servicioInfo = `<br><span class="text-info">Costos Copavisa aplicados</span>`;
+                }
+                
+                // Agregar información de servicios al resumen
+                if (servicioInfo) {
+                    costoProduccionTotalEl.innerHTML += servicioInfo;
+                }
+
+                generarResumenCliente(cantidad, costoUnitarioNeto, total, costoDiseno, etiquetaDiseno, tipoServicio);
             }
 
-            function generarResumenCliente(cantidad, costoUnitarioFinal, total, costoDiseno, etiquetaDiseno) {
+            function generarResumenCliente(cantidad, costoUnitarioFinal, total, costoDiseno, etiquetaDiseno, tipoServicio = "") {
                 const nombreProducto = "Boton impresos a color tipo pin medida 5.5 cm diametro";
-                let resumen = `Hola, te comparto la cotización: ${cantidad} pz de ${nombreProducto}, precio unitario: ${formatoMoneda(costoUnitarioFinal)}, total a pagar: ${formatoMoneda(total)} (IVA incluido).`;
+                let resumen = `Hola, te comparto la cotización: ${cantidad} pz de ${nombreProducto}${tipoServicio}, precio unitario: ${formatoMoneda(costoUnitarioFinal)}, total a pagar: ${formatoMoneda(total)} (IVA incluido).`;
                 if (costoDiseno > 0) {
                     resumen += ` ${etiquetaDiseno}.`;
                 }
@@ -1149,12 +1425,22 @@
 
             function limpiarCampos() {
                 cantidadInput.value = '';
+                
+                // Limpiar diseño
                 const opcionDisenoSeleccionada = document.querySelector('input[name="costoDiseno_botones"]:checked');
                 if (opcionDisenoSeleccionada) opcionDisenoSeleccionada.checked = false;
+                
+                // Limpiar servicios adicionales
+                document.getElementById('precioMaquila').checked = false;
+                document.getElementById('servicioExpress').checked = false;
+                document.getElementById('costoCopavisa').checked = false;
 
                 precioUnitarioVentaEl.textContent = formatoMoneda(0);
                 subtotalEl.textContent = formatoMoneda(0);
                 costoDisenoTotalEl.textContent = formatoMoneda(0);
+                document.getElementById('subtotalTotal_botones').textContent = formatoMoneda(0);
+                document.getElementById('descuentoCargoAdicional_botones').textContent = formatoMoneda(0);
+                document.getElementById('subtotalConDescuento_botones').textContent = formatoMoneda(0);
                 ivaEl.textContent = formatoMoneda(0);
                 totalEl.textContent = formatoMoneda(0);
                 costoUnitarioNetoEl.textContent = formatoMoneda(0);
@@ -1170,6 +1456,10 @@
                 costoProduccionTotalEl.textContent = formatoMoneda(0);
                 utilidadBrutaEl.textContent = formatoMoneda(0);
                 resumenClienteEl.value = '';
+                
+                // Ocultar sección de descuento/cargo
+                document.getElementById('descuentoCargoAdicional_li').style.display = 'none';
+                document.getElementById('subtotalConDescuento_li').style.display = 'none';
             }
 
             function copiarResumen() {
@@ -1187,14 +1477,38 @@
 
             cantidadInput.addEventListener('input', cotizar);
             opcionesDisenoEl.addEventListener('change', cotizar);
+            
+            // Event listener para todos los servicios adicionales (checkboxes)
+            document.querySelectorAll('input[name="servicioAdicional"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log('CAMBIO EN SERVICIO:', this.value);
+                    console.log('Estado actual:', this.checked);
+                    
+                    if (this.checked) {
+                        // Si se está marcando, desmarcar los otros
+                        document.getElementById('precioMaquila').checked = false;
+                        document.getElementById('servicioExpress').checked = false;
+                        document.getElementById('costoCopavisa').checked = false;
+                        
+                        // Volver a marcar este
+                        this.checked = true;
+                        console.log('SELECCIONADO:', this.value);
+                    } else {
+                        console.log('DESELECCIONADO:', this.value);
+                    }
+                    
+                    cotizar();
+                });
+            });
+            
             limpiarBtn.addEventListener('click', limpiarCampos);
             copiarBtn.addEventListener('click', copiarResumen);
-        }
+        }); // Cierre del DOMContentLoaded de botones
 
         // ====================================================================
         // =========== LÓGICA DEL COTIZADOR DE BRAZALETES =====================
         // ====================================================================
-        {
+        document.addEventListener('DOMContentLoaded', function() {
             const cantidadInput = document.getElementById('cantidad_brazaletes');
             const opcionesDisenoEl = document.getElementById('opcionesDiseno_brazaletes');
             const subtotalEl = document.getElementById('subtotal_brazaletes');
@@ -1727,7 +2041,7 @@
                     }, 2000);
                 }).catch(err => console.error('Error al copiar: ', err));
             }
-        }
+        }); // Cierre del DOMContentLoaded de brazaletes
 
     </script>
 
