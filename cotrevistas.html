@@ -768,7 +768,8 @@
             const GRAPADO_PRICES = { '1-10': 20, '11-25': 10, '26-50': 8, '50+': 5 };
             const MIN_GRAPADO_COST = 40.00;
             const DESIGN_PRICES = { 'cliente-envia': 25, 'diseno-guardado': 180, 'realizar-compaginado': 250, 'no-necesita': 0 };
-            const UTILIDAD_PAPEL_FACTOR = 2;
+            const UTILIDAD_PAPEL_PORTADA_FACTOR = 2;
+            const UTILIDAD_PAPEL_INTERIOR_FACTOR = 2.3;
             const IVA_RATE = 0.16;
             const SERVICIO_EXPRESS_RATE = 0.35;
             const HORIZONTAL_ORIENTATION_COST = 120.00;
@@ -917,10 +918,12 @@
 
                 // --- CÁLCULO FINAL ---
                 let subtotalConUtilidad = 0;
-                let factorUtilidadPapel = (values.orientacion === 'horizontal') ? 3 : UTILIDAD_PAPEL_FACTOR;
+                let factorUtilidadPapelPortada = (values.orientacion === 'horizontal') ? 3 : UTILIDAD_PAPEL_PORTADA_FACTOR;
+                let factorUtilidadPapelInterior = (values.orientacion === 'horizontal') ? 3 : UTILIDAD_PAPEL_INTERIOR_FACTOR;
                 let factorUtilidadImpresion = (values.orientacion === 'horizontal') ? 2 : 1;
 
-                subtotalConUtilidad += (costoPapelPortada + costoPapelInterior) * factorUtilidadPapel;
+                subtotalConUtilidad += costoPapelPortada * factorUtilidadPapelPortada;
+                subtotalConUtilidad += costoPapelInterior * factorUtilidadPapelInterior;
                 subtotalConUtilidad += (costoImpresionPortada + costoImpresionInterior) * factorUtilidadImpresion;
                 subtotalConUtilidad += costoLaminado + costoRefilado + costoGrapado + costoDiseno + costoOrientacionHorizontal;
 
@@ -972,14 +975,18 @@
   - Tamaño de pliego para impresión: ${pliegoImpresionPortada.toUpperCase()}
   - Costo por pliego: $${costoPorHojaPortadaFmt}
   - Hojas necesarias: ${hojasPortadaNecesarias} ( ${values.cantidad} revistas + 1 de merma ${values.acabadoPortada !== 'no-lleva' ? '+ 5 por laminado' : ''})
-  - Costo Total Papel Portada: ${hojasPortadaNecesarias} x $${costoPorHojaPortadaFmt} = $${costoPapelPortada.toFixed(2)}
+  - Costo Base Papel Portada: ${hojasPortadaNecesarias} x $${costoPorHojaPortadaFmt} = $${costoPapelPortada.toFixed(2)}
+  - Utilidad Papel Portada (x${factorUtilidadPapelPortada}): $${costoPapelPortada.toFixed(2)} x ${factorUtilidadPapelPortada} = $${(costoPapelPortada * factorUtilidadPapelPortada).toFixed(2)}
+  - **Costo Total Papel Portada con Utilidad: $${(costoPapelPortada * factorUtilidadPapelPortada).toFixed(2)}**
 
 - Impresión Portada:
   - Frentes (${values.impresionPortadaFrentes}): ${hojasPortadaNecesarias} hojas x $${costoImpresionPortadaFrenteUnitario.toFixed(2)} = $${(hojasPortadaNecesarias * costoImpresionPortadaFrenteUnitario).toFixed(2)}
   ${values.impresionPortadaReverso !== 'ninguno'
                         ? `- Reverso (${values.impresionPortadaReverso}): ${hojasPortadaNecesarias} hojas x $${costoImpresionPortadaReversoUnitario.toFixed(2)} = $${(hojasPortadaNecesarias * costoImpresionPortadaReversoUnitario).toFixed(2)}`
                         : '- Reverso: Sin impresión'}
-  - Costo Total Impresión Portada: $${costoImpresionPortada.toFixed(2)}
+  - Costo Base Impresión Portada: $${costoImpresionPortada.toFixed(2)}
+  - Utilidad Impresión Portada (x${factorUtilidadImpresion}): $${costoImpresionPortada.toFixed(2)} x ${factorUtilidadImpresion} = $${(costoImpresionPortada * factorUtilidadImpresion).toFixed(2)}
+  - **Costo Total Impresión Portada con Utilidad: $${(costoImpresionPortada * factorUtilidadImpresion).toFixed(2)}**
 
 ${values.acabadoPortada !== 'no-lleva' ? `
 - Acabado Portada (${values.acabadoPortada}):
@@ -993,11 +1000,15 @@ ${paginasInteriorImprimir > 0 ? `
   - Páginas por revista: ${paginasInteriorImprimir} (${values.paginasInterior} solicitadas, redondeado a múltiplo de 4)
   - Hojas interiores totales: ${hojasInterioresNecesarias}
   - Costo por hoja: $${(costoPorHojaInterior > 0 ? costoPorHojaInterior.toFixed(2) : 'N/A')}
-  - Costo Total Papel Interior: ${hojasInterioresNecesarias} x $${(costoPorHojaInterior > 0 ? costoPorHojaInterior.toFixed(2) : 'N/A')} = $${costoPapelInterior.toFixed(2)}
+  - Costo Base Papel Interior: ${hojasInterioresNecesarias} x $${(costoPorHojaInterior > 0 ? costoPorHojaInterior.toFixed(2) : 'N/A')} = $${costoPapelInterior.toFixed(2)}
+  - Utilidad Papel Interior (x${factorUtilidadPapelInterior}): $${costoPapelInterior.toFixed(2)} x ${factorUtilidadPapelInterior} = $${(costoPapelInterior * factorUtilidadPapelInterior).toFixed(2)}
+  - **Costo Total Papel Interior con Utilidad: $${(costoPapelInterior * factorUtilidadPapelInterior).toFixed(2)}**
 
 - Impresión Interior (${values.impresionInterior}):
   - Costo de impresión por cara/lado: $${costoImpresionInteriorUnitario.toFixed(2)}
-  - Costo Total Impresión Interior: ${hojasInterioresNecesarias} hojas x $${costoImpresionInteriorUnitario.toFixed(2)} por lado x 2 lados = $${costoImpresionInterior.toFixed(2)}
+  - Costo Base Impresión Interior: ${hojasInterioresNecesarias} hojas x $${costoImpresionInteriorUnitario.toFixed(2)} por lado x 2 lados = $${costoImpresionInterior.toFixed(2)}
+  - Utilidad Impresión Interior (x${factorUtilidadImpresion}): $${costoImpresionInterior.toFixed(2)} x ${factorUtilidadImpresion} = $${(costoImpresionInterior * factorUtilidadImpresion).toFixed(2)}
+  - **Costo Total Impresión Interior con Utilidad: $${(costoImpresionInterior * factorUtilidadImpresion).toFixed(2)}**
 ` : '- Sin páginas interiores.'}
 
 --- ACABADOS Y SERVICIOS ---
@@ -1017,10 +1028,10 @@ ${values.orientacion === 'horizontal' ? `
 ` : ''}
 
 --- CÁLCULO FINAL ---
-- Costos Materiales (Papel + Impresión): $${(costoPapelPortada + costoPapelInterior + costoImpresionPortada + costoImpresionInterior).toFixed(2)}
-- Factor de Utilidad Papel: x${factorUtilidadPapel}
-- Factor de Utilidad Impresión: x${factorUtilidadImpresion}
-- Subtotal Bruto (Costos + Utilidad): $${(subtotalConUtilidad - recargoExpressMonto).toFixed(2)}
+- Subtotal Portada (Papel + Impresión con Utilidad): $${((costoPapelPortada * factorUtilidadPapelPortada) + (costoImpresionPortada * factorUtilidadImpresion)).toFixed(2)}
+- Subtotal Interior (Papel + Impresión con Utilidad): $${((costoPapelInterior * factorUtilidadPapelInterior) + (costoImpresionInterior * factorUtilidadImpresion)).toFixed(2)}
+- Subtotal Servicios: (Laminado $${costoLaminado.toFixed(2)} + Refilado $${costoRefilado.toFixed(2)} + Grapado $${costoGrapado.toFixed(2)} + Diseño $${costoDiseno.toFixed(2)} + Orientación $${costoOrientacionHorizontal.toFixed(2)}) = $${(costoLaminado + costoRefilado + costoGrapado + costoDiseno + costoOrientacionHorizontal).toFixed(2)}
+- Subtotal Bruto (Todos los conceptos con utilidad): $${(subtotalConUtilidad - recargoExpressMonto).toFixed(2)}
 
 ${values.servicioExpress ? `
 - Recargo Express (35%): $${recargoExpressMonto.toFixed(2)}
@@ -1030,6 +1041,7 @@ ${values.servicioExpress ? `
 ---------------------------------
 - TOTAL NETO: $${costoTotalNeto.toFixed(2)}
 - PRECIO UNITARIO: $${costoUnitarioNeto.toFixed(2)}
+- PRECIO UNITARIO SIN IVA: $${(costoUnitarioNeto / 1.16).toFixed(2)}
 `;
 
 
