@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Cotización – Impresiones Digitales</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  --surface: rgba(255, 255, 255, 0.95);
+  --surface2: rgba(255, 255, 255, 0.85);
+  --surface3: rgba(241, 245, 249, 0.9);
+  --accent: #6a11cb;
+  --accent2: #f72585;
+  --accent3: #43e97b;
+  --text: #1e293b;
+  --text2: #475569;
+  --border: rgba(255, 255, 255, 0.4);
+  --card: rgba(255, 255, 255, 0.92);
+  --card2: rgba(248, 250, 252, 0.85);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --radius: 16px;
+  --shadow: 0 10px 40px rgba(106, 17, 203, 0.15);
+}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#0f2318;padding:12px 24px;border-radius:8px;font-weight:700;box-shadow:0 4px 15px rgba(67,233,123,.4);transform:translateY(100px);opacity:0;transition:.3s;z-index:1000}
+#toast.show{transform:translateY(0);opacity:1}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);background-attachment:fixed;color:var(--text);min-height:100vh;padding:20px;zoom:1.1}
+h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:4px}
+.subtitle{text-align:center;color:var(--text2);font-size:.85rem;margin-bottom:28px}
+.container{max-width:1100px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.card-title{font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:18px;height:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+label{font-size:.78rem;color:var(--text2);font-weight:500;display:block;margin-bottom:5px}
+input[type=number],select{
+  width:100%;padding:10px 12px;background:#fffde7;border:2px solid #f9a825;
+  border-radius:8px;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:.875rem;
+  font-weight:600;transition:.2s;outline:none
+}
+input[type=number]:focus,select:focus{background:#fff8e1;border-color:#f57f17;box-shadow:0 0 0 3px rgba(249,168,37,.25)}
+input::placeholder{color:#78716c;font-weight:400}
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.radio-opt{display:flex;align-items:center;gap:6px;cursor:pointer;padding:7px 12px;
+  border:1px solid var(--border);border-radius:8px;font-size:.8rem;transition:.2s;user-select:none}
+.radio-opt:hover{border-color:var(--accent);background:rgba(108,99,255,.08)}
+.radio-opt input{accent-color:var(--accent);width:14px;height:14px}
+.radio-opt.selected{border-color:var(--accent);background:rgba(59,130,246,.1)}
+.hint{font-size:.72rem;color:var(--text2);margin-top:6px;line-height:1.5;padding:8px 10px;background:rgba(0,0,0,.04);border-radius:6px}
+.hint strong{color:var(--accent2)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:none;border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#9c56ff);color:#fff;box-shadow:0 4px 15px rgba(108,99,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,99,255,.5)}
+.btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-success{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#0f2318;font-weight:700}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(67,233,123,.35)}
+.btn-danger{background:linear-gradient(135deg,var(--accent2),#ff4757);color:#fff}
+.btn-danger:hover{transform:translateY(-2px)}
+.btn-info{background:linear-gradient(135deg,#0abde3,#48dbfb);color:#fff}
+.btn-info:hover{transform:translateY(-2px)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.item-list{display:flex;flex-direction:column;gap:10px}
+.item-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;
+  display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item-info{flex:1;font-size:.8rem;line-height:1.6}
+.item-info strong{color:var(--accent);font-size:.88rem}
+.badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:600}
+.badge-color{background:rgba(59,130,246,.15);color:var(--accent)}
+.badge-bn{background:rgba(0,0,0,.06);color:#475569}
+.badge-ambos{background:rgba(16,185,129,.15);color:var(--success)}
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.result-row:last-child{border-bottom:none}
+.result-label{color:var(--text2);font-size:.85rem}
+.result-value{font-size:.95rem;font-weight:600;color:var(--text)}
+.result-total{font-size:1.3rem;font-weight:800;color:var(--success)}
+.result-unit{font-size:1rem;font-weight:700;color:var(--accent2)}
+.collapse-btn{width:100%;text-align:left;background:var(--surface3);border:1px solid var(--border);
+  border-radius:10px;padding:14px 18px;color:var(--text);font-family:'Inter',sans-serif;
+  font-size:.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.collapse-btn:hover{border-color:var(--accent)}
+.collapse-content{overflow:hidden;transition:max-height .8s ease;max-height:0}
+.collapse-content.open{max-height:20000px}
+.detail-section{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.detail-section:last-child{border-bottom:none}
+.detail-section h4{color:var(--accent);font-size:.85rem;font-weight:700;margin-bottom:8px}
+.detail-section p{font-size:.8rem;color:var(--text2);line-height:1.7}
+.detail-section p span{color:var(--text);font-weight:500}
+.client-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+#clientText{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text);line-height:1.9;white-space:pre-wrap}
+.table-costos{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:12px;background:var(--surface);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.table-costos th{background:var(--surface3);color:var(--text);padding:10px;text-align:center;font-weight:700}
+.table-costos td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;color:var(--text2)}
+.table-costos tr:last-child td{border-bottom:none}
+.table-costos td:first-child{text-align:left;font-weight:600;color:var(--text)}
+.costos-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:6px}
+.costo-item{background:var(--surface3);border-radius:8px;padding:10px 14px}
+.costo-label{font-size:.72rem;color:var(--text2);margin-bottom:2px}
+.costo-val{font-size:.9rem;font-weight:700;color:var(--accent)}
+.sep{border:none;border-top:1px solid var(--border);margin:12px 0}
+.alert{padding:10px 14px;border-radius:8px;font-size:.8rem;margin:8px 0}
+.alert-info{background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.3);color:#b0aaff}
+.alert-warn{background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);color:#ffa500}
+@media(max-width:680px){.grid2,.grid3,.costos-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🖨️ Sistema de Cotización de Impresiones</h1>
+  <p class="subtitle">Creado por JOEL ADRIAN MTZ MEZA · 8341446103</p>
+
+  <div id="toast">✅ ¡Partida agregada con éxito!</div>
+
+  <!-- ===== FORMULARIO ===== -->
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      DATOS DE LA PARTIDA
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div>
+        <label>🔢 1. Cantidad de impresiones</label>
+        <input type="number" id="cantidad" min="1" placeholder="✏️ Escribe aquí la cantidad">
+      </div>
+      <div>
+        <label>📏 2. Tamaño de impresión</label>
+        <div class="radio-group" id="tamanoGroup" style="display:flex;flex-wrap:wrap;gap:8px">
+          <label class="radio-opt" onclick="selectRadio('tamano','carta',this)"><input type="radio" name="tamano" value="carta"> Carta</label>
+          <label class="radio-opt" onclick="selectRadio('tamano','oficio',this)"><input type="radio" name="tamano" value="oficio"> Oficio</label>
+          <label class="radio-opt" onclick="selectRadio('tamano','doblecarta',this)"><input type="radio" name="tamano" value="doblecarta"> Doble Carta</label>
+          <label class="radio-opt" onclick="selectRadio('tamano','30x45',this)"><input type="radio" name="tamano" value="30x45"> 30×45</label>
+          <label class="radio-opt" onclick="selectRadio('tamano','32x50',this)"><input type="radio" name="tamano" value="32x50"> 32×50</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TIPO DE PAPEL -->
+    <div style="margin-bottom:14px">
+      <label>📄 2. Tipo de papel</label>
+      <div class="grid2">
+        <select id="catPapel" onchange="filtrarPapeles()">
+          <option value="none" selected disabled>-- Categoría --</option>
+          <option value="bond">📄 Bond</option>
+          <option value="lustrolito">✨ Lustrolito / Couché</option>
+          <option value="opalina">🌿 Opalinas</option>
+          <option value="adhesivo">🏷️ Adhesivos</option>
+          <option value="grueso">📦 Gruesos / Cartulinas</option>
+          <option value="traslucido">🔍 Translúcidos</option>
+          <option value="invitacion">💎 Invitación / Stardeam</option>
+        </select>
+        </select>
+        <select id="papel">
+          <option value="none" selected disabled>-- 2º Elige Papel --</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 4. DETALLES DE IMPRESIÓN -->
+    <div class="grid2" style="margin-bottom:14px">
+      <div>
+        <label>🎯 4. Impresión Frente</label>
+        <div class="radio-group" id="frenteGroup">
+          <label class="radio-opt" onclick="selectRadio('frente','color',this)"><input type="radio" name="frente" value="color"> 🌈 Color</label>
+          <label class="radio-opt" onclick="selectRadio('frente','bn',this)"><input type="radio" name="frente" value="bn"> 🖤 Blanco/Negro</label>
+        </div>
+      </div>
+      <div id="reversoSection">
+        <label>🔄 5. Impresión Reverso</label>
+        <div class="radio-group" id="reversoGroup">
+          <label class="radio-opt" onclick="selectRadio('reverso','no',this)"><input type="radio" name="reverso" value="no"> 🚫 Solo Frente</label>
+          <label class="radio-opt" onclick="selectRadio('reverso','color',this)"><input type="radio" name="reverso" value="color"> 🌈 Color</label>
+          <label class="radio-opt" onclick="selectRadio('reverso','bn',this)"><input type="radio" name="reverso" value="bn"> 🖤 Blanco/Negro</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. COBERTURA -->
+    <div style="margin-bottom:14px">
+      <label>💧 6. Cobertura de impresión (Plasta)</label>
+      <div class="radio-group" id="coberturaGroup">
+        <label class="radio-opt" onclick="selectRadio('cobertura','50',this)"><input type="radio" name="cobertura" value="50"> 🟢 50%</label>
+        <label class="radio-opt" onclick="selectRadio('cobertura','80',this)"><input type="radio" name="cobertura" value="80"> 🟡 80%</label>
+        <label class="radio-opt" onclick="selectRadio('cobertura','100',this)"><input type="radio" name="cobertura" value="100"> 🔴 100%</label>
+      </div>
+      <p class="hint"><strong>Nota:</strong> Si el cliente NO envía diseño, o es revista/fotos, selecciona <strong>100%</strong>. Si es documento mixto con texto, usa 50% u 80%.</p>
+    </div>
+
+    <!-- 7. CORTES EXTRAS -->
+    <div style="margin-bottom:14px">
+      <label>✂️ 7. Cortes Extras de Guillotina ($25 c/u)</label>
+      <input type="number" id="cortes" placeholder="Cantidad de cortes... (Opcional)" min="0" step="1">
+      <p class="hint">Cada corte de guillotina de lado a lado adicional tiene un costo de <strong>$25.00</strong>. Deja en blanco si no requiere cortes.</p>
+    </div>
+
+    <!-- 8. DISEÑO Y MAQUILA -->
+    <div style="margin-bottom:14px">
+      <label>🖌️ 8. Diseño</label>
+      <select id="diseno">
+        <option value="0">✅ Cliente envía diseño listo y a tamaño (sin costo)</option>
+        <option value="85">📐 Modificar tamaño / acomodar en hoja – $85</option>
+        <option value="250">✏️ Hacer diseño desde cero – $250</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>🏷️ 9. Precio de maquila</label>
+      <div class="radio-group" id="maquilaGroup">
+        <label class="radio-opt" onclick="selectRadio('maquila','no',this)"><input type="radio" name="maquila" value="no" checked> 🧑‍💼 Público general</label>
+        <label class="radio-opt" onclick="selectRadio('maquila','si',this)"><input type="radio" name="maquila" value="si"> 🤝 Maquila (35%)</label>
+      </div>
+      <p class="hint"><strong>Maquila:</strong> Precio al 35% de margen. Solo para clientes mayoristas o trabajo de terceros.</p>
+    </div>
+
+    <div class="actions" style="margin-top:8px">
+      <button class="btn btn-secondary" onclick="agregarPartida()">➕ Agregar partida</button>
+    </div>
+  </div>
+
+  <!-- LISTA DE PARTIDAS -->
+  <div id="partidasContainer" class="card" style="display:none">
+    <div class="card-title">📋 Partidas Agregadas</div>
+    <div class="item-list" id="listaPartidas"></div>
+  </div>
+
+  <!-- BOTONES PRINCIPALES -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="realizarCotizacion()">🧮 Realizar Cotización</button>
+    <button class="btn btn-danger" onclick="limpiarFormulario()">🗑️ Limpiar Formulario</button>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="resultadoCard" class="card" style="display:none">
+    <div class="card-title">💰 Resultado de la Cotización</div>
+    <div id="resultadoContenido"></div>
+  </div>
+
+  <!-- RESUMEN CLIENTE -->
+  <div id="clienteCard" class="card" style="display:none">
+    <div class="card-title">📤 Resumen para el Cliente</div>
+    <div class="client-box">
+      <div id="clientText"></div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn btn-success" onclick="copiarCliente()">📋 Copiar para Cliente</button>
+    </div>
+  </div>
+
+  <!-- COSTOS DEL SISTEMA -->
+  <div class="card" style="margin-top:8px">
+    <button class="collapse-btn" onclick="toggleCostos()">
+      ⚙️ COSTOS DEL SISTEMA
+      <span id="costosArrow">▼</span>
+    </button>
+    <div class="collapse-content" id="costosCollapse">
+      <div style="padding-top:16px; display:flex; flex-direction:column; gap:8px;">
+        
+        <!-- 1. COSTOS DE IMPRESIONES -->
+        <button class="collapse-btn sub-btn" onclick="toggleSub('acc_impresiones', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+          🖨️ Costos de Impresiones <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="acc_impresiones">
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px;">
+            <div class="detail-section" style="padding-top:0;">
+              <h4>📌 CLASIFICACIÓN DE PAPELES POR IMPACTO (DESGASTE)</h4>
+              <p style="font-size:0.75rem;line-height:1.6;color:var(--text2);margin-bottom:12px">
+                <strong style="color:var(--text)">BAJO IMPACTO:</strong> Bond (todas las marcas), Lustrolito &lt; 150g, Adhesivo, Acetato.<br>
+                <strong style="color:var(--text)">MEDIO IMPACTO:</strong> Opalinas, Papel Master, Lustrolito 200-250g, Couché medio.<br>
+                <strong style="color:var(--text)">ALTO IMPACTO:</strong> Sulfatada (10pt, 12pt), Cartulinas 300g, StarDream, Cromacote.
+              </p>
+            </div>
+        <div class="detail-section">
+          <h4>💻 TABLA DE VENTA COLOR – RICOH SP C842 (precio por hoja carta)</h4>
+          <table class="table-costos" style="font-size:0.7rem;margin-bottom:12px">
+            <thead>
+              <tr><th>COBERTURA</th><th>COSTO</th><th>MAQUILA<br>(35%)</th><th>501+<br>(38%)</th><th>351-500<br>(45%)</th><th>151-350<br>(55%)</th><th>81-150<br>(70%)</th><th>26-80<br>(85%)</th><th>1-25<br>(100%)</th></tr>
+            </thead>
+            <tbody>
+              <!-- BAJO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">BAJO IMPACTO</td></tr>
+              <tr><td>50% Plasta</td><td>$9.46</td><td>$12.77</td><td>$13.05</td><td>$13.72</td><td>$14.66</td><td>$16.08</td><td>$17.50</td><td>$18.92</td></tr>
+              <tr><td>80% Plasta</td><td>$15.63</td><td>$21.10</td><td>$21.57</td><td>$22.66</td><td>$24.23</td><td>$26.57</td><td>$28.92</td><td>$31.26</td></tr>
+              <tr><td>100% Plasta</td><td>$19.95</td><td>$26.93</td><td>$27.53</td><td>$28.93</td><td>$30.92</td><td>$33.92</td><td>$36.91</td><td>$39.90</td></tr>
+              <!-- MEDIO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">MEDIO IMPACTO</td></tr>
+              <tr><td>50% Plasta</td><td>$9.58</td><td>$12.93</td><td>$13.22</td><td>$13.89</td><td>$14.85</td><td>$16.29</td><td>$17.72</td><td>$19.16</td></tr>
+              <tr><td>80% Plasta</td><td>$15.76</td><td>$21.28</td><td>$21.75</td><td>$22.85</td><td>$24.43</td><td>$26.79</td><td>$29.16</td><td>$31.52</td></tr>
+              <tr><td>100% Plasta</td><td>$20.09</td><td>$27.12</td><td>$27.72</td><td>$29.13</td><td>$31.14</td><td>$34.15</td><td>$37.17</td><td>$40.18</td></tr>
+              <!-- ALTO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">ALTO IMPACTO</td></tr>
+              <tr><td>50% Plasta</td><td>$9.70</td><td>$13.10</td><td>$13.39</td><td>$14.07</td><td>$15.04</td><td>$16.49</td><td>$17.95</td><td>$19.40</td></tr>
+              <tr><td>80% Plasta</td><td>$15.89</td><td>$21.45</td><td>$21.93</td><td>$23.04</td><td>$24.63</td><td>$27.01</td><td>$29.40</td><td>$31.78</td></tr>
+              <tr><td>100% Plasta</td><td>$20.22</td><td>$27.30</td><td>$27.90</td><td>$29.32</td><td>$31.34</td><td>$34.37</td><td>$37.41</td><td>$40.44</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-section">
+          <h4>⬛ TABLA DE VENTA B/N – RICOH SP C842</h4>
+          <table class="table-costos" style="font-size:0.7rem">
+            <thead>
+              <tr><th>COBERTURA</th><th>COSTO</th><th>MAQUILA<br>(35%)</th><th>501+<br>(38%)</th><th>351-500<br>(45%)</th><th>151-350<br>(55%)</th><th>81-150<br>(70%)</th><th>26-80<br>(85%)</th><th>1-25<br>(100%)</th></tr>
+            </thead>
+            <tbody>
+              <!-- BAJO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">BAJO IMPACTO</td></tr>
+              <tr><td>50% Negro</td><td>$2.26</td><td>$3.05</td><td>$3.12</td><td>$3.28</td><td>$3.50</td><td>$3.84</td><td>$4.18</td><td>$4.52</td></tr>
+              <tr><td>100% Negro</td><td>$3.75</td><td>$5.06</td><td>$5.18</td><td>$5.44</td><td>$5.81</td><td>$6.38</td><td>$6.94</td><td>$7.50</td></tr>
+              <!-- MEDIO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">MEDIO IMPACTO</td></tr>
+              <tr><td>50% Negro</td><td>$2.38</td><td>$3.21</td><td>$3.28</td><td>$3.45</td><td>$3.69</td><td>$4.05</td><td>$4.40</td><td>$4.76</td></tr>
+              <tr><td>100% Negro</td><td>$3.89</td><td>$5.25</td><td>$5.37</td><td>$5.64</td><td>$6.03</td><td>$6.61</td><td>$7.20</td><td>$7.78</td></tr>
+              <!-- ALTO IMPACTO -->
+              <tr style="background:var(--surface3)"><td colspan="9" style="text-align:left;font-weight:700;color:var(--text);padding:4px 10px">ALTO IMPACTO</td></tr>
+              <tr><td>50% Negro</td><td>$2.50</td><td>$3.38</td><td>$3.45</td><td>$3.63</td><td>$3.88</td><td>$4.25</td><td>$4.63</td><td>$5.00</td></tr>
+              <tr><td>100% Negro</td><td>$4.02</td><td>$5.43</td><td>$5.55</td><td>$5.83</td><td>$6.23</td><td>$6.83</td><td>$7.44</td><td>$8.04</td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div></div>
+
+        <!-- 2. COSTOS DE PAPELES -->
+        <button class="collapse-btn sub-btn" onclick="toggleSub('acc_papeles', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+          📄 Costos de Papeles <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="acc_papeles">
+          <div id="tablaCostosPapelContainer" style="padding:14px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <!-- 3. MULTIPLICADORES POR TAMAÑO -->
+        <button class="collapse-btn sub-btn" onclick="toggleSub('acc_mult_tamano', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+          📐 Multiplicadores por Tamaño <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="acc_mult_tamano">
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px;">
+            <div class="costos-grid">
+              <div class="costo-item"><div class="costo-label">Carta</div><div class="costo-val">×1.0</div></div>
+              <div class="costo-item"><div class="costo-label">Oficio (+15%)</div><div class="costo-val">×1.15</div></div>
+              <div class="costo-item"><div class="costo-label">Doble Carta</div><div class="costo-val">×2.0</div></div>
+              <div class="costo-item"><div class="costo-label">30×45 cm</div><div class="costo-val">×2.5</div></div>
+              <div class="costo-item"><div class="costo-label">32×50 cm</div><div class="costo-val">×3.5</div></div>
+              <div class="costo-item"><div class="costo-label">Ambos lados</div><div class="costo-val">×2.0 impresión</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. MULTIPLICADORES UTILIDAD DE PAPEL -->
+        <button class="collapse-btn sub-btn" onclick="toggleSub('acc_mult_papel', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+          📏 Multiplicadores Utilidad de Papel <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="acc_mult_papel">
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px;">
+            <div class="costos-grid">
+              <div class="costo-item"><div class="costo-label">Carta / Doble Carta</div><div class="costo-val">×2.0</div></div>
+              <div class="costo-item"><div class="costo-label">Oficio (+$150 corte)</div><div class="costo-val">×2.3</div></div>
+              <div class="costo-item"><div class="costo-label">30×45 / 32×50 (+$150 corte)</div><div class="costo-val">×3.0</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. DISEÑO -->
+        <button class="collapse-btn sub-btn" onclick="toggleSub('acc_diseno', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+          🎨 Diseño <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="acc_diseno">
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px;">
+            <div class="costos-grid">
+              <div class="costo-item"><div class="costo-label">Diseño listo del cliente</div><div class="costo-val">$0.00</div></div>
+              <div class="costo-item"><div class="costo-label">Modificar / acomodar</div><div class="costo-val">$85.00</div></div>
+              <div class="costo-item"><div class="costo-label">Diseño desde cero</div><div class="costo-val">$250.00</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="impresiones componentes/config-impresion.js"></script>
+<script src="impresiones componentes/motor-calculo.js"></script>
+<script>
+// ============================================================
+// ESTADO Y VARIABLES LOCALES DE UI
+// ============================================================
+
+let partidas = [];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function selectRadio(name, val, el){
+  document.querySelectorAll(`[name="${name}"]`).forEach(r=>{
+    r.closest('.radio-opt').classList.remove('selected');
+  });
+  el.querySelector('input').checked = true;
+  el.classList.add('selected');
+  if(name === 'tamano') {
+    document.getElementById('catPapel').value = 'none';
+    document.getElementById('papel').innerHTML = '<option value="none" selected disabled>-- 2º Elige Papel --</option>';
+  }
+}
+
+function getRadio(name){
+  const r = document.querySelector(`[name="${name}"]:checked`);
+  return r ? r.value : null;
+}
+
+function filtrarPapeles(){
+  const tamano = getRadio('tamano');
+  if(!tamano) {
+    alert('👉 Por favor selecciona primero un Tamaño de Impresión (Paso 2)');
+    document.getElementById('catPapel').value = 'none';
+    return;
+  }
+
+  const cat = document.getElementById('catPapel').value;
+  const sel = document.getElementById('papel');
+  sel.innerHTML = '<option value="none" selected disabled>-- 2º Elige Papel --</option>';
+  if(!cat || cat === 'none') return;
+  (PAPELES[cat]||[]).forEach(p=>{
+    if(p.tamanos.includes(tamano)) {
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = `${p.name} – $${p.costo.toFixed(2)}/pliego`;
+      sel.appendChild(o);
+    }
+  });
+
+  // Ocultar reverso si la categoría es adhesivo (solo impresión por un lado)
+  const reversoSection = document.getElementById('reversoSection');
+  if(reversoSection){
+    if(cat === 'adhesivo'){
+      reversoSection.style.display = 'none';
+      // Forzar valor "no" en reverso
+      const rNo = document.querySelector('[name="reverso"][value="no"]');
+      if(rNo){ rNo.checked = true; rNo.closest('.radio-opt').classList.add('selected'); }
+      document.querySelectorAll('[name="reverso"]').forEach(r=>{
+        if(r.value!=='no') r.closest('.radio-opt').classList.remove('selected');
+      });
+    } else {
+      reversoSection.style.display = '';
+    }
+  }
+}
+
+
+
+// ============================================================
+// AGREGAR PARTIDA
+// ============================================================
+function agregarPartida(){
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+  const tamano = getRadio('tamano');
+  const frente = getRadio('frente');
+  const reverso = getRadio('reverso');
+  const papelId = document.getElementById('papel').value;
+  const cobertura = getRadio('cobertura');
+  const diseno = parseFloat(document.getElementById('diseno').value)||0;
+  const cortes = parseInt(document.getElementById('cortes').value)||0;
+  const maquila = getRadio('maquila')||'no';
+
+  if(!cantidad||cantidad<1){alert('⚠️ Ingresa la cantidad de impresiones');return;}
+  if(!tamano){alert('⚠️ Selecciona el tamaño de la impresión');return;}
+  if(!papelId || papelId === 'none'){alert('⚠️ Selecciona la categoría y el tipo de papel');return;}
+  if(!frente){alert('⚠️ Selecciona el tipo de impresión del frente');return;}
+  if(!reverso){alert('⚠️ Selecciona la opción de reverso');return;}
+  if(!cobertura){alert('⚠️ Selecciona la cobertura de impresión');return;}
+
+  const papel = getPapelById(papelId);
+  if(!papel.tamanos.includes(tamano)){
+    alert(`⚠️ El papel "${papel.name}" no se puede imprimir en tamaño ${NOMBRES_TAMANO[tamano]||tamano}. Elige otro papel u otro tamaño.`);
+    return;
+  }
+  partidas.push({cantidad,tamano,frente,reverso,papelId,cobertura,diseno,cortes,maquila,papelNombre:papel.name});
+  renderPartidas();
+  document.getElementById('partidasContainer').style.display='';
+  
+  // Mostrar Toast
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2500);
+  
+  // Limpiar solo campos de la partida
+  document.getElementById('cantidad').value='';
+  document.getElementById('catPapel').value='none';
+  document.getElementById('papel').innerHTML='<option value="none" selected disabled>-- 2º Elige Papel --</option>';
+  document.getElementById('cortes').value='';
+  document.getElementById('diseno').value='0';
+  document.querySelectorAll('.radio-opt').forEach(el=>{
+    if(el.querySelector('input').name !== 'maquila') {
+      el.classList.remove('selected');
+      el.querySelector('input').checked=false;
+    }
+  });
+}
+
+function renderPartidas(){
+  const lista = document.getElementById('listaPartidas');
+  lista.innerHTML='';
+  partidas.forEach((p,i)=>{
+    const calc = calcularPartida(p);
+    const frenteTxt = p.frente==='color'?'🎨 Color':'⬛ B/N';
+    const reversoTxt = p.reverso==='no'?'Solo Frente': p.reverso==='color'?'🎨 Color Rev.':'⬛ B/N Rev.';
+    const badgeFr = p.frente==='color'?'badge-color':'badge-bn';
+    const tamNom = {carta:'Carta',oficio:'Oficio',doblecarta:'Doble Carta','30x45':'30×45','32x50':'32×50'}[p.tamano];
+    const papel = getPapelById(p.papelId) || {name:p.papelNombre};
+    let htmlDetalle = '';
+    
+    if(calc) {
+      const ft = p.frente==='color'?'COLOR':'BLANCO Y NEGRO';
+      const rt = p.reverso==='no'?'SOLO FRENTE': p.reverso==='color'?'REVERSO A COLOR':'REVERSO B/N';
+      const txtDescuentoDoble = (calc.clicksAContar > p.cantidad) 
+        ? ` <em style="color:var(--accent2);font-weight:700">(Volumen Combinado aplicable: ${calc.clicksAContar} imp)</em>` : '';
+        
+      htmlDetalle = `
+      <div class="collapse-content" id="detalle_${i}" style="margin-top:6px;background:var(--surface);border-radius:8px;padding:0 12px;border:1px solid var(--border)">
+        <p style="font-size:0.75rem;line-height:1.6;color:var(--text2);padding:8px 0">
+          <span style="color:var(--text);font-weight:600">Impresión Frente:</span> ${ft} · Cob ${p.cobertura}% · Unit. Base $${calc.precioNormalFrente.toFixed(4)}${txtDescuentoDoble} → <strong>Cobra: $${calc.precioImpFrente.toFixed(4)}</strong> × ${MULT_IMP[p.tamano]||1} × ${p.cantidad} = <strong>$${calc.costoImpFrente.toFixed(2)}</strong><br>
+          ${p.reverso!=='no'?`<span style="color:var(--text);font-weight:600">Impresión Reverso:</span> ${rt} · Unit. Base $${calc.precioNormalReverso.toFixed(4)}${txtDescuentoDoble} → <strong>Cobra: $${calc.precioImpReverso.toFixed(4)}</strong> × ${MULT_IMP[p.tamano]||1} × ${p.cantidad} = <strong>$${calc.costoImpReverso.toFixed(2)}</strong><br>`:''}
+          <span style="color:var(--text);font-weight:600">Papel Pliego:</span> ${papel.name} (Costo $${(papel||{}).costo.toFixed(2)} ÷ salen ${calc.hojasPorPliego} piezas. Costo pieza neta = $${calc.costoHojaBruta.toFixed(4)}).<br>
+          <span style="color:var(--text);font-weight:600">Costo Hoja Comercial:</span> $${calc.costoHojaBruta.toFixed(4)} × util. ${calc.multPapel} = <strong>$${calc.costoHojaFinal.toFixed(4)}</strong>/hoja.<br>
+          <span style="color:var(--text);font-weight:600">Detalle Consumo Venta:</span> ${p.cantidad} hojas utilizadas × $${calc.costoHojaFinal.toFixed(4)} ${calc.corteExtra>0?' + $'+calc.corteExtra+'(corte)':''} = <strong>$${calc.costoPapel.toFixed(2)}</strong><br>
+          ${p.cortes>0?`<span style="color:var(--text);font-weight:600">Cortes de Guillotina:</span> ${p.cortes} cortes × $25.00 = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
+          ${calc.costoDiseno>0?`<span style="color:var(--text);font-weight:600">Diseño:</span> $${calc.costoDiseno.toFixed(2)}<br>`:''}
+          <span style="color:var(--text);font-weight:600;font-size:0.85rem">Total Partida:</span> $${calc.costoImpFrente.toFixed(2)} + ${p.reverso!=='no'?'$'+calc.costoImpReverso.toFixed(2)+' + ':''}$${calc.costoPapel.toFixed(2)}${p.cortes>0?' + $'+calc.costoCortes.toFixed(2):''}${calc.costoDiseno>0?' + $'+calc.costoDiseno.toFixed(2):''} = <strong style="color:var(--success);font-size:0.85rem">$${calc.subtotal.toFixed(2)}</strong>
+        </p>
+      </div>`;
+    }
+
+    const div = document.createElement('div');
+    div.style.marginBottom = '10px';
+    div.innerHTML=`
+      <div class="item-card" style="margin-bottom:0">
+        <div class="item-info">
+          <strong>${p.cantidad} imp. ${tamNom}</strong><br>
+          <span class="badge ${badgeFr}">${frenteTxt}</span>
+          <span class="badge ${p.reverso==='no'?'badge-bn':'badge-ambos'}">${reversoTxt}</span><br>
+          ${papel.name} · ${p.cobertura}% · ${p.maquila==='si'?'<span style="color:var(--warning)">Maquila</span>':'Normal'} ${p.cortes>0?`· <span style="color:var(--accent)">✂️ +${p.cortes} cortes</span>`:''}
+          ${calc?`<br><span style="color:var(--success);font-weight:700">$${calc.subtotal.toFixed(2)}</span> total · <span style="color:var(--accent2)">$${calc.unitario.toFixed(2)}</span> c/u`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-secondary" style="padding:6px 10px;font-size:0.75rem;justify-content:center" onclick="document.getElementById('detalle_${i}').classList.toggle('open')" title="Explicación de Costos">📊 Info</button>
+          <button class="btn btn-danger" style="padding:6px 10px;font-size:.78rem;justify-content:center" onclick="eliminarPartida(${i})" title="Eliminar">🗑️</button>
+        </div>
+      </div>
+      ${htmlDetalle}
+    `;
+    lista.appendChild(div);
+  });
+}
+
+function eliminarPartida(i){
+  partidas.splice(i,1);
+  renderPartidas();
+  if(partidas.length===0) document.getElementById('partidasContainer').style.display='none';
+}
+
+// ============================================================
+// COTIZACIÓN
+// ============================================================
+function realizarCotizacion(){
+  if(partidas.length===0){alert('⚠️ Agrega al menos una partida');return;}
+  let totalGeneral=0;
+  let htmlResultado='';
+  let clienteTexto='🧾 *COTIZACIÓN DE IMPRESIONES*\n➖➖➖➖➖➖➖➖➖➖➖➖\n\n';
+
+  partidas.forEach((p,i)=>{
+    const calc = calcularPartida(p);
+    if(!calc){return;}
+    const papel = getPapelById(p.papelId) || {name:p.papelNombre};
+    const tamNom={carta:'CARTA',oficio:'OFICIO',doblecarta:'DOBLE CARTA','30x45':'30×45 CM','32x50':'32×50 CM'}[p.tamano];
+    const frenteTxt = p.frente==='color'?'COLOR':'BLANCO Y NEGRO';
+    const reversoTxt = p.reverso==='no'?'SOLO FRENTE': p.reverso==='color'?'REVERSO A COLOR':'REVERSO B/N';
+    const tamShow=tamNom;
+    totalGeneral+=calc.subtotal;
+
+    htmlResultado+=`
+    <div class="result-box" style="margin-bottom:14px">
+      <div style="font-size:.82rem;color:var(--text2);margin-bottom:10px;font-weight:600">PARTIDA ${i+1} – ${p.cantidad} IMP. TAMAÑO ${tamShow}</div>
+      <div class="result-row"><span class="result-label">🖨️ Impresión Frente (${frenteTxt})</span><span class="result-value">$${calc.costoImpFrente.toFixed(2)}</span></div>
+      ${p.reverso!=='no'?`<div class="result-row"><span class="result-label">🖨️ Impresión Reverso (${reversoTxt.replace('REVERSO ','').replace(' A ','/')})</span><span class="result-value">$${calc.costoImpReverso.toFixed(2)}</span></div>`:''}
+      <div class="result-row"><span class="result-label">📄 Papel (${p.papelNombre})</span><span class="result-value">$${calc.costoPapel.toFixed(2)}</span></div>
+      ${calc.costoDiseno>0?`<div class="result-row"><span class="result-label">🎨 Diseño</span><span class="result-value">$${calc.costoDiseno.toFixed(2)}</span></div>`:''}
+      <div class="result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+        <span class="result-label" style="font-weight:700">Subtotal partida</span>
+        <span class="result-total">$${calc.subtotal.toFixed(2)}</span>
+      </div>
+      <div class="result-row"><span class="result-label">Precio unitario</span><span class="result-unit">$${calc.unitario.toFixed(4)}</span></div>
+    </div>`;
+
+    const cobertDesc = p.cobertura==='50'?'(50% COBERTURA)':p.cobertura==='80'?'(80% COBERTURA)':'(100% COBERTURA)';
+    const emojiFrente = p.frente==='color'?'🎨':'⬛';
+    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${p.cantidad} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}\n💵 UNITARIO: $${calc.unitario.toFixed(2)}  |  SUBTOTAL: $${calc.subtotal.toFixed(2)}\n\n`;
+  });
+
+  const iva = totalGeneral * 0.16;
+  const totalConIva = totalGeneral + iva;
+  
+  let totalCantidad = 0;
+  partidas.forEach(p => totalCantidad += parseInt(p.cantidad)||0);
+  const unitarioIva = totalCantidad>0 ? (totalConIva / totalCantidad) : 0;
+
+  htmlResultado+=`<div class="result-box" style="background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(16,185,129,.1));border-color:var(--accent)">
+    <div class="result-row"><span class="result-label">SUBTOTAL GENERAL</span><span class="result-value">$${totalGeneral.toFixed(2)}</span></div>
+    <div class="result-row"><span class="result-label">IVA 16%</span><span class="result-value">$${iva.toFixed(2)}</span></div>
+    <div class="result-row"><span class="result-label" style="font-size:1.1rem;font-weight:800;color:var(--text)">TOTAL CON IVA</span><span class="result-total" style="font-size:1.5rem">$${totalConIva.toFixed(2)}</span></div>
+    <div class="result-row" style="border-top:1px solid rgba(0,0,0,0.05);padding-top:8px;margin-top:4px"><span class="result-label">Costo unitario (con IVA)</span><span class="result-value" style="color:var(--accent2);font-weight:700">$${unitarioIva.toFixed(4)} c/u</span></div>
+  </div>`;
+
+  clienteTexto+=`➖➖➖➖➖➖➖➖➖➖➖➖\n📊 SUBTOTAL: $${totalGeneral.toFixed(2)}\n➕ IVA 16%:   $${iva.toFixed(2)}\n✅ TOTAL:     $${totalConIva.toFixed(2)} (Neto)\n➖➖➖➖➖➖➖➖➖➖➖➖`;
+
+  document.getElementById('resultadoContenido').innerHTML=htmlResultado;
+  document.getElementById('resultadoCard').style.display='';
+  document.getElementById('clientText').textContent=clienteTexto;
+  document.getElementById('clienteCard').style.display='';
+  window.scrollTo({top:document.getElementById('resultadoCard').offsetTop-20,behavior:'smooth'});
+}
+
+// ============================================================
+// UTILIDADES UI
+// ============================================================
+function limpiarFormulario(){
+  document.getElementById('cantidad').value='';
+  document.getElementById('catPapel').value='none';
+  document.getElementById('papel').innerHTML='<option value="none" selected disabled>-- 2º Elige Papel --</option>';
+  document.getElementById('diseno').value='0';
+  document.querySelectorAll('.radio-opt').forEach(el=>{
+    el.classList.remove('selected');
+    el.querySelector('input').checked=false;
+  });
+  // restaurar maquila a "no"
+  const maqNo = document.querySelector('[name="maquila"][value="no"]');
+  if(maqNo){maqNo.checked=true;maqNo.closest('.radio-opt').classList.add('selected');}
+  partidas=[];
+  document.getElementById('listaPartidas').innerHTML='';
+  document.getElementById('partidasContainer').style.display='none';
+  document.getElementById('resultadoCard').style.display='none';
+  document.getElementById('clienteCard').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleDetalle(){
+  const el=document.getElementById('detalleCollapse');
+  el.classList.toggle('open');
+}
+
+function toggleCostos(){
+  const el=document.getElementById('costosCollapse');
+  const arrow=document.getElementById('costosArrow');
+  el.classList.toggle('open');
+  arrow.textContent=el.classList.contains('open')?'▲':'▼';
+}
+
+function toggleSub(id, btn){
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const arrow = btn.querySelector('.arrow');
+  if(arrow) arrow.textContent = el.classList.contains('open') ? '▲' : '▼';
+}
+
+function copiarCliente(){
+  const btn = document.querySelector('button[onclick="copiarCliente()"]');
+  const txt=document.getElementById('clientText').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig=btn.textContent;
+    btn.textContent='✅ ¡Copiado!';
+    setTimeout(()=>btn.textContent=orig,2000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    const orig=btn.textContent;
+    btn.textContent='✅ ¡Copiado!';setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+// ============================================================
+// TABLA DINÁMICA DE COSTOS DEL PAPEL (CÁLCULO AL VUELO)
+// ============================================================
+function renderTablaCostosPapel(){
+  const container = document.getElementById('tablaCostosPapelContainer');
+  if(!container) return;
+  
+  let html = `<div style="display:flex; flex-direction:column; gap:16px;">`;
+    
+  for(const [catKey, papelesArr] of Object.entries(PAPELES)){
+    const catNombre = catKey.toUpperCase();
+    html += `
+    <div style="margin-bottom:8px">
+      <button class="collapse-btn sub-btn" onclick="toggleSub('papel_${catKey}', this)" style="background:var(--surface2); border:1px solid var(--border); font-size:0.9rem; padding:10px 14px;">
+        📄 ${catNombre} <span class="arrow">▼</span>
+      </button>
+      <div class="collapse-content" id="papel_${catKey}">
+        <div style="padding:14px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px; display:flex; flex-direction:column; gap:14px;">
+    `;
+    
+    papelesArr.forEach(p => {
+      let sizePills = '';
+      ['carta', 'oficio', 'doblecarta', '30x45', '32x50'].forEach(tam => {
+        sizePills += calcPillMedida(p, tam);
+      });
+      
+      html += `
+        <div style="background:var(--surface3); border:1px solid var(--border); border-radius:10px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.02); transition:transform 0.2s;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <div>
+              <strong style="font-size:1.05rem; color:var(--text);">${p.name}</strong>
+              <div style="font-size:0.75rem; color:var(--text2); margin-top:4px;">
+                Costo Pliego Base: <strong style="color:var(--text)">$${p.costo.toFixed(2)}</strong> &nbsp;|&nbsp; Impacto: <span style="text-transform:capitalize; color:var(--accent2); font-weight:700;">${p.impacto}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            ${sizePills}
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `</div></div></div>`;
+  }
+  
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function calcPillMedida(papel, tamano){
+  if(!papel.tamanos.includes(tamano)) return '';
+  const salen = getHojasPorPliego(tamano, papel.id);
+  const costoBruto = papel.costo / salen;
+  const cExtra = CORTE_EXTRA[tamano] || 0;
+  let cUtil = MULT_PAPEL[tamano] || 2;
+  if(papel.id === 'albanene') cUtil = 3;
+
+  let pVenta = costoBruto * cUtil;
+  if(papel.id === 'acetato'){
+    pVenta = (tamano === 'doblecarta') ? 21 : 9;
+  }
+  if(['stardc', 'stardp'].includes(papel.id)){
+    pVenta *= 1.5;
+  }
+  
+  const nombres = {carta:'Carta', oficio:'Oficio', doblecarta:'D. Carta', '30x45':'30×45', '32x50':'32×50'};
+  const nombreT = nombres[tamano] || tamano;
+  
+  let extraTag = cExtra > 0 ? `<div style="font-size:0.6rem; color:var(--warning); margin-top:4px; font-weight:600;">+$${cExtra} corte global</div>` : '';
+  
+  return `
+    <div style="background:var(--surface3); border:1px solid var(--border); border-radius:8px; padding:8px 12px; min-width:110px; flex:1; text-align:center;">
+      <div style="font-size:0.65rem; font-weight:800; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">${nombreT}</div>
+      <div style="font-size:1.1rem; font-weight:800; color:var(--success); line-height:1;">$${pVenta.toFixed(2)}<span style="font-size:0.65rem; font-weight:600; color:var(--text2);"> c/u</span></div>
+      <div style="font-size:0.65rem; color:var(--text2); margin-top:4px; font-weight:500;">Rinde: ${salen} pz</div>
+      ${extraTag}
+    </div>
+  `;
+}
+
+window.addEventListener('load', renderTablaCostosPapel);
+
+// Init: marcar maquila "no" por defecto
+document.addEventListener('DOMContentLoaded',()=>{
+  const maqNo=document.querySelector('[name="maquila"][value="no"]');
+  if(maqNo) maqNo.closest('.radio-opt').classList.add('selected');
+});
+</script>
+
+<!-- Botón Flotante de Regreso al Menú -->
+<a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    <span>Volver al Menú</span>
+</a>
+
+<style>
+    .btn-home-flotante {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 50px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 9999;
+        font-family: 'Inter', sans-serif;
+    }
+    .btn-home-flotante:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    .btn-home-flotante:active {
+        transform: translateY(-1px) scale(1.02);
+    }
+    .btn-home-flotante svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+    .btn-home-flotante span {
+        white-space: nowrap;
+    }
+    @media (max-width: 768px) {
+        .btn-home-flotante {
+            padding: 15px;
+            border-radius: 50%;
+            bottom: 20px;
+            right: 20px;
+        }
+        .btn-home-flotante span {
+            display: none;
+        }
+        .btn-home-flotante svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+</style>
+</body>
+</html>
