@@ -483,6 +483,25 @@
                         <option value="cmyk">Selección de Color (CMYK)</option>
                     </select>
                 </div>
+                <!-- Cobertura: visible solo para color, color1, color2, cmyk -->
+                <div id="coberturaNotasContainer" class="input-group hidden">
+                    <label><i class="fas fa-tint"></i> Cobertura de Impresión (Plasta)</label>
+                    <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-top:0.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <input type="radio" name="coberturaNotas" id="ncob50" value="50" checked style="width:20px;height:20px;accent-color:#3B82F6;cursor:pointer;">
+                            <label for="ncob50" style="cursor:pointer;">🟢 50% (texto / diseño ligero)</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <input type="radio" name="coberturaNotas" id="ncob80" value="80" style="width:20px;height:20px;accent-color:#3B82F6;cursor:pointer;">
+                            <label for="ncob80" style="cursor:pointer;">🟡 80% (diseño mixto)</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <input type="radio" name="coberturaNotas" id="ncob100" value="100" style="width:20px;height:20px;accent-color:#3B82F6;cursor:pointer;">
+                            <label for="ncob100" style="cursor:pointer;">🔴 100% (fotos / a sangre)</label>
+                        </div>
+                    </div>
+                    <p style="color:#9CA3AF; font-size:0.75rem; margin-top:0.25rem;">Si son fotos o diseño a sangre → usa 100%. Solo aplica para impresión a color.</p>
+                </div>
             </fieldset>
 
             <!-- SECCIÓN 4: LLEVA FOLIO -->
@@ -1427,36 +1446,46 @@
                 costos.servicios += costoFoliadoEspecial;
             } else {
                 // Lógica normal para otros casos
-                const currentImpresionType = (!esImpresionBN || folioCambiaColor) ? 'color' : 'bn'; // Determine if it's color or B/N based on selections
-                const impressionRates = APP_COST_CONFIG.impresionDigital[currentImpresionType];
+                // color1 y color2 se cotizan como 'color', bw como 'bn'
+                const esColorDigital = !esImpresionBN; // color, color1, color2, cmyk -> color
 
-                // Find correct rate based on quantity
-                let foundRate = false;
-                for (let i = 0; i < impressionRates.length; i++) {
-                    const rate = impressionRates[i];
-                    if (cantidad >= rate.min && cantidad <= rate.max) {
-                        tarifaImpresion = getEffectiveCostValue(`impresionDigital.${currentImpresionType}[${i}].${basePapel}`);
-                        impresionFormula += `Tarifa ${currentImpresionType.toUpperCase()} ${basePapel === 'carta' ? 'Carta' : 'Oficio'} (Cant: ${rate.min}-${rate.max}): ${tarifaImpresion.toFixed(2)}`;
-                        foundRate = true;
-                        break;
+                if (esColorDigital) {
+                    // Usar el nuevo motor TABLA_IMP con cobertura seleccionada
+                    const coberturaNotas = document.querySelector('input[name="coberturaNotas"]:checked')?.value || '50';
+                    // Para notas de venta, papel bond = impacto bajo
+                    const impactoNotas = 'bajo';
+                    // Multiplicador de tamaño: carta=1, oficio=1.15 (ya ajustado por basePapel)
+                    const multTamNotas = basePapel === 'oficio' ? 1.15 : 1;
+
+                    const precioUnitColorMotor = window.getPrecioImp('color', impactoNotas, coberturaNotas, hojasRequeridasCliente, 'no') * multTamNotas;
+                    costos.impresion = (hojasRequeridasCliente * numPartes) * precioUnitColorMotor;
+                    impresionFormula = `(${hojasRequeridasCliente} hojas x ${numPartes} partes) x $${precioUnitColorMotor.toFixed(2)}/hoja COLOR (Cob. ${coberturaNotas}%, motor TABLA_IMP, impacto ${impactoNotas}). `;
+                    if (impresion === 'color1') impresionFormula += '(1 Color Específico usa tarifa color)';
+                    else if (impresion === 'color2') impresionFormula += '(2 Colores Específicos usa tarifa color)';
+                } else {
+                    // B/N: usar tabla original APP_COST_CONFIG
+                    const currentImpresionType = 'bn';
+                    const impressionRates = APP_COST_CONFIG.impresionDigital[currentImpresionType];
+                    let foundRate = false;
+                    for (let i = 0; i < impressionRates.length; i++) {
+                        const rate = impressionRates[i];
+                        if (cantidad >= rate.min && cantidad <= rate.max) {
+                            tarifaImpresion = getEffectiveCostValue(`impresionDigital.${currentImpresionType}[${i}].${basePapel}`);
+                            impresionFormula += `Tarifa B/N ${basePapel === 'carta' ? 'Carta' : 'Oficio'} (Cant: ${rate.min}-${rate.max}): ${tarifaImpresion.toFixed(2)}`;
+                            foundRate = true;
+                            break;
+                        }
                     }
-                }
-                // If quantity is above the last defined range, use the last rate
-                if (!foundRate && cantidad > impressionRates[impressionRates.length - 1].max) {
-                    const lastRateIndex = impressionRates.length - 1;
-                    const lastRate = impressionRates[lastRateIndex];
-                    tarifaImpresion = getEffectiveCostValue(`impresionDigital.${currentImpresionType}[${lastRateIndex}].${basePapel}`);
-                    impresionFormula += `Tarifa ${currentImpresionType.toUpperCase()} ${basePapel === 'carta' ? 'Carta' : 'Oficio'} (Cant: >${lastRate.max}): ${tarifaImpresion.toFixed(2)}`;
-                } else if (!foundRate) {
-                    // Fallback if no rate found (e.g., quantity is 0 or invalid)
-                    tarifaImpresion = 0;
-                    impresionFormula += `No se encontró tarifa de impresión para la cantidad y tipo de impresión seleccionados.`;
-                }
-
-                costos.impresion = (hojasRequeridasCliente * numPartes) * tarifaImpresion;
-                impresionFormula = `(${hojasRequeridasCliente} cantidad de hojas x ${numPartes} partes) x (${impresionFormula}). `;
-                if (esImpresionBN && folioCambiaColor) {
-                    impresionFormula += `(La impresión B/N se cotiza como Color debido al color de folio seleccionado).`;
+                    if (!foundRate && cantidad > impressionRates[impressionRates.length - 1].max) {
+                        const lastRateIndex = impressionRates.length - 1;
+                        tarifaImpresion = getEffectiveCostValue(`impresionDigital.${currentImpresionType}[${lastRateIndex}].${basePapel}`);
+                        impresionFormula += `Tarifa B/N ${basePapel === 'carta' ? 'Carta' : 'Oficio'} (Cant: >${impressionRates[lastRateIndex].max}): ${tarifaImpresion.toFixed(2)}`;
+                    } else if (!foundRate) {
+                        tarifaImpresion = 0;
+                        impresionFormula += `No se encontró tarifa de impresión.`;
+                    }
+                    costos.impresion = (hojasRequeridasCliente * numPartes) * tarifaImpresion;
+                    impresionFormula = `(${hojasRequeridasCliente} hojas x ${numPartes} partes) x (${impresionFormula}). `;
                 }
             }
 
@@ -1973,6 +2002,20 @@
                 estado.textContent = 'DESACTIVADO';
             }
         }
+    </script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
+    <script>
+        // Mostrar/ocultar cobertura según el tipo de impresión
+        document.getElementById('impresion').addEventListener('change', function() {
+            const coberturaContainer = document.getElementById('coberturaNotasContainer');
+            const esColor = ['color1', 'color2', 'cmyk'].includes(this.value);
+            if (esColor) {
+                coberturaContainer.classList.remove('hidden');
+            } else {
+                coberturaContainer.classList.add('hidden');
+            }
+        });
     </script>
 
     <!-- Botón Flotante de Regreso al Menú -->

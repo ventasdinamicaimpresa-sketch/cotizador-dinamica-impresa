@@ -634,6 +634,25 @@
                         </div>
                     </div>
                 </div>
+                <!-- COBERTURA PORTADA -->
+                <div class="form-group">
+                    <label><span class="step-number">✦</span> Cobertura de Impresión Portada (Plasta):</label>
+                    <div class="radio-group-modern">
+                        <div>
+                            <input type="radio" id="cobP50" name="coberturaPortada" value="50" checked>
+                            <label for="cobP50"><span class="material-icons">circle</span> 50% (texto ligero)</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cobP80" name="coberturaPortada" value="80">
+                            <label for="cobP80"><span class="material-icons">adjust</span> 80% (diseño mixto)</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cobP100" name="coberturaPortada" value="100">
+                            <label for="cobP100"><span class="material-icons">brightness_1</span> 100% (fotos / a sangre)</label>
+                        </div>
+                    </div>
+                    <p class="note">Elige según el diseño de la portada. Fotos o fondo completo → 100%.</p>
+                </div>
                 <div class="form-group">
                     <label for="acabadoPortada"><span class="step-number">6.</span> Acabado portada:</label>
                     <select id="acabadoPortada" required>
@@ -682,6 +701,25 @@
                                 Negro</label>
                         </div>
                     </div>
+                </div>
+                <!-- COBERTURA INTERIOR -->
+                <div class="form-group">
+                    <label><span class="step-number">✦</span> Cobertura de Impresión Interior (Plasta):</label>
+                    <div class="radio-group-modern">
+                        <div>
+                            <input type="radio" id="cobI50" name="coberturaInterior" value="50" checked>
+                            <label for="cobI50"><span class="material-icons">circle</span> 50% (texto ligero)</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cobI80" name="coberturaInterior" value="80">
+                            <label for="cobI80"><span class="material-icons">adjust</span> 80% (diseño mixto)</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="cobI100" name="coberturaInterior" value="100">
+                            <label for="cobI100"><span class="material-icons">brightness_1</span> 100% (fotos / a sangre)</label>
+                        </div>
+                    </div>
+                    <p class="note">Elige según el diseño del interior. Si lleva fotos o fondo completo → 100%.</p>
                 </div>
             </section>
 
@@ -760,10 +798,28 @@
             const SIZE_MAPPING = { 'media-carta': 'carta', 'carta': 'doble-carta', 'medio-oficio': 'oficio', 'oficio': 'doble-oficio' };
             const LAMINADO_PRICES = { '1-50': 8, '51-100': 7, '101-150': 6, '151-200': 5, '201-500': 4, '501-1000': 3 };
             const MIN_LAMINADO_COST = 280.00;
-            const IMPRESION_PRICES = {
-                'color': { '100': { 'carta': 6.08, 'doble-carta': 12.16, 'oficio': 6.50 }, '200': { 'carta': 6.00, 'doble-carta': 12.00, 'oficio': 6.30 }, '300': { 'carta': 5.85, 'doble-carta': 11.70, 'oficio': 5.90 }, '500': { 'carta': 5.70, 'doble-carta': 11.40, 'oficio': 5.70 }, 'mas-500': { 'carta': 5.70, 'doble-carta': 11.40, 'oficio': 5.70 } },
-                'bn': { '100': { 'carta': 1.06, 'doble-carta': 2.12, 'oficio': 1.00 }, '200': { 'carta': 1.00, 'doble-carta': 2.00, 'oficio': 0.95 }, '300': { 'carta': 0.98, 'doble-carta': 1.96, 'oficio': 0.80 }, '500': { 'carta': 0.80, 'doble-carta': 1.60, 'oficio': 0.75 }, 'mas-500': { 'carta': 0.78, 'doble-carta': 1.56, 'oficio': 0.70 } }
+            // Mapeo de impacto por tipo de papel para revistas
+            const IMPACTO_PAPEL_REVISTA = {
+                'couche-130gr': 'bajo',
+                'couche-250gr': 'medio',
+                'couche-300gr': 'alto',
+                'cartulina-cromacote': 'alto',
+                'bond-75gr': 'bajo',
+                'bond-90gr': 'bajo',
+                'couche-128-130gr': 'bajo',
+                'opalina-blanca-120gr': 'medio',
+                'opalina-crema-120gr': 'medio',
+                'cartulina-opalina-blanca-225gr': 'alto',
+                'cartulina-opalina-crema-225gr': 'alto',
+                'couche-250gr-int': 'medio',
+                'couche-300gr-int': 'alto'
             };
+
+            // Multiplicadores de tamaño para cotrevistas:
+            // media-carta → carta (mult=1), carta → doble-carta (mult=2),
+            // medio-oficio → oficio (mult=1), oficio → doble-oficio (mult=2, usa oficio*2)
+            const MULT_TAMANO_REVISTA = { 'carta': 1, 'doble-carta': 2, 'oficio': 1.15, 'doble-oficio': 2.3 };
+
             const REFILADO_COST_PER_10_MAGAZINES = 60.00;
             const GRAPADO_PRICES = { '1-10': 20, '11-25': 10, '26-50': 8, '50+': 5 };
             const MIN_GRAPADO_COST = 40.00;
@@ -842,6 +898,12 @@
 
                 let costoPapelPortada = 0, costoImpresionPortada = 0, costoLaminado = 0, costoPapelInterior = 0, costoImpresionInterior = 0, costoRefilado = 0, costoGrapado = 0, costoDiseno = 0, costoOrientacionHorizontal = 0;
 
+                // Obtener cobertura INDEPENDIENTE para portada e interior
+                const coberturaPortada = document.querySelector('input[name="coberturaPortada"]:checked')?.value || '50';
+                const coberturaInterior = document.querySelector('input[name="coberturaInterior"]:checked')?.value || '50';
+                const impactoPortada = IMPACTO_PAPEL_REVISTA[values.papelPortada] || 'medio';
+                const impactoInterior = IMPACTO_PAPEL_REVISTA[values.papelInterior] || 'bajo';
+
                 let hojasPortadaNecesarias = values.cantidad + 1;
                 let pliegoImpresionPortada = SIZE_MAPPING[values.tamano];
 
@@ -864,9 +926,14 @@
                     costoOrientacionHorizontal = HORIZONTAL_ORIENTATION_COST;
                 }
 
-                costoImpresionPortada += hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaFrentes, values.cantidad, pliegoImpresionPortada);
+                // Impresión portada usando nuevo motor (clicks = hojas × lados)
+                const clicksPortadaFrente = hojasPortadaNecesarias;
+                const clicksPortadaReverso = hojasPortadaNecesarias;
+                const multTamPortada = MULT_TAMANO_REVISTA[pliegoImpresionPortada] || 1;
+
+                costoImpresionPortada += clicksPortadaFrente * window.getPrecioImp(values.impresionPortadaFrentes, impactoPortada, coberturaPortada, clicksPortadaFrente, 'no') * multTamPortada;
                 if (values.impresionPortadaReverso !== 'ninguno') {
-                    costoImpresionPortada += hojasPortadaNecesarias * getPrintPrice(values.impresionPortadaReverso, values.cantidad, pliegoImpresionPortada);
+                    costoImpresionPortada += clicksPortadaReverso * window.getPrecioImp(values.impresionPortadaReverso, impactoPortada, coberturaPortada, clicksPortadaReverso, 'no') * multTamPortada;
                 }
 
                 if (values.acabadoPortada !== 'no-lleva') {
@@ -899,8 +966,10 @@
                         }
                     }
                     costoPapelInterior = hojasInterioresNecesarias * PAPER_PRICES[values.papelInterior][pliegoImpresionInterior];
-                    // Los interiores siempre se imprimen por ambos lados (x2)
-                    costoImpresionInterior = hojasInterioresNecesarias * getPrintPrice(values.impresionInterior, values.cantidad, pliegoImpresionInterior) * 2;
+                    // Interior: siempre 2 lados, usar motor nuevo
+                    const clicksInteriorTotal = hojasInterioresNecesarias * 2; // x2 por ambos lados
+                    const multTamInterior = MULT_TAMANO_REVISTA[pliegoImpresionInterior] || 1;
+                    costoImpresionInterior = clicksInteriorTotal * window.getPrecioImp(values.impresionInterior, impactoInterior, coberturaInterior, clicksInteriorTotal, 'no') * multTamInterior;
                 }
 
                 if (values.cantidad > 0) {
@@ -1050,13 +1119,10 @@ ${values.servicioExpress ? `
             }
 
             function getPrintPrice(type, quantity, size) {
-                let range = '';
-                if (quantity <= 100) range = '100';
-                else if (quantity <= 200) range = '200';
-                else if (quantity <= 300) range = '300';
-                else if (quantity <= 500) range = '500';
-                else range = 'mas-500';
-                return IMPRESION_PRICES[type]?.[range]?.[size] || 0;
+                // LEGACY: no se usa ya para impresion, pero se mantiene por si acaso
+                const multTam = MULT_TAMANO_REVISTA[size] || 1;
+                const cobertura = document.querySelector('input[name="cobertura"]:checked')?.value || '50';
+                return window.getPrecioImp(type, 'medio', cobertura, quantity, 'no') * multTam;
             }
 
             function clearForm() {
@@ -1148,6 +1214,8 @@ ${values.servicioExpress ? `
             }
         });
     </script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
 
     <!-- Botón Flotante de Regreso al Menú -->
     <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
