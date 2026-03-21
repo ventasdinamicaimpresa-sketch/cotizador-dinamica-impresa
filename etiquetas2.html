@@ -201,6 +201,28 @@
                 </div>
             </div>
 
+            <!-- Cobertura (solo para papel adhesivo) -->
+            <div class="row mb-3" id="coberturaContainer" style="display: none;">
+                <div class="col-12">
+                    <label class="form-label"><i class="fas fa-tint me-2"></i>5b. Cobertura de Impresión (Plasta)</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="cobertura" id="cob50" value="50" checked>
+                            <label class="form-check-label" for="cob50">🟢 50% (texto / diseño ligero)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="cobertura" id="cob80" value="80">
+                            <label class="form-check-label" for="cob80">🟡 80% (diseño mixto)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="cobertura" id="cob100" value="100">
+                            <label class="form-check-label" for="cob100">🔴 100% (fotos / diseño a sangre)</label>
+                        </div>
+                    </div>
+                    <small class="text-muted">Si son fotos o diseño a sangre → usa 100%.</small>
+                </div>
+            </div>
+
             <!-- Corte -->
             <div class="row mb-3 g-3">
                 <div class="col-md-6">
@@ -406,6 +428,7 @@
                 }
 
                 impresionContainer.style.display = material === 'papel' ? 'block' : 'none';
+                document.getElementById('coberturaContainer').style.display = material === 'papel' ? 'block' : 'none';
                 bajadasContainer.style.display = corte === 'recto' && material === 'papel' ? 'block' : 'none';
             }
 
@@ -485,12 +508,21 @@
                 const costoMaterial = pliegosNecesarios * costoUnitarioPliego * CONFIG.factores.utilidadPapel;
                 desglose.push(`Costo Papel: <b>${costoMaterial.toFixed(2)}</b> <small>(${pliegosNecesarios} pliegos ${nombrePliego} ${subMaterialSelect.selectedOptions[0].text} (${etiquetasPorPliego} etiq. c/u) x ${costoUnitarioPliego.toFixed(2)} x ${CONFIG.factores.utilidadPapel} utilidad)</small>`);
 
-                // 2. Costo Impresión
-                const tiersImpresion = CONFIG.costos.impresion[impresion][tamanoPliego];
-                const tierKeyImpresion = Object.keys(tiersImpresion).find(key => pliegosNecesarios <= Number(key));
-                const costoUnitarioImpresion = tiersImpresion[tierKeyImpresion];
+                // 2. Costo Impresión (nuevo sistema TABLA_IMP)
+                // El papel adhesivo tiene impacto BAJO en la TABLA_IMP
+                const cobertura = document.querySelector('input[name="cobertura"]:checked')?.value || '50';
+                const impacto = 'bajo'; // Papel adhesivo = impacto bajo
+                // Las etiquetas usan tamaño carta o doble carta, multiplicador carta=1, doble=2
+                const multTamEtiqueta = tamanoPliego === 'dobleCarta' ? 2 : 1;
+                const costoUnitarioImpresion = window.getPrecioImp(
+                    impresion === 'byn' ? 'bn' : 'color',
+                    impacto,
+                    cobertura,
+                    pliegosNecesarios,
+                    'no'
+                ) * multTamEtiqueta;
                 const costoImpresion = pliegosNecesarios * costoUnitarioImpresion;
-                desglose.push(`Costo Impresión: <b>${costoImpresion.toFixed(2)}</b> <small>(${pliegosNecesarios} pliegos x ${costoUnitarioImpresion.toFixed(2)})</small>`);
+                desglose.push(`Costo Impresión: <b>${costoImpresion.toFixed(2)}</b> <small>(${pliegosNecesarios} pliegos x ${costoUnitarioImpresion.toFixed(2)} | Cob. ${cobertura}%, Impacto ${impacto})</small>`);
 
                 // 3. Costo Corte
                 let costoCorte = 0;
@@ -612,6 +644,8 @@
             updateUI();
         });
     </script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
 
     <!-- Botón Flotante de Regreso al Menú -->
     <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">

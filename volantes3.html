@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -372,6 +372,23 @@
                 </div>
             </div>
 
+            <!-- COBERTURA DE IMPRESIÓN -->
+            <div class="form-group">
+                <label><i class="bi bi-droplet-fill"></i> Cobertura de impresión (Plasta):</label>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                        <input type="radio" name="cobertura" value="50" checked> 🟢 50% (texto / diseño ligero)
+                    </label>
+                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                        <input type="radio" name="cobertura" value="80"> 🟡 80% (diseño mixto)
+                    </label>
+                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                        <input type="radio" name="cobertura" value="100"> 🔴 100% (fotos / diseño a sangre)
+                    </label>
+                </div>
+                <p style="font-size:0.82em;color:#888;margin-top:6px;">Si el cliente NO envía diseño, o son fotos/revistas → usa <b>100%</b>.</p>
+            </div>
+
             <div class="form-group">
                 <label for="papel"><i class="bi bi-file-earmark-text"></i> Tipo de papel:</label>
                 <select id="papel" name="papel" required>
@@ -586,23 +603,32 @@
             }
         };
 
-        const costosImpresion = {
-            'color': {
-                'carta': [{ max: 100, costo: 6.08 }, { max: 200, costo: 6.00 }, { max: 300, costo: 5.85 }, { max: 500, costo: 5.70 }, { max: Infinity, costo: 5.70 }],
-                'doble-carta': [{ max: 100, costo: 12.16 }, { max: 200, costo: 12.00 }, { max: 300, costo: 11.70 }, { max: 500, costo: 11.40 }, { max: Infinity, costo: 11.40 }],
-                'oficio': [{ max: 100, costo: 6.50 }, { max: 200, costo: 6.08 }, { max: 300, costo: 5.90 }, { max: 500, costo: 5.70 }, { max: Infinity, costo: 5.70 }],
-                'doble-oficio': [{ max: 100, costo: 13.00 }, { max: 200, costo: 12.16 }, { max: 300, costo: 11.80 }, { max: 500, costo: 11.40 }, { max: Infinity, costo: 11.40 }]
-            },
-            'blanco-negro': {
-                'carta': [{ max: 100, costo: 1.06 }, { max: 200, costo: 1.00 }, { max: 300, costo: 0.98 }, { max: 500, costo: 0.80 }, { max: Infinity, costo: 0.78 }],
-                'doble-carta': [{ max: 100, costo: 2.12 }, { max: 200, costo: 2.00 }, { max: 300, costo: 1.96 }, { max: 500, costo: 1.60 }, { max: Infinity, costo: 1.56 }],
-                'oficio': [{ max: 100, costo: 1.20 }, { max: 200, costo: 1.05 }, { max: 300, costo: 0.98 }, { max: 500, costo: 0.80 }, { max: Infinity, costo: 0.78 }],
-                'doble-oficio': [{ max: 100, costo: 2.40 }, { max: 200, costo: 2.10 }, { max: 300, costo: 1.96 }, { max: 500, costo: 1.60 }, { max: Infinity, costo: 1.56 }]
-            }
+        // ---- MAPEO DE IMPACTO POR PAPEL (nuevo sistema) ----
+        // Cada papel en costosPapel tiene su nivel de impacto para la TABLA_IMP
+        const IMPACTO_PAPEL_VOLANTES = {
+            // Carta
+            'papel-opalina-blanca-120gr': 'medio',
+            'cartulina-opalina-blanca-225gr': 'alto',
+            'cartulina-opalina-crema-225gr': 'alto',
+            'papel-bond-75gr': 'bajo',
+            'papel-bond-90gr': 'bajo',
+            'papel-couche-130gr': 'bajo',
+            'papel-couche-150gr': 'medio',
+            'cartulina-couche-200gr': 'medio',
+            'cartulina-couche-250gr': 'medio',
+            'cartulina-couche-300gr': 'alto',
         };
-        costosImpresion['1-color'] = costosImpresion['color'];
-        costosImpresion['2-colores'] = costosImpresion['color'];
-        costosImpresion['3-colores'] = costosImpresion['color'];
+
+        // Función auxiliar: obtiene precio de impresión usando el motor de impresiones.html
+        // modo: 'color' o 'bn' | impacto: 'bajo'/'medio'/'alto' | cobertura: 50/80/100
+        // cantidad: hojas base | maquila: 'si'/'no' | multTamano: multiplicador por tamaño
+        function getPrecioImpVolante(modoColor, impacto, cobertura, cantidad, esMaquila, multTamano) {
+            const modo = (modoColor === 'blanco-negro') ? 'bn' : 'color';
+            const maqStr = esMaquila ? 'si' : 'no';
+            // getPrecioImp devuelve precio por hoja carta tamaño base
+            const precioPorHoja = window.getPrecioImp(modo, impacto, String(cobertura), cantidad, maqStr);
+            return precioPorHoja * (multTamano || 1);
+        }
 
         // ---- COSTOS DE LAMINADO (por pieza) ----
         const costosLaminado = {
@@ -810,6 +836,7 @@
                 const cantidad = parseInt(cantidadInput.value);
                 const colorFrente = document.getElementById('colorFrente').value;
                 const colorReverso = document.getElementById('colorReverso').value;
+                const esMaquila = document.getElementById('maquila').checked;
                 const papelKey = papelSelect.value;
                 const papelNombre = papelSelect.options[papelSelect.selectedIndex].text;
                 const disenoSelect = document.getElementById('diseno');
@@ -874,31 +901,35 @@
                 resumenDetallado += '   Hojas necesarias: CEIL(' + cantidad + '/' + divisorTamano + ') = ' + hojasBaseNecesarias + '\n';
                 resumenDetallado += '   Total papel (x2 Utilidad): ' + formatCurrency(costoTotalPapel) + '\n\n';
 
-                // 2. Impresion Frente
-                var tamanoBaseImpresion;
-                if (tamano.includes('doble-carta')) tamanoBaseImpresion = 'doble-carta';
-                else if (tamano.includes('carta')) tamanoBaseImpresion = 'carta';
-                else if (tamano.includes('doble-oficio')) tamanoBaseImpresion = 'doble-oficio';
-                else tamanoBaseImpresion = 'oficio';
+                // 2. Impresion Frente (nuevo sistema con cobertura + impacto)
+                const cobertura = document.querySelector('input[name="cobertura"]:checked').value;
+                const impacto = IMPACTO_PAPEL_VOLANTES[papelKey] || 'bajo';
 
-                const rangosFrente = costosImpresion[colorFrente][tamanoBaseImpresion];
-                var costoImpFrente = rangosFrente[rangosFrente.length - 1].costo;
-                for (const r of rangosFrente) { if (hojasBaseNecesarias <= r.max) { costoImpFrente = r.costo; break; } }
-                const totalImpFrente = costoImpFrente * hojasBaseNecesarias;
+                // Multiplicador de tamaño según la tabla MULT_IMP del motor
+                var multTamano = 1;
+                if (tamano.includes('doble-carta') || tamano.includes('doble-oficio')) multTamano = 2;
+                else if (tamano.includes('30x45')) multTamano = 2.5;
+                else if (tamano.includes('32x50')) multTamano = 3.5;
+                else if (tamano.includes('oficio') && !tamano.includes('doble')) multTamano = 1.15;
 
-                resumenDetallado += '2. Impresion Frente (' + colorFrente.replace(/-/g, ' ') + '):\n';
-                resumenDetallado += '   ' + formatCurrency(costoImpFrente) + '/hoja x ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpFrente) + '\n\n';
+                // Clicks totales para descuento de volumen (si hay ambos lados)
+                const tieneReverso = colorReverso !== 'ninguno';
+                const clicksTotales = hojasBaseNecesarias * (tieneReverso ? 2 : 1);
+
+                const costoImpFrentePorHoja = getPrecioImpVolante(colorFrente, impacto, cobertura, clicksTotales, esMaquila, 1);
+                const totalImpFrente = costoImpFrentePorHoja * multTamano * hojasBaseNecesarias;
+
+                resumenDetallado += '2. Impresion Frente (' + colorFrente.replace(/-/g, ' ') + ' | Cob ' + cobertura + '% | Impacto: ' + impacto + '):\n';
+                resumenDetallado += '   ' + formatCurrency(costoImpFrentePorHoja) + '/hoja × mult.' + multTamano + ' × ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpFrente) + '\n\n';
 
                 // 3. Impresion Reverso
                 var totalImpReverso = 0;
                 var costoImpReverso = 0;
-                if (colorReverso !== 'ninguno') {
-                    const rangosReverso = costosImpresion[colorReverso][tamanoBaseImpresion];
-                    costoImpReverso = rangosReverso[rangosReverso.length - 1].costo;
-                    for (const r of rangosReverso) { if (hojasBaseNecesarias <= r.max) { costoImpReverso = r.costo; break; } }
-                    totalImpReverso = costoImpReverso * hojasBaseNecesarias;
-                    resumenDetallado += '3. Impresion Reverso (' + colorReverso.replace(/-/g, ' ') + '):\n';
-                    resumenDetallado += '   ' + formatCurrency(costoImpReverso) + '/hoja x ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpReverso) + '\n\n';
+                if (tieneReverso) {
+                    costoImpReverso = getPrecioImpVolante(colorReverso, impacto, cobertura, clicksTotales, esMaquila, 1);
+                    totalImpReverso = costoImpReverso * multTamano * hojasBaseNecesarias;
+                    resumenDetallado += '3. Impresion Reverso (' + colorReverso.replace(/-/g, ' ') + ' | Cob ' + cobertura + '%):\n';
+                    resumenDetallado += '   ' + formatCurrency(costoImpReverso) + '/hoja × mult.' + multTamano + ' × ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpReverso) + '\n\n';
                 } else {
                     resumenDetallado += '3. Impresion Reverso: No lleva (solo frente)\n\n';
                 }
@@ -965,7 +996,6 @@
                 // 7. Totales
                 var subtotal = costoTotalPapel + costoTotalImpresion + costoTotalCorte + costoTotalDoblez + costoTotalLaminado + costoDiseno;
                 var descuentoMaquila = 0;
-                const esMaquila = document.getElementById('maquila').checked;
                 if (esMaquila) {
                     descuentoMaquila = subtotal * 0.18;
                     subtotal -= descuentoMaquila;
@@ -1039,6 +1069,8 @@
             actualizarOpcionesPapel('carta');
         });
     </script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
 
 
 

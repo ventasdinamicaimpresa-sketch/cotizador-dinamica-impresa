@@ -146,6 +146,23 @@
                     <p class="text-xs text-gray-500 mt-1">* Precios por pliego + IVA</p>
                 </div>
 
+                <!-- COBERTURA DE IMPRESIÓN -->
+                <div>
+                    <label class="section-title block"><i class="fas fa-tint mr-1"></i> Cobertura de Impresión (Plasta)</label>
+                    <div class="flex flex-wrap gap-3 mt-1">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
+                            <input type="radio" name="cobertura" value="50" class="form-radio text-blue-600" checked> <span>🟢 50% (texto / diseño ligero)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
+                            <input type="radio" name="cobertura" value="80" class="form-radio text-blue-600"> <span>🟡 80% (diseño mixto)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
+                            <input type="radio" name="cobertura" value="100" class="form-radio text-blue-600"> <span>🔴 100% (fotos / diseño a sangre)</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Si son fotos o diseño a sangre → usa <b>100%</b>.</p>
+                </div>
+
                 <!-- 11. Diseño -->
                 <div>
                     <label class="section-title block">Servicio de Diseño</label>
@@ -265,23 +282,22 @@
 
         // --- DATOS Y PRECIOS ---
 
-        // Precios de Impresión (Matriz)
-        // Estructura: [carta, doble_carta, oficio]
-        const preciosImpresionColor = [
-            { max: 100, precios: { carta: 6.08, doble_carta: 12.16, oficio: 6.50 } },
-            { max: 200, precios: { carta: 6.00, doble_carta: 12.00, oficio: 6.30 } },
-            { max: 300, precios: { carta: 5.85, doble_carta: 11.70, oficio: 5.90 } },
-            { max: 500, precios: { carta: 5.70, doble_carta: 11.40, oficio: 5.70 } },
-            { max: 999999, precios: { carta: 5.70, doble_carta: 11.40, oficio: 5.70 } } // Default para > 500
-        ];
+        // ---- MAPEO DE IMPACTO POR PAPEL (nuevo sistema TABLA_IMP) ----
+        const IMPACTO_PAPEL_ENMICADO = {
+            'bond_75_61x90': 'bajo', 'bond_75_70x95': 'bajo',
+            'bond_90_61x90': 'bajo', 'bond_90_70x95': 'bajo',
+            'opalina_120_57x87': 'medio', 'opalina_120_70x95': 'medio',
+            'cart_opalina_225_57x87': 'alto', 'cart_opalina_225_57x72': 'alto',
+            'couche_128_61x90': 'bajo', 'couche_130_72x95': 'bajo',
+            'couche_148_61x90': 'bajo', 'couche_150_72x95': 'medio',
+            'couche_200_61x90': 'medio', 'couche_200_72x95': 'medio',
+            'couche_250_61x90': 'medio', 'couche_250_72x95': 'medio',
+            'couche_300_61x90': 'alto', 'couche_300_72x95': 'alto'
+        };
 
-        const preciosImpresionBN = [
-            { max: 100, precios: { carta: 1.06, doble_carta: 2.12, oficio: 1.00 } },
-            { max: 200, precios: { carta: 1.00, doble_carta: 2.00, oficio: 0.95 } },
-            { max: 300, precios: { carta: 0.98, doble_carta: 1.96, oficio: 0.80 } },
-            { max: 500, precios: { carta: 0.80, doble_carta: 1.60, oficio: 0.75 } },
-            { max: 999999, precios: { carta: 0.78, doble_carta: 1.56, oficio: 0.70 } }
-        ];
+        // ---- MULTIPLICADOR DE TAMAÑO PARA IMPRESIÓN ----
+        // carta=1, oficio=1.15, doble_carta=2
+        const MULT_TAMANO_ENMICADO = { carta: 1, oficio: 1.15, doble_carta: 2 };
 
         // Costos de Mica (Base sin IVA del proveedor)
         const costosMica = {
@@ -423,34 +439,32 @@
             logs.push(`Costo Base por Hoja: $${papelPrecioPliego.toFixed(2)} / ${cortesPorPliego} = $${papelCostoHojaBase.toFixed(4)}`);
             logs.push(`Costo Hoja c/Utilidad (x2): $${papelCostoHojaBase.toFixed(4)} * 2 = $${papelCostoConUtilidad.toFixed(4)}`);
 
-            // --- B. CÁLCULO IMPRESIÓN ---
+            // B. CÁLCULO IMPRESIÓN (nuevo sistema TABLA_IMP)
+            const cobertura = document.querySelector('input[name="cobertura"]:checked').value;
+            const impacto = IMPACTO_PAPEL_ENMICADO[papelId] || 'bajo';
+            const multTam = MULT_TAMANO_ENMICADO[tamano] || 1;
+
+            // Clicks totales para volumen (frente + reverso)
+            const tieneReverso = (colorReverso !== 'none');
+            const clicksTotales = cantidad * (tieneReverso ? 2 : 1);
+
             let costoImpresionUnitario = 0;
-            let detalleImp = "";
+            let detalleImp = '';
 
             // Frente
-            if (colorFrente === 'color') {
-                let p = obtenerPrecioRango(cantidad, preciosImpresionColor, tamano);
-                costoImpresionUnitario += p;
-                detalleImp += `Frente Color ($${p}) `;
-            } else if (colorFrente === 'bn') {
-                let p = obtenerPrecioRango(cantidad, preciosImpresionBN, tamano);
-                costoImpresionUnitario += p;
-                detalleImp += `Frente B/N ($${p}) `;
-            }
+            const pFrente = window.getPrecioImp(colorFrente, impacto, cobertura, clicksTotales, 'no') * multTam;
+            costoImpresionUnitario += pFrente;
+            detalleImp += `Frente ${colorFrente === 'color' ? 'Color' : 'B/N'} ($${pFrente.toFixed(2)}) `;
 
             // Reverso
-            if (colorReverso === 'color') {
-                let p = obtenerPrecioRango(cantidad, preciosImpresionColor, tamano);
-                costoImpresionUnitario += p;
-                detalleImp += `+ Reverso Color ($${p})`;
-            } else if (colorReverso === 'bn') {
-                let p = obtenerPrecioRango(cantidad, preciosImpresionBN, tamano);
-                costoImpresionUnitario += p;
-                detalleImp += `+ Reverso B/N ($${p})`;
+            if (tieneReverso) {
+                const pReverso = window.getPrecioImp(colorReverso, impacto, cobertura, clicksTotales, 'no') * multTam;
+                costoImpresionUnitario += pReverso;
+                detalleImp += `+ Reverso ${colorReverso === 'color' ? 'Color' : 'B/N'} ($${pReverso.toFixed(2)})`;
             }
 
             logs.push(`--- 2. IMPRESIÓN ---`);
-            logs.push(`Rango Cantidad: ${cantidad} unidades`);
+            logs.push(`Rango Cantidad: ${cantidad} uds | Cobertura: ${cobertura}% | Impacto papel: ${impacto} | Mult. tamaño: x${multTam}`);
             logs.push(`Configuración: ${detalleImp}`);
             logs.push(`Costo Impresión Unitario: $${costoImpresionUnitario.toFixed(2)}`);
 
@@ -717,6 +731,8 @@
             container.innerHTML = finalHtml;
         }
     </script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
 
     <!-- Botón Flotante de Regreso al Menú -->
     <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">

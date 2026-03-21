@@ -357,6 +357,23 @@
                     </select>
                 </div>
 
+                <!-- Cobertura de Impresión -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">💧 Cobertura de Impresión (Plasta)</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300 active"
+                            data-type="cobertura" data-value="50">🟢 50% (texto / diseño ligero)</button>
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                            data-type="cobertura" data-value="80">🟡 80% (diseño mixto)</button>
+                        <button type="button"
+                            class="selection-button py-3 px-5 rounded-lg bg-gray-50 dark:bg-dark-input text-sm font-medium text-gray-700 dark:text-gray-300"
+                            data-type="cobertura" data-value="100">🔴 100% (fotos / diseño a sangre)</button>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Si el cliente NO envía diseño o son fotos → usa 100%.</p>
+                </div>
+
                 <!-- Lados de Impresión -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lados de
@@ -998,9 +1015,21 @@
             let currentPrices = JSON.parse(JSON.stringify(defaultPrices)); // Copia profunda de los precios por defecto
 
             // Estado global de la aplicación para gestionar las selecciones y cálculos
+            // Mapeo de impacto por tipo de papel para tarjetas (todos son alta calidad)
+            const IMPACTO_PAPEL_TARJETAS = {
+                'opaline-white-225': 'alto',
+                'opaline-ivory-225': 'alto',
+                'couche-300': 'alto',
+                'couche-250': 'medio',
+                'sulfated-12pt': 'alto',
+                'kromakote': 'alto',
+                'stardream': 'alto'
+            };
+
             let appState = {
                 quantity: 0,
                 paper: null,
+                cobertura: '50',
                 printingSides: '1',
                 printingFront: 'color',
                 printingBack: null,
@@ -1290,12 +1319,17 @@
                 // console.log("Resumen de UI actualizado.");
             };
 
-            // Función para obtener el costo de impresión por la cantidad de pliegos
-            const getPrintingCostForSheets = (colorType, sheetsQuantity, sidesConfig) => {
-                const priceList = currentPrices.printing[colorType];
-                // Buscar el rango de precios correcto
-                const priceEntry = priceList.find(p => sheetsQuantity >= p.range[0] && sheetsQuantity <= p.range[1]);
-                return priceEntry ? priceEntry[sidesConfig] : 0;
+            // Función para obtener el costo de impresión usando el nuevo motor TABLA_IMP
+            // modo: 'color' o 'bw' | impacto: 'bajo'/'medio'/'alto' | cobertura: '50'/'80'/'100'
+            // pliegos: cantidad de pliegos | maqStr: 'si'/'no'
+            const getPrintingCostForSheets = (colorType, sheetsQuantity) => {
+                const modo = (colorType === 'bw') ? 'bn' : 'color';
+                const impacto = IMPACTO_PAPEL_TARJETAS[appState.paper] || 'alto';
+                const cobertura = appState.cobertura || '50';
+                // Las tarjetas siempre son tamaño carta base (MULT_IMP carta = 1)
+                // pero el pliego de doble carta = 2 cartas, ya se maneja con sheetsNeeded
+                const precio = window.getPrecioImp(modo, impacto, cobertura, sheetsQuantity, 'no');
+                return precio; // precio por hoja carta
             };
 
             // Función para obtener el costo de laminado por la cantidad de pliegos
@@ -1349,19 +1383,24 @@
                     const paperSellingCostPerSheetValue = paperCostPerSheetValue * 2.5; // Costo de venta del papel (con utilidad)
                     const paperCostTotal = paperSellingCostPerSheetValue * sheetsNeeded; // Total de papel con utilidad
 
+                    // Clicks totales para calcular descuento por volumen (frente + reverso)
+                    const clicksTotales = sheetsNeeded * (printingSides === '2' ? 2 : 1);
+
                     let printingCostPerSheet = 0;
                     if (printingSides === '1') {
-                        printingCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '1-side');
+                        printingCostPerSheet = getPrintingCostForSheets(printingFront, clicksTotales);
                     } else if (printingSides === '2') {
-                        if (printingFront === printingBack) { // Si ambos lados son del mismo color (e.g., Color/Color)
-                            printingCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '2-sides');
-                        } else { // Si los lados son de diferente color (e.g., Color/B&N)
-                            const frontSideCostPerSheet = getPrintingCostForSheets(printingFront, sheetsNeeded, '1-side');
-                            const backSideCostPerSheet = getPrintingCostForSheets(printingBack, sheetsNeeded, '1-side');
-                            printingCostPerSheet = frontSideCostPerSheet + backSideCostPerSheet;
+                        if (printingFront === printingBack) {
+                            // Mismo color ambos lados: precio ya considera doble volumen
+                            printingCostPerSheet = getPrintingCostForSheets(printingFront, clicksTotales) * 2;
+                        } else {
+                            // Lados diferentes: sumar costo de cada lado
+                            const frontCost = getPrintingCostForSheets(printingFront, clicksTotales);
+                            const backCost = getPrintingCostForSheets(printingBack, clicksTotales);
+                            printingCostPerSheet = frontCost + backCost;
                         }
                     }
-                    const totalPrintingCostForBatch = printingCostPerSheet * sheetsNeeded; // Costo total de impresión
+                    const totalPrintingCostForBatch = printingCostPerSheet * sheetsNeeded;
 
                     let totalFinishesCostForBatch = 0;
                     let currentLaminateCost = 0;
@@ -1629,6 +1668,8 @@
                                 appState.printingFront = value;
                             } else if (type === 'printing-back') {
                                 appState.printingBack = value;
+                            } else if (type === 'cobertura') {
+                                appState.cobertura = value;
                             }
                         }
 
@@ -1912,6 +1953,8 @@
             }
         }
     </style>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
 </body>
 
 </html>
