@@ -576,6 +576,8 @@
         </div>
 
     </div>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
     <script>
         // ---- DATOS DE COSTOS ----
         const costosPapel = {
@@ -969,6 +971,8 @@
                 // 5. Laminado
                 var costoTotalLaminado = 0;
                 var textoLaminado = 'Sin laminado';
+                // tamanoBaseImpresion: 'carta', 'oficio' o 'doble-carta' (según la base del tamaño seleccionado)
+                var tamanoBaseImpresion = (medidasTamanos[tamano] && medidasTamanos[tamano].base) ? medidasTamanos[tamano].base : 'carta';
                 const llevaLaminado = document.querySelector('input[name="laminado"]:checked').value === 'si';
                 if (llevaLaminado) {
                     const tipoFrente = document.getElementById('laminadoFrente').value;
@@ -1069,8 +1073,7 @@
             actualizarOpcionesPapel('carta');
         });
     </script>
-    <script src="impresiones componentes/config-impresion.js"></script>
-    <script src="impresiones componentes/motor-calculo.js"></script>
+
 
 
 
