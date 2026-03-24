@@ -223,6 +223,28 @@
                 </div>
             </div>
 
+            <!-- Acabado Laminado (solo papel brillante normal / refrigerante, 1 lado frente) -->
+            <div class="row mb-3" id="laminadoContainer" style="display: none;">
+                <div class="col-12">
+                    <label class="form-label"><i class="fas fa-layer-group me-2" style="color:#6f42c1;"></i>5c. Acabado Laminado (Frente, 1 solo lado)</label>
+                    <div class="d-flex flex-wrap gap-3" style="padding:10px 12px;border:1px solid #d0c4f5;border-radius:8px;background:#faf0ff;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="laminado" id="lam_sin" value="sin_laminado" checked>
+                            <label class="form-check-label" for="lam_sin">✨ Sin laminado</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="laminado" id="lam_bri" value="brillante">
+                            <label class="form-check-label" for="lam_bri">💎 Con laminado — Brillante</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="laminado" id="lam_mat" value="mate">
+                            <label class="form-check-label" for="lam_mat">🪨 Con laminado — Mate</label>
+                        </div>
+                    </div>
+                    <small class="text-muted" style="margin-top:4px;display:block;">Mínimo de cobro por laminado: <b>$250.00</b></small>
+                </div>
+            </div>
+
             <!-- Corte -->
             <div class="row mb-3 g-3">
                 <div class="col-md-6">
@@ -307,8 +329,36 @@
     </div>
 
     <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="impresiones componentes/config-impresion.js"></script>
+    <script src="impresiones componentes/motor-calculo.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+
+            // ---- COSTOS DE LAMINADO (por pieza, frente 1 lado) ----
+            // Misma tabla que volantes3.html — carta aplica a papel carta y doble carta a doble carta
+            const costosLaminado = {
+                'brillante': {
+                    'carta':       [{min:1,max:50,costo:4.00},{min:51,max:100,costo:3.80},{min:101,max:150,costo:3.50},{min:151,max:200,costo:3.30},{min:201,max:500,costo:3.00},{min:501,max:Infinity,costo:2.80}],
+                    'doble-carta': [{min:1,max:50,costo:8.00},{min:51,max:100,costo:7.60},{min:101,max:150,costo:7.00},{min:151,max:200,costo:6.60},{min:201,max:500,costo:6.00},{min:501,max:Infinity,costo:5.60}]
+                },
+                'mate': {
+                    'carta':       [{min:1,max:50,costo:4.60},{min:51,max:100,costo:4.37},{min:101,max:150,costo:4.025},{min:151,max:200,costo:3.795},{min:201,max:500,costo:3.45},{min:501,max:Infinity,costo:3.22}],
+                    'doble-carta': [{min:1,max:50,costo:9.20},{min:51,max:100,costo:8.74},{min:101,max:150,costo:8.05},{min:151,max:200,costo:7.59},{min:201,max:500,costo:6.90},{min:501,max:Infinity,costo:6.44}]
+                }
+            };
+            const LAMINADO_MINIMO = 250;
+
+            // Devuelve costo por pieza según tipo (brillante/mate), tamaño base y cantidad
+            function getCostoLaminado(tipo, tamanoBase, cantidad) {
+                // Mapear 'dobleCarta' (config de etiquetas) → 'doble-carta' (tabla)
+                var tamLam = (tamanoBase === 'dobleCarta') ? 'doble-carta' : 'carta';
+                var rangos = costosLaminado[tipo][tamLam];
+                for (var r of rangos) {
+                    if (cantidad >= r.min && cantidad <= r.max) return r.costo;
+                }
+                return rangos[rangos.length - 1].costo;
+            }
+
             // --- CONFIGURACIÓN CENTRALIZADA DE COSTOS Y MEDIDAS ---
             const CONFIG = {
                 costos: {
@@ -402,11 +452,25 @@
 
             // --- EVENT LISTENERS ---
             materialSelect.addEventListener('change', updateUI);
+            subMaterialSelect.addEventListener('change', updateLaminadoVisibility);
             corteSelect.addEventListener('change', updateUI);
             form.addEventListener('submit', handleCalculate);
             form.addEventListener('input', clearError); // Limpia el error al modificar cualquier campo
             limpiarBtn.addEventListener('click', resetForm);
             copiarResumenBtn.addEventListener('click', copyToClipboard);
+
+            // Mostrar/ocultar laminado según subMaterial seleccionado
+            function updateLaminadoVisibility() {
+                const material = materialSelect.value;
+                const sub = subMaterialSelect.value;
+                const laminadoContainer = document.getElementById('laminadoContainer');
+                const mostrarLaminado = material === 'papel' && (sub === 'brillante_normal' || sub === 'refrigerante');
+                laminadoContainer.style.display = mostrarLaminado ? 'block' : 'none';
+                if (!mostrarLaminado) {
+                    // Resetear a sin laminado
+                    document.getElementById('lam_sin').checked = true;
+                }
+            }
 
             // --- LÓGICA DE UI ---
             function updateUI() {
@@ -430,6 +494,8 @@
                 impresionContainer.style.display = material === 'papel' ? 'block' : 'none';
                 document.getElementById('coberturaContainer').style.display = material === 'papel' ? 'block' : 'none';
                 bajadasContainer.style.display = corte === 'recto' && material === 'papel' ? 'block' : 'none';
+                // También actualizar visibilidad del laminado al cambiar material
+                updateLaminadoVisibility();
             }
 
             // --- MANEJO DE ERRORES ---
@@ -474,12 +540,12 @@
 
                 if (!costos) return; // Si hubo un error en los cálculos, ya se mostró el mensaje
 
-                const subtotal = costos.material + costos.impresion + costos.corte + costos.diseno;
+                const subtotal = costos.material + costos.impresion + costos.corte + costos.diseno + (costos.laminado || 0);
                 const iva = subtotal * 0.16;
                 const total = subtotal + iva;
                 const unitario = total / inputs.cantidad;
 
-                mostrarResultados(costos.desglose, subtotal, iva, total, unitario, inputs);
+                mostrarResultados(costos.desglose, subtotal, iva, total, unitario, inputs, costos.textoLaminado || '');
             }
 
             function calcularCostosPapel(inputs) {
@@ -550,7 +616,20 @@
                 const costoDiseno = CONFIG.costos.diseno[diseno === 'envia' ? 'envia_papel' : diseno];
                 desglose.push(`Costo Diseño: <b>${costoDiseno.toFixed(2)}</b> <small>(${document.getElementById('diseno').selectedOptions[0].text})</small>`);
 
-                return { material: costoMaterial, impresion: costoImpresion, corte: costoCorte, diseno: costoDiseno, desglose };
+                // 5. Costo Laminado (solo si aplica: brillante_normal o refrigerante)
+                var costoLaminado = 0;
+                var textoLaminado = '';
+                const tipoLaminado = document.querySelector('input[name="laminado"]:checked')?.value || 'sin_laminado';
+                if (tipoLaminado !== 'sin_laminado') {
+                    // El laminado se aplica por PLIEGO (hoja completa), no por etiqueta individual
+                    const costoLamPorPliego = getCostoLaminado(tipoLaminado, tamanoPliego, pliegosNecesarios);
+                    const costoLamCalculado = costoLamPorPliego * pliegosNecesarios;
+                    costoLaminado = Math.max(costoLamCalculado, LAMINADO_MINIMO);
+                    textoLaminado = tipoLaminado.charAt(0).toUpperCase() + tipoLaminado.slice(1);
+                    desglose.push(`Costo Laminado (${textoLaminado}, frente): <b>${costoLaminado.toFixed(2)}</b> <small>(${pliegosNecesarios} pliegos × ${costoLamPorPliego.toFixed(2)}/pliego = ${costoLamCalculado.toFixed(2)} | mín. $${LAMINADO_MINIMO})</small>`);
+                }
+
+                return { material: costoMaterial, impresion: costoImpresion, corte: costoCorte, diseno: costoDiseno, laminado: costoLaminado, textoLaminado, desglose };
             }
 
             function calcularCostosVinil(inputs) {
@@ -598,7 +677,7 @@
                 return Math.max(orientacion1, orientacion2);
             }
 
-            function mostrarResultados(desglose, subtotal, iva, total, unitario, inputs) {
+            function mostrarResultados(desglose, subtotal, iva, total, unitario, inputs, textoLaminado) {
                 desgloseP.innerHTML = '<b>Desglose de Costos:</b><br>' + desglose.join('<br>');
                 subtotalSpan.textContent = `${subtotal.toFixed(2)}`;
                 ivaSpan.textContent = `${iva.toFixed(2)}`;
@@ -609,7 +688,8 @@
                 limpiarBtn.style.display = 'block';
 
                 const impresionTexto = inputs.material === 'papel' ? inputs.impresion.charAt(0).toUpperCase() + inputs.impresion.slice(1) : 'Incluida';
-                const resumen = `${inputs.cantidad} etiquetas de ${inputs.ancho}x${inputs.largo} cm. Material: ${subMaterialSelect.selectedOptions[0].text}. Impresión: ${impresionTexto}. Corte: ${corteSelect.selectedOptions[0].text}. Diseño: ${document.getElementById('diseno').selectedOptions[0].text}. | Costo Unitario: ${unitario.toFixed(2)}. Total: ${total.toFixed(2)} (IVA incl.)`;
+                const laminadoTexto = textoLaminado ? `. Laminado: ${textoLaminado} (1 lado)` : '';
+                const resumen = `${inputs.cantidad} etiquetas de ${inputs.ancho}x${inputs.largo} cm. Material: ${subMaterialSelect.selectedOptions[0].text}. Impresión: ${impresionTexto}. Corte: ${corteSelect.selectedOptions[0].text}. Diseño: ${document.getElementById('diseno').selectedOptions[0].text}${laminadoTexto}. | Costo Unitario: ${unitario.toFixed(2)}. Total: ${total.toFixed(2)} (IVA incl.)`;
 
                 textoResumenTextarea.value = resumen;
                 resumenClienteDiv.style.display = 'block';
@@ -644,8 +724,7 @@
             updateUI();
         });
     </script>
-    <script src="impresiones componentes/config-impresion.js"></script>
-    <script src="impresiones componentes/motor-calculo.js"></script>
+    <!-- Los scripts del motor ya fueron cargados antes del script principal -->
 
     <!-- Botón Flotante de Regreso al Menú -->
     <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">

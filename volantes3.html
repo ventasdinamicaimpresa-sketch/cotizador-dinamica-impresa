@@ -376,17 +376,21 @@
             <div class="form-group">
                 <label><i class="bi bi-droplet-fill"></i> Cobertura de impresión (Plasta):</label>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                    <label
+                        style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
                         <input type="radio" name="cobertura" value="50" checked> 🟢 50% (texto / diseño ligero)
                     </label>
-                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                    <label
+                        style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
                         <input type="radio" name="cobertura" value="80"> 🟡 80% (diseño mixto)
                     </label>
-                    <label style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                    <label
+                        style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
                         <input type="radio" name="cobertura" value="100"> 🔴 100% (fotos / diseño a sangre)
                     </label>
                 </div>
-                <p style="font-size:0.82em;color:#888;margin-top:6px;">Si el cliente NO envía diseño, o son fotos/revistas → usa <b>100%</b>.</p>
+                <p style="font-size:0.82em;color:#888;margin-top:6px;">Si el cliente NO envía diseño, o son
+                    fotos/revistas → usa <b>100%</b>.</p>
             </div>
 
             <div class="form-group">
@@ -762,34 +766,50 @@
             }
             document.getElementById('costosPapelDetalle').innerHTML = htmlPapel;
 
-            // Impresion - tabla por tamano
-            const tamanos = ['carta', 'doble-carta', 'oficio', 'doble-oficio'];
+            // Impresion - tabla usando TABLA_IMP del motor externo
             var htmlImp = '';
-            const grupos = [['Color', costosImpresion['color']], ['Blanco y Negro', costosImpresion['blanco-negro']]];
-            for (const [colorKey, data] of grupos) {
-                htmlImp += '<b style="color:#0056b3">' + colorKey + ':</b><br>';
-                htmlImp += '<table style="border-collapse:collapse;width:100%;margin-bottom:10px;font-size:0.88em;">';
-                htmlImp += '<thead><tr style="background:#ddeeff;">';
-                htmlImp += '<th style="border:1px solid #ccc;padding:3px 6px;text-align:left;">Hojas</th>';
-                htmlImp += '<th style="border:1px solid #ccc;padding:3px 6px;">Carta</th>';
-                htmlImp += '<th style="border:1px solid #ccc;padding:3px 6px;">Doble Carta</th>';
-                htmlImp += '<th style="border:1px solid #ccc;padding:3px 6px;">Oficio</th>';
-                htmlImp += '<th style="border:1px solid #ccc;padding:3px 6px;">Doble Oficio</th>';
-                htmlImp += '</tr></thead><tbody>';
-                const rangosRef = data['carta'];
-                for (var i = 0; i < rangosRef.length; i++) {
-                    const r = rangosRef[i];
-                    var desde = i === 0 ? 1 : (rangosRef[i - 1].max + 1);
-                    var etiq = r.max === Infinity ? (desde + '+') : (desde + '-' + r.max);
-                    htmlImp += '<tr style="background:' + (i % 2 === 0 ? '#fff' : '#f5f9ff') + ';">';
-                    htmlImp += '<td style="border:1px solid #ccc;padding:3px 6px;">' + etiq + '</td>';
-                    for (const tam of tamanos) {
-                        var costo = (data[tam] && data[tam][i]) ? data[tam][i].costo : null;
-                        htmlImp += '<td style="border:1px solid #ccc;padding:3px 6px;text-align:center;"><b>' + (costo !== null ? formatCurrency(costo) : '-') + '</b></td>';
+            const tablaImp = window.TABLA_IMP || {};
+            const rangosImp = window.RANGOS || [];
+            const modosImp = [['color', '🖨️ Color'], ['bn', '⬛ Blanco y Negro']];
+            const impactosImp = [['bajo', 'Bajo (bond, couche 130)'], ['medio', 'Medio (opalina 120, couche 150-200)'], ['alto', 'Alto (opalina 225, couche 250-300)']];
+            const coberturasImp = ['50', '80', '100'];
+            const multsTam = [['carta', 'Carta x1', 1], ['doble-carta', 'Doble Carta x2', 2], ['oficio', 'Oficio x1.15', 1.15]];
+
+            if (!tablaImp.color) {
+                htmlImp = '<p style="color:#c00;">⚠️ Los costos de impresión no están disponibles aún. Abre la página desde un servidor local (Live Server).</p>';
+            } else {
+                for (const [modoKey, modoLabel] of modosImp) {
+                    htmlImp += '<b style="color:#0056b3;font-size:1em;">' + modoLabel + '</b><br>';
+                    for (const [impactoKey, impactoLabel] of impactosImp) {
+                        const tabla = tablaImp[modoKey] && tablaImp[modoKey][impactoKey];
+                        if (!tabla) continue;
+                        htmlImp += '<p style="margin:6px 0 2px;font-weight:700;color:#555;font-size:0.85em;">Impacto ' + impactoLabel + ':</p>';
+                        htmlImp += '<table style="border-collapse:collapse;width:100%;margin-bottom:8px;font-size:0.82em;">';
+                        htmlImp += '<thead><tr style="background:#ddeeff;">';
+                        htmlImp += '<th style="border:1px solid #ccc;padding:3px 5px;text-align:left;">Rango clicks</th>';
+                        for (const [,tamLabel] of multsTam) {
+                            for (const cob of coberturasImp) {
+                                htmlImp += '<th style="border:1px solid #ccc;padding:3px 5px;font-size:0.8em;">' + tamLabel + '<br>Cob.' + cob + '%</th>';
+                            }
+                        }
+                        htmlImp += '</tr></thead><tbody>';
+                        rangosImp.forEach(function(r, i) {
+                            var etiqR = r.max === Infinity ? (r.min + '+') : (r.min + '-' + r.max);
+                            htmlImp += '<tr style="background:' + (i % 2 === 0 ? '#fff' : '#f5f9ff') + ';">';
+                            htmlImp += '<td style="border:1px solid #ccc;padding:3px 5px;">' + etiqR + '</td>';
+                            for (const [,, mult] of multsTam) {
+                                for (const cob of coberturasImp) {
+                                    var subtCobert = tabla[cob];
+                                    var precio = subtCobert ? ((subtCobert[r.key] || 0) * mult) : 0;
+                                    htmlImp += '<td style="border:1px solid #ccc;padding:3px 5px;text-align:center;"><b>' + formatCurrency(precio) + '</b></td>';
+                                }
+                            }
+                            htmlImp += '</tr>';
+                        });
+                        htmlImp += '</tbody></table>';
                     }
-                    htmlImp += '</tr>';
+                    htmlImp += '<hr style="margin:8px 0;">';
                 }
-                htmlImp += '</tbody></table>';
             }
             document.getElementById('costosImpresionDetalle').innerHTML = htmlImp;
 
@@ -882,7 +902,7 @@
                 // 1. Papel
                 const tipoPliego = tamano.includes('oficio') ? 'oficio' : 'carta';
                 const papelData = costosPapel[tipoPliego][papelKey];
-                const costoPorHojaBase = (papelData.costo / papelData.porPliego) * 2;
+                
                 var divisorTamano = 1;
                 if (tamano.includes('doble')) divisorTamano = 0.5;
                 else if (tamano.includes('1/2')) divisorTamano = 2;
@@ -890,17 +910,22 @@
                 else if (tamano.includes('1/4')) divisorTamano = 4;
                 else if (tamano.includes('1/8')) divisorTamano = 8;
 
-                let hojasBaseNecesarias = Math.ceil(cantidad / divisorTamano);
+                const piezasPorPliego = papelData.porPliego * divisorTamano;
+                const costoUnitarioPieza = papelData.costo / piezasPorPliego;
 
-                // Agregar desperdicio para Dipticos y Tripticos (3 papel + 3 impresiones -> se traducen en 3 hojas base extra de impresion)
+                let cantidadCalculo = cantidad;
+                // Agregar desperdicio para Dipticos y Tripticos (se traducen en 3 hojas base extra)
                 if (tipoTrabajo === 'dipticos' || tipoTrabajo === 'tripticos') {
-                    hojasBaseNecesarias += 3;
+                    cantidadCalculo += (3 * divisorTamano);
                 }
-                const costoTotalPapel = (costoPorHojaBase * hojasBaseNecesarias) * 2; // Multiplicado por 2 (Utilidad)
+
+                const subtotalPapel = costoUnitarioPieza * cantidadCalculo;
+                const costoTotalPapel = subtotalPapel * 2; // Multiplicado por 2 (Utilidad)
 
                 resumenDetallado += '1. Papel (' + papelNombre + ') [' + tipoPliego + ']:\n';
-                resumenDetallado += '   Pliego: ' + formatCurrency(papelData.costo) + ' | Costo/hoja base: ' + formatCurrency(costoPorHojaBase) + '\n';
-                resumenDetallado += '   Hojas necesarias: CEIL(' + cantidad + '/' + divisorTamano + ') = ' + hojasBaseNecesarias + '\n';
+                resumenDetallado += '   Pliego: ' + formatCurrency(papelData.costo) + ' | Salen del pliego: ' + piezasPorPliego + ' pz\n';
+                resumenDetallado += '   Costo unitario por pieza: ' + formatCurrency(costoUnitarioPieza) + '\n';
+                resumenDetallado += '   Piezas a cobrar: ' + Math.ceil(cantidadCalculo) + '\n';
                 resumenDetallado += '   Total papel (x2 Utilidad): ' + formatCurrency(costoTotalPapel) + '\n\n';
 
                 // 2. Impresion Frente (nuevo sistema con cobertura + impacto)
@@ -914,24 +939,31 @@
                 else if (tamano.includes('32x50')) multTamano = 3.5;
                 else if (tamano.includes('oficio') && !tamano.includes('doble')) multTamano = 1.15;
 
-                // Clicks totales para descuento de volumen (si hay ambos lados)
+                // Hojas base necesarias (en unidades carta/oficio original, para volumen y para corte)
+                let hojasBaseNecesarias = Math.ceil(cantidadCalculo / divisorTamano);
+                
+                // Clicks totales para descuento de volumen (si hay ambos lados, se suma el volumen)
                 const tieneReverso = colorReverso !== 'ninguno';
                 const clicksTotales = hojasBaseNecesarias * (tieneReverso ? 2 : 1);
 
-                const costoImpFrentePorHoja = getPrecioImpVolante(colorFrente, impacto, cobertura, clicksTotales, esMaquila, 1);
-                const totalImpFrente = costoImpFrentePorHoja * multTamano * hojasBaseNecesarias;
+                // Hojas físicas que pasarán por la máquina
+                let divisorImpresion = divisorTamano >= 1 ? divisorTamano : 1;
+                let hojasImpresion = Math.ceil(cantidadCalculo / divisorImpresion);
+
+                const costoImpFrenteHoja = getPrecioImpVolante(colorFrente, impacto, cobertura, clicksTotales, esMaquila, multTamano);
+                const totalImpFrente = costoImpFrenteHoja * hojasImpresion;
 
                 resumenDetallado += '2. Impresion Frente (' + colorFrente.replace(/-/g, ' ') + ' | Cob ' + cobertura + '% | Impacto: ' + impacto + '):\n';
-                resumenDetallado += '   ' + formatCurrency(costoImpFrentePorHoja) + '/hoja × mult.' + multTamano + ' × ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpFrente) + '\n\n';
+                resumenDetallado += '   ' + formatCurrency(costoImpFrenteHoja) + '/hoja × ' + hojasImpresion + ' hojas = ' + formatCurrency(totalImpFrente) + '\n\n';
 
                 // 3. Impresion Reverso
                 var totalImpReverso = 0;
-                var costoImpReverso = 0;
+                var costoImpReversoHoja = 0;
                 if (tieneReverso) {
-                    costoImpReverso = getPrecioImpVolante(colorReverso, impacto, cobertura, clicksTotales, esMaquila, 1);
-                    totalImpReverso = costoImpReverso * multTamano * hojasBaseNecesarias;
+                    costoImpReversoHoja = getPrecioImpVolante(colorReverso, impacto, cobertura, clicksTotales, esMaquila, multTamano);
+                    totalImpReverso = costoImpReversoHoja * hojasImpresion;
                     resumenDetallado += '3. Impresion Reverso (' + colorReverso.replace(/-/g, ' ') + ' | Cob ' + cobertura + '%):\n';
-                    resumenDetallado += '   ' + formatCurrency(costoImpReverso) + '/hoja × mult.' + multTamano + ' × ' + hojasBaseNecesarias + ' hojas = ' + formatCurrency(totalImpReverso) + '\n\n';
+                    resumenDetallado += '   ' + formatCurrency(costoImpReversoHoja) + '/hoja × ' + hojasImpresion + ' hojas = ' + formatCurrency(totalImpReverso) + '\n\n';
                 } else {
                     resumenDetallado += '3. Impresion Reverso: No lleva (solo frente)\n\n';
                 }
