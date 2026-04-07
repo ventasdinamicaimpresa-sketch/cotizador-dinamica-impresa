@@ -902,6 +902,18 @@
                 </div>
             </div>
 
+            <div id="corte-vinil-container" style="display: none;" class="form-group">
+                <label><i class="fas fa-cut"></i> Corte (Solo Vinil):</label>
+                <div class="radio-group" style="flex-wrap: wrap;">
+                    <input type="radio" id="corte-sin" name="tipo-corte" value="sin" checked>
+                    <label for="corte-sin">Sin corte</label>
+                    <input type="radio" id="corte-recto" name="tipo-corte" value="recto">
+                    <label for="corte-recto">Corte recto</label>
+                    <input type="radio" id="corte-registro" name="tipo-corte" value="registro">
+                    <label for="corte-registro">A registro (Contorno)</label>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="tipo-diseno"><i class="fas fa-palette"></i> Tipo de Diseño:</label>
                 <select id="tipo-diseno" name="tipo-diseno">
@@ -1203,7 +1215,10 @@
                 if (document.getElementById("expres-check").checked) opcionesAdicionales.push("expres");
                 if (document.getElementById("copavisa-check").checked) opcionesAdicionales.push("copavisa");
                 
-                return { rotulado, cantidad, ancho, largo, anchoOriginal, largoOriginal, unidades, tipoDiseno, materialImpresion, materialBase, opcionesAdicionales };
+                const tipoCorteElement = document.querySelector('input[name="tipo-corte"]:checked');
+                const tipoCorte = tipoCorteElement ? tipoCorteElement.value : 'sin';
+                
+                return { rotulado, cantidad, ancho, largo, anchoOriginal, largoOriginal, unidades, tipoDiseno, materialImpresion, materialBase, opcionesAdicionales, tipoCorte };
             };
 
             const encontrarPrecio = (precios, area) => precios.find((p) => area >= p.min && (p.max === null || area < p.max));
@@ -1342,7 +1357,21 @@
                 }
 
                 const { costo: costoDiseno, texto: textoDiseno } = getCostoDiseno(inputs.tipoDiseno);
-                const subtotal = costoImpresion + costoBase + costoMontaje + costoDiseno;
+                
+                let costoCorte = 0;
+                let detalleCorte = "";
+                if (inputs.tipoCorte !== 'sin') {
+                    const calculoCorte = areaDeCalculoImpresion; 
+                    if (inputs.tipoCorte === 'registro') {
+                        costoCorte = calculoCorte * 95;
+                        detalleCorte = `Corte a registro: ${calculoCorte.toFixed(2)} m² x $95.00/m²`;
+                    } else if (inputs.tipoCorte === 'recto') {
+                        costoCorte = calculoCorte * 45;
+                        detalleCorte = `Corte recto: ${calculoCorte.toFixed(2)} m² x $45.00/m²`;
+                    }
+                }
+
+                const subtotal = costoImpresion + costoBase + costoMontaje + costoDiseno + costoCorte;
                 
                 // Calcular descuentos y recargos según opciones adicionales
                 let descuentoMaquila = 0;
@@ -1380,10 +1409,11 @@
                 
                 const subtotalConDescuentos = subtotal - descuentoMaquila + recargoExpres;
                 const iva = subtotalConDescuentos * 0.16;
-                const total = subtotalConDescuentos + iva;
+                const total = Math.ceil(subtotalConDescuentos + iva);
                 
                 const materialDesc = inputs.rotulado ? `${inputs.materialImpresion} sobre ${inputs.materialBase}` : inputs.materialImpresion;
-                const descripcion = `${inputs.cantidad}pz de ${materialDesc} medida ${inputs.anchoOriginal}x${inputs.largoOriginal}${inputs.unidades} impreso en alta resolución, ${textoDiseno}`;
+                const corteDescExt = inputs.tipoCorte === 'registro' ? ' CON CORTE A REGISTRO' : (inputs.tipoCorte === 'recto' ? ' CON CORTE RECTO' : '');
+                const descripcion = `${inputs.cantidad}pz de ${materialDesc} medida ${inputs.anchoOriginal}x${inputs.largoOriginal}${inputs.unidades} impreso en alta resolución, ${textoDiseno}${corteDescExt}`;
 
                 let desgloseHTML = `<p><strong>Detalles del Artículo:</strong></p><ul>`;
                 if (seAplicaMinimo) desgloseHTML += `<li><strong style="color: var(--danger-color);">Nota: Se cobra mínimo 1 m² de impresión (Área real: ${areaTotalImpresion.toFixed(3)} m²).</strong></li>`;
@@ -1428,6 +1458,7 @@
                     }
                 }
 
+                if (costoCorte > 0) desgloseHTML += `<li>Costo Corte: $${costoCorte.toFixed(2)} <span style="font-size:0.85em; color:#555;">(${detalleCorte})</span></li>`;
                 if (costoDiseno > 0) desgloseHTML += `<li>Costo Diseño (${textoDiseno}): $${costoDiseno.toFixed(2)}</li>`;
                 
                 // Agregar conceptos adicionales al desglose con fórmulas
@@ -1466,7 +1497,7 @@
                 desgloseHTML += `<p>IVA (16%): $${iva.toFixed(2)}</p>
                                 <h4 style="margin-top: 5px;">Total Artículo: $${total.toFixed(2)}</h4>`;
 
-                return { id: Date.now(), descripcion, total, desgloseHTML, datos: { ...inputs, areaTotalImpresion, costoImpresion, costoBase, costoMontaje, costoDiseno, subtotal, conceptosAdicionales } };
+                return { id: Date.now(), descripcion, total, desgloseHTML, datos: { ...inputs, areaTotalImpresion, costoImpresion, costoBase, costoMontaje, costoDiseno, costoCorte, detalleCorte, subtotal, conceptosAdicionales } };
             };
 
             const agregarArticulo = () => {
@@ -1537,7 +1568,7 @@
                 
                 const subtotalConAjustes = subtotal - totalDescuentos + totalRecargos;
                 const iva = subtotalConAjustes * 0.16;
-                const totalFinal = subtotalConAjustes + iva;
+                const totalFinal = cotizacionActual.reduce((sum, item) => sum + item.total, 0);
                 
                 let totalHTML = `<h3>Subtotal: $${subtotal.toFixed(2)}</h3>`;
                 
@@ -1558,8 +1589,9 @@
                 cotizacionTotalContainer.innerHTML = totalHTML;
                 
                 let resumenGeneralTexto = cotizacionActual.map((item) => {
-                    const precioIndividual = item.datos.cantidad > 0 ? item.total / item.datos.cantidad : item.total;
-                    let textoItem = `- ${item.descripcion} -> $${precioIndividual.toFixed(2)} c/u, total $${item.total.toFixed(2)} neto`;
+                    const totalRounded = item.total; 
+                    const precioIndividual = item.datos.cantidad > 0 ? totalRounded / item.datos.cantidad : totalRounded;
+                    let textoItem = `- ${item.descripcion} -> $${precioIndividual.toFixed(2)} c/u, total $${totalRounded.toFixed(0)} neto`;
                     
                     // Agregar solo nombres de conceptos adicionales del item
                     if (item.datos.conceptosAdicionales && item.datos.conceptosAdicionales.length > 0) {
@@ -1625,13 +1657,25 @@
                         }
                     }
                 });
-                rotuladoSi.addEventListener("change", toggleMateriales);
-                rotuladoNo.addEventListener("change", toggleMateriales);
-                categoriaNoRotulado.addEventListener("change", toggleMaterialesNoRotulado);
+                const checkVisibilidadCorte = () => {
+                    const rotulado = document.getElementById("rotulado-si").checked;
+                    const categoria = document.getElementById("categoria-no-rotulado").value;
+                    if (rotulado || (!rotulado && categoria === "viniles")) {
+                        document.getElementById("corte-vinil-container").style.display = "block";
+                    } else {
+                        document.getElementById("corte-vinil-container").style.display = "none";
+                        document.getElementById("corte-sin").checked = true;
+                    }
+                };
+
+                rotuladoSi.addEventListener("change", () => { toggleMateriales(); checkVisibilidadCorte(); });
+                rotuladoNo.addEventListener("change", () => { toggleMateriales(); checkVisibilidadCorte(); });
+                categoriaNoRotulado.addEventListener("change", () => { toggleMaterialesNoRotulado(); checkVisibilidadCorte(); });
                 document.getElementById("limpiar-btn").addEventListener("click", () => { 
                     form.reset(); 
                     toggleMateriales(); 
                     toggleMaterialesNoRotulado();
+                    checkVisibilidadCorte();
                     // Resetear opciones adicionales
                     document.querySelectorAll('.opcion-adicional').forEach(opcion => {
                         opcion.classList.remove('selected');

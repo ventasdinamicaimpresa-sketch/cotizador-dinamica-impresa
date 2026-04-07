@@ -194,9 +194,17 @@ input::placeholder{color:#78716c;font-weight:400}
 
     <!-- 7. CORTES EXTRAS -->
     <div style="margin-bottom:14px">
-      <label>✂️ 7. Cortes Extras de Guillotina ($25 c/u)</label>
-      <input type="number" id="cortes" placeholder="Cantidad de cortes... (Opcional)" min="0" step="1">
-      <p class="hint">Cada corte de guillotina de lado a lado adicional tiene un costo de <strong>$25.00</strong>. Deja en blanco si no requiere cortes.</p>
+      <label>✂️ 7. Cortes Extras</label>
+      <div class="radio-group" id="tipoCorteGroup" style="margin-bottom:8px">
+        <label class="radio-opt selected" onclick="selectRadio('tipoCorte','no',this); document.getElementById('guillotinaInputs').style.display='none'; document.getElementById('registroHint').style.display='none';"><input type="radio" name="tipoCorte" value="no" checked> 🚫 Sin corte</label>
+        <label class="radio-opt" onclick="selectRadio('tipoCorte','guillotina',this); document.getElementById('guillotinaInputs').style.display='block'; document.getElementById('registroHint').style.display='none';"><input type="radio" name="tipoCorte" value="guillotina"> 📏 Guillotina</label>
+        <label class="radio-opt" onclick="selectRadio('tipoCorte','registro',this); document.getElementById('guillotinaInputs').style.display='none'; document.getElementById('registroHint').style.display='block';"><input type="radio" name="tipoCorte" value="registro"> 🎯 A registro (Contorno)</label>
+      </div>
+      <div id="guillotinaInputs" style="display:none; margin-top:8px">
+        <input type="number" id="cortes" placeholder="Cantidad de cortes... ($25 c/u)" min="0" step="1">
+        <p class="hint">Cada corte de guillotina de lado a lado adicional tiene un costo de <strong>$25.00</strong>.</p>
+      </div>
+      <p class="hint" id="registroHint" style="display:none; margin-top:8px;"><strong>Corte a Registro:</strong> Se calcula en base a las hojas impresas. 1 a 9 hojas: $150 fijos | 10 a 25 hojas: $13 c/u | +25 hojas: $10 c/u.</p>
     </div>
 
     <!-- 8. DISEÑO Y MAQUILA -->
@@ -463,7 +471,8 @@ function agregarPartida(){
   const papelId = document.getElementById('papel').value;
   const cobertura = getRadio('cobertura');
   const diseno = parseFloat(document.getElementById('diseno').value)||0;
-  const cortes = parseInt(document.getElementById('cortes').value)||0;
+  const tipoCorte = getRadio('tipoCorte') || 'no';
+  const cortes = tipoCorte === 'guillotina' ? (parseInt(document.getElementById('cortes').value)||0) : 0;
   const maquila = getRadio('maquila')||'no';
 
   if(!cantidad||cantidad<1){alert('⚠️ Ingresa la cantidad de impresiones');return;}
@@ -478,7 +487,7 @@ function agregarPartida(){
     alert(`⚠️ El papel "${papel.name}" no se puede imprimir en tamaño ${NOMBRES_TAMANO[tamano]||tamano}. Elige otro papel u otro tamaño.`);
     return;
   }
-  partidas.push({cantidad,tamano,frente,reverso,papelId,cobertura,diseno,cortes,maquila,papelNombre:papel.name});
+  partidas.push({cantidad,tamano,frente,reverso,papelId,cobertura,diseno,tipoCorte,cortes,maquila,papelNombre:papel.name});
   renderPartidas();
   document.getElementById('partidasContainer').style.display='';
   
@@ -527,9 +536,10 @@ function renderPartidas(){
           <span style="color:var(--text);font-weight:600">Papel Pliego:</span> ${papel.name} (Costo $${(papel||{}).costo.toFixed(2)} ÷ salen ${calc.hojasPorPliego} piezas. Costo pieza neta = $${calc.costoHojaBruta.toFixed(4)}).<br>
           <span style="color:var(--text);font-weight:600">Costo Hoja Comercial:</span> $${calc.costoHojaBruta.toFixed(4)} × util. ${calc.multPapel} = <strong>$${calc.costoHojaFinal.toFixed(4)}</strong>/hoja.<br>
           <span style="color:var(--text);font-weight:600">Detalle Consumo Venta:</span> ${p.cantidad} hojas utilizadas × $${calc.costoHojaFinal.toFixed(4)} ${calc.corteExtra>0?' + $'+calc.corteExtra+'(corte)':''} = <strong>$${calc.costoPapel.toFixed(2)}</strong><br>
-          ${p.cortes>0?`<span style="color:var(--text);font-weight:600">Cortes de Guillotina:</span> ${p.cortes} cortes × $25.00 = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
+          ${p.tipoCorte==='guillotina' && p.cortes>0?`<span style="color:var(--text);font-weight:600">Cortes de Guillotina:</span> ${calc.detalleCorte} = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
+          ${p.tipoCorte==='registro'?`<span style="color:var(--text);font-weight:600">Corte a Registro:</span> ${calc.detalleCorte} = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
           ${calc.costoDiseno>0?`<span style="color:var(--text);font-weight:600">Diseño:</span> $${calc.costoDiseno.toFixed(2)}<br>`:''}
-          <span style="color:var(--text);font-weight:600;font-size:0.85rem">Total Partida:</span> $${calc.costoImpFrente.toFixed(2)} + ${p.reverso!=='no'?'$'+calc.costoImpReverso.toFixed(2)+' + ':''}$${calc.costoPapel.toFixed(2)}${p.cortes>0?' + $'+calc.costoCortes.toFixed(2):''}${calc.costoDiseno>0?' + $'+calc.costoDiseno.toFixed(2):''} = <strong style="color:var(--success);font-size:0.85rem">$${calc.subtotal.toFixed(2)}</strong>
+          <span style="color:var(--text);font-weight:600;font-size:0.85rem">Total Partida:</span> $${calc.costoImpFrente.toFixed(2)} + ${p.reverso!=='no'?'$'+calc.costoImpReverso.toFixed(2)+' + ':''}$${calc.costoPapel.toFixed(2)}${calc.costoCortes>0?' + $'+calc.costoCortes.toFixed(2):''}${calc.costoDiseno>0?' + $'+calc.costoDiseno.toFixed(2):''} = <strong style="color:var(--success);font-size:0.85rem">$${calc.subtotal.toFixed(2)}</strong>
         </p>
       </div>`;
     }
@@ -542,7 +552,7 @@ function renderPartidas(){
           <strong>${p.cantidad} imp. ${tamNom}</strong><br>
           <span class="badge ${badgeFr}">${frenteTxt}</span>
           <span class="badge ${p.reverso==='no'?'badge-bn':'badge-ambos'}">${reversoTxt}</span><br>
-          ${papel.name} · ${p.cobertura}% · ${p.maquila==='si'?'<span style="color:var(--warning)">Maquila</span>':'Normal'} ${p.cortes>0?`· <span style="color:var(--accent)">✂️ +${p.cortes} cortes</span>`:''}
+          ${papel.name} · ${p.cobertura}% · ${p.maquila==='si'?'<span style="color:var(--warning)">Maquila</span>':'Normal'} ${p.tipoCorte==='guillotina'&&p.cortes>0?`· <span style="color:var(--accent)">✂️ +${p.cortes} cortes</span>`:''}${p.tipoCorte==='registro'?`· <span style="color:var(--accent)">🎯 Corte Reg.</span>`:''}
           ${calc?`<br><span style="color:var(--success);font-weight:700">$${calc.subtotal.toFixed(2)}</span> total · <span style="color:var(--accent2)">$${calc.unitario.toFixed(2)}</span> c/u`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -587,6 +597,7 @@ function realizarCotizacion(){
       <div class="result-row"><span class="result-label">🖨️ Impresión Frente (${frenteTxt})</span><span class="result-value">$${calc.costoImpFrente.toFixed(2)}</span></div>
       ${p.reverso!=='no'?`<div class="result-row"><span class="result-label">🖨️ Impresión Reverso (${reversoTxt.replace('REVERSO ','').replace(' A ','/')})</span><span class="result-value">$${calc.costoImpReverso.toFixed(2)}</span></div>`:''}
       <div class="result-row"><span class="result-label">📄 Papel (${p.papelNombre})</span><span class="result-value">$${calc.costoPapel.toFixed(2)}</span></div>
+      ${calc.costoCortes>0?`<div class="result-row"><span class="result-label">✂️ Corte (${p.tipoCorte==='registro'?'Registro':'Guillotina'})</span><span class="result-value">$${calc.costoCortes.toFixed(2)}</span></div>`:''}
       ${calc.costoDiseno>0?`<div class="result-row"><span class="result-label">🎨 Diseño</span><span class="result-value">$${calc.costoDiseno.toFixed(2)}</span></div>`:''}
       <div class="result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
         <span class="result-label" style="font-weight:700">Subtotal partida</span>
@@ -597,7 +608,11 @@ function realizarCotizacion(){
 
     const cobertDesc = p.cobertura==='50'?'(50% COBERTURA)':p.cobertura==='80'?'(80% COBERTURA)':'(100% COBERTURA)';
     const emojiFrente = p.frente==='color'?'🎨':'⬛';
-    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${p.cantidad} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}\n💵 UNITARIO: $${calc.unitario.toFixed(2)}  |  SUBTOTAL: $${calc.subtotal.toFixed(2)}\n\n`;
+    const textActCorte = p.tipoCorte==='registro' ? '\n🎯 CON CORTE A REGISTRO' : (p.tipoCorte==='guillotina' && p.cortes>0 ? `\n✂️ +${p.cortes} cortes de guillotina` : '');
+    const textCostoCorte = calc.costoCortes > 0 ? `\n✂️ COSTO CORTE: $${calc.costoCortes.toFixed(2)}` : '';
+    const textCostoDiseno = calc.costoDiseno > 0 ? `\n🎨 COSTO DISEÑO: $${calc.costoDiseno.toFixed(2)}` : '';
+    
+    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${p.cantidad} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}${textActCorte}${textCostoCorte}${textCostoDiseno}\n💵 UNITARIO: $${calc.unitario.toFixed(2)}  |  SUBTOTAL: $${calc.subtotal.toFixed(2)}\n\n`;
   });
 
   const iva = totalGeneral * 0.16;
@@ -635,9 +650,14 @@ function limpiarFormulario(){
     el.classList.remove('selected');
     el.querySelector('input').checked=false;
   });
-  // restaurar maquila a "no"
+  // restaurar opciones por defecto
   const maqNo = document.querySelector('[name="maquila"][value="no"]');
   if(maqNo){maqNo.checked=true;maqNo.closest('.radio-opt').classList.add('selected');}
+  
+  const corteNo = document.querySelector('[name="tipoCorte"][value="no"]');
+  if(corteNo){corteNo.checked=true;corteNo.closest('.radio-opt').classList.add('selected');}
+  document.getElementById('guillotinaInputs').style.display='none';
+  document.getElementById('registroHint').style.display='none';
   partidas=[];
   document.getElementById('listaPartidas').innerHTML='';
   document.getElementById('partidasContainer').style.display='none';
