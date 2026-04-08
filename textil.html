@@ -446,5 +446,73 @@
 
     <script src="js/config-textil.js"></script>
     <script src="js/motor-textil.js"></script>
+
+    <a href="index.html" class="btn-home-flotante" title="Volver al Menú Principal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Volver al Menú</span>
+    </a>
+    <style>
+        .btn-home-flotante {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, .4);
+            font-weight: 600;
+            font-size: .95rem;
+            transition: all .3s cubic-bezier(.4, 0, .2, 1);
+            z-index: 9999;
+            font-family: 'Poppins', 'Inter', sans-serif
+        }
+
+        .btn-home-flotante:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, .5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%)
+        }
+
+        .btn-home-flotante:active {
+            transform: translateY(-1px) scale(1.02)
+        }
+
+        .btn-home-flotante svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0
+        }
+
+        .btn-home-flotante span {
+            white-space: nowrap
+        }
+
+        @media (max-width:768px) {
+            .btn-home-flotante {
+                padding: 15px;
+                border-radius: 50%;
+                bottom: 20px;
+                left: 20px
+            }
+
+            .btn-home-flotante span {
+                display: none
+            }
+
+            .btn-home-flotante svg {
+                width: 24px;
+                height: 24px
+            }
+        }
+    </style>
 </body>
 </html>
