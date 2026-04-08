@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEXTIL — Cotizador (Serigrafía, DTF, Bordado, Playeras, Transfer)</title>
+    <meta name="description" content="Cotizador profesional de servicios textiles: serigrafía, DTF, sublimación, bordado.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-h: #4338CA;
+            --green: #10B981;
+            --green-h: #059669;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --red-h: #DC2626;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --muted: #64748B;
+            --border: #E2E8F0;
+            --whatsapp: #25D366;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+        /* HEADER */
+        .app-header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 60%, #A855F7 100%);
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+        }
+        .app-title {
+            font-family: 'Outfit', sans-serif; font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .app-subtitle {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.18); padding: 8px 22px;
+            border-radius: 30px; font-weight: 700; font-size: 1rem;
+            backdrop-filter: blur(8px); margin-top: 10px; border: 1px solid rgba(255,255,255,0.25);
+        }
+        .app-subtitle .wa-icon { color: var(--whatsapp); font-size: 1.3rem; }
+
+        /* CONTAINER */
+        .container { max-width: 980px; margin: 2rem auto; padding: 0 1rem 100px; }
+
+        /* CARD */
+        .card {
+            background: var(--card); border-radius: 14px; padding: 1.6rem;
+            margin-bottom: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 1.2rem;
+            border-bottom: 2px solid var(--primary); padding-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* FORMULARIO */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        label { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+        input[type="number"], select, input[type="text"] {
+            width: 100%; padding: 0.7rem 0.9rem;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            font-size: 1rem; color: var(--text); background: #FAFAFA;
+            transition: all 0.25s;
+        }
+        input[type="number"]:focus, select:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+        input::placeholder { color: #94a3b8; }
+        select option[value=""] { color: #94a3b8; }
+
+        /* BOTONES */
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 0.75rem 1.4rem; border-radius: 9px; font-weight: 700;
+            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+        }
+        .btn:hover { background: var(--primary-h); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
+        .btn-green { background: var(--green); }
+        .btn-green:hover { background: var(--green-h); box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+        .btn-amber { background: var(--amber); }
+        .btn-amber:hover { background: #D97706; }
+        .btn-red { background: var(--red); }
+        .btn-red:hover { background: var(--red-h); box-shadow: 0 4px 12px rgba(239,68,68,0.25); }
+        .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
+
+        /* UBICACIONES SERIGRAFIA */
+        .ubicacion-row {
+            background: #F8FAFC; border: 1.5px dashed #CBD5E1;
+            padding: 1rem; border-radius: 10px; margin-bottom: 0.8rem;
+            display: grid; grid-template-columns: 2fr 1.2fr 0.8fr auto; gap: 1rem; align-items: end;
+        }
+
+        /* PERSONALIZADO */
+        .personalizado-row {
+            background: #FDF4FF; border: 1.5px dashed #D8B4FE;
+            padding: 1rem; border-radius: 10px; margin-bottom: 0.8rem;
+            display: grid; grid-template-columns: 1.5fr 0.9fr 0.9fr 0.9fr 0.9fr auto; gap: 0.8rem; align-items: end;
+        }
+        .personalizado-row .medida-row { display: flex; gap: 6px; align-items: center; }
+        .personalizado-row input[type="number"] { padding: 0.6rem 0.6rem; font-size: 0.9rem; }
+
+        /* TOGGLE PERSONALIZADO */
+        .toggle-group { display: flex; gap: 0.6rem; }
+        .toggle-btn {
+            padding: 0.5rem 1.2rem; border: 2px solid var(--border); background: white;
+            border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s; color: var(--muted);
+        }
+        .toggle-btn.active-si { border-color: var(--green); background: #DCFCE7; color: #166534; }
+        .toggle-btn.active-no { border-color: #CBD5E1; background: #F1F5F9; color: var(--muted); }
+
+        /* VARIANTES PLAYERAS */
+        .playera-variantes-grid { margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+        .variante-item { background: #f8fafc; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+        .variante-item span { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+        .variante-item small { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+
+        /* CARRITO */
+        .carrito-playeras { margin-top: 1rem; background: #eff6ff; padding: 1rem; border-radius: 10px; border: 1px solid #bfdbfe; }
+        .carrito-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #93c5fd; padding: 6px 0; font-size: 0.88rem; }
+        .carrito-item:last-child { border-bottom: none; }
+
+        /* PANEL RESULTADOS */
+        .resultados-panel {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: white; text-align: center; padding: 2rem; border-radius: 14px;
+        }
+        .res-top-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+        .res-box {
+            background: rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .res-box .res-label { font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .res-box .res-val { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: #34d399; margin-top: 4px; }
+        .res-box.total { background: rgba(52,211,153,0.15); border-color: #34d399; }
+        .res-box.total .res-val { font-size: 2.2rem; color: #6ee7b7; }
+        .res-box.iva { background: rgba(245,158,11,0.12); border-color: var(--amber); }
+        .res-box.iva .res-val { color: #fcd34d; font-size: 1.4rem; }
+
+        /* DESGLOSE */
+        .detalles-hidden { display: none; margin-top: 1.5rem; text-align: left; }
+        .desglose-section { font-size: 0.9rem; }
+        .dg-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; color: #a5b4fc; margin: 14px 0 6px; }
+        .dg-note { color: #94a3b8; font-size: 0.82rem; margin-bottom: 6px; }
+        .dg-note code { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; font-size: 0.8rem; }
+        .dg-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .dg-sum { background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 8px; margin-top: 6px; border: 1px solid rgba(255,255,255,0.1); }
+        .dg-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; margin: 6px 0; }
+        .dg-warning { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); }
+        .dg-formula { color: #c7d2fe; margin: 4px 0 4px 10px; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+        .dg-formula strong { color: #a5f3fc; }
+        .dg-green { color: #6ee7b7 !important; }
+        .dg-gray { color: #94a3b8 !important; }
+        .dg-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .dg-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .dg-table td:last-child { text-align: right; color: #c7d2fe; }
+        .dg-tr-sub td { background: rgba(79,70,229,0.2); color: #a5b4fc; font-weight: 700; }
+        .dg-tr-total td { background: rgba(52,211,153,0.2); color: #6ee7b7; font-weight: 700; font-size: 1.05rem; }
+
+        /* PANEL RESUMEN CLIENTE */
+        .resumen-panel { background: #F0FDF4; border: 2px solid var(--green); border-radius: 14px; padding: 1.5rem; margin-top: 1.5rem; }
+        .resumen-panel h3 { color: var(--green-h); font-family: 'Outfit', sans-serif; font-size: 1.2rem; margin-bottom: 1rem; }
+        #resumen_texto { font-family: 'Courier New', monospace; font-size: 0.88rem; white-space: pre-wrap; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; color: var(--text); }
+
+        /* BOTÓN FLOTANTE */
+        .floating-btn {
+            position: fixed; bottom: 25px; right: 25px;
+            background: linear-gradient(135deg, var(--amber), #D97706); color: white;
+            border: none; width: 58px; height: 58px; border-radius: 50%;
+            font-size: 1.4rem; cursor: pointer; box-shadow: 0 6px 18px rgba(245,158,11,0.4);
+            z-index: 1000; transition: transform 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.12) rotate(20deg); }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.65); z-index: 1001; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 92%; max-width: 820px; max-height: 92vh; overflow-y: auto; padding: 2rem; border-radius: 14px; position: relative; }
+        .close-modal { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); }
+        .sys-cost-group { margin-bottom: 1.5rem; border: 1px solid var(--border); padding: 1rem; border-radius: 10px; }
+
+        /* INFO PENDIENTE */
+        .badge-pendiente {
+            display: inline-block; background: #FEF3C7; color: #92400E;
+            font-size: 0.75rem; font-weight: 700; padding: 3px 10px;
+            border-radius: 99px; border: 1px solid #FCD34D; margin-left: 8px;
+        }
+
+        /* ACORDEÓN PLAYERAS EN MODAL */
+        .marca-details { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .marca-summary { padding: 12px 16px; background: #F8FAFC; cursor: pointer; font-weight: 700; color: var(--primary); display: flex; justify-content: space-between; align-items: center; list-style: none; }
+        .marca-summary::-webkit-details-marker { display: none; }
+        .marca-summary::after { content: '\f078'; font-family: 'Font Awesome 6 Free'; font-weight: 900; transition: transform 0.3s; }
+        .marca-details[open] .marca-summary::after { transform: rotate(180deg); }
+        .marca-details[open] .marca-summary { border-bottom: 1px solid var(--border); background: #EEF2FF; }
+
+        .modelo-details { margin: 8px 0; border-left: 4px solid var(--primary); background: #FAFAFA; border-radius: 4px; }
+        .modelo-summary { padding: 8px 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text); list-style: none; }
+        .modelo-summary::before { content: '\f105'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-right: 8px; color: var(--muted); }
+        .modelo-details[open] .modelo-summary::before { content: '\f107'; }
+
+        .variantes-edit-grid { display: grid; grid-template-columns: 1fr 100px 100px; gap: 8px; padding: 10px; align-items: center; border-top: 1px solid #f0f0f0; }
+        .variantes-edit-header { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .costo-playera-input { padding: 6px 8px !important; font-size: 0.85rem !important; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <h1 class="app-title">🎨 COTIZADOR TEXTIL</h1>
+        <p style="margin-bottom:8px;font-size:0.9rem;opacity:0.85;">Serigrafía · DTF · Sublimación · Bordado · Transfer</p>
+        <div class="app-subtitle">
+            <i class="fas fa-user"></i> JOEL ADRIAN MTZ MEZA
+            <i class="fab fa-whatsapp wa-icon"></i> 8341446103
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ═══ 1. SERVICIO Y CARACTERÍSTICAS ═══ -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-clipboard-list"></i> 1. Tipo de Servicio y Características</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="cantidad_general">Cantidad de prendas a cotizar</label>
+                    <input type="number" id="cantidad_general" min="1" placeholder="Ej: 100">
+                </div>
+                <div class="form-group">
+                    <label for="tipo_servicio">Servicio a Cotizar</label>
+                    <select id="tipo_servicio">
+                        <option value="" disabled selected>— Selecciona un servicio —</option>
+                        <option value="serigrafia">SERIGRAFÍA IMPRESA</option>
+                        <option value="dtf" disabled>DTF (Próximamente)</option>
+                        <option value="sublimacion" disabled>SUBLIMACIÓN (Próximamente)</option>
+                        <option value="bordado" disabled>BORDADO (Próximamente)</option>
+                        <option value="full_print" disabled>FULL PRINT (Próximamente)</option>
+                        <option value="transfer" disabled>TRANSFER (Próximamente)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tipo_tela">Tipo de Tela</label>
+                    <select id="tipo_tela">
+                        <option value="" disabled selected>— Selecciona tipo de tela —</option>
+                        <option value="algodon">100% Algodón (sin cargo extra)</option>
+                        <option value="mezcla">Mezcla Algodón/Poliéster (+$6 fondeo)</option>
+                        <option value="poliester">100% Poliéster (+$8 fondeo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="color_tela">Color de Tela</label>
+                    <select id="color_tela">
+                        <option value="" disabled selected>— Selecciona color de tela —</option>
+                        <option value="blanca">Blanca (sin cargo extra)</option>
+                        <option value="negra_color">Negra o Color (+$8 fondeo)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN ═══ -->
+        <div class="card" id="seccion_serigrafia">
+            <h2 class="card-title"><i class="fas fa-tshirt"></i> 2. Ubicaciones de Impresión (Serigrafía)</h2>
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
+                Selecciona cada área donde irá la impresión. Puedes poner distintas tintas en cada ubicación.
+                Los marcos se calculan sumando todas las tintas.
+            </p>
+            <div id="contenedor_ubicaciones"></div>
+            <button class="btn btn-green" onclick="agregarUbicacion()"><i class="fas fa-plus"></i> Añadir Ubicación</button>
+        </div>
+
+        <!-- ═══ 2.5 PERSONALIZADO ═══ -->
+        <div class="card">
+            <h2 class="card-title">
+                <i class="fas fa-star"></i> 2.5. Personalizado
+            </h2>
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
+                Aplica para vinil o DTF personalizado adicional a la serigrafía. Selecciona ubicación, tamaño y tipo.
+            </p>
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label>¿La prenda lleva personalizado?</label>
+                <div class="toggle-group">
+                    <button id="btn_pers_no" class="toggle-btn active-no" onclick="setPersonalizado('no')">✗ No</button>
+                    <button id="btn_pers_si" class="toggle-btn" onclick="setPersonalizado('si')">✓ Sí</button>
+                </div>
+            </div>
+
+            <div id="seccion_personalizado" style="display:none;">
+                <div id="contenedor_personalizado"></div>
+                <button class="btn btn-green btn-sm" style="background:#9333EA;" onclick="agregarPersonalizado()">
+                    <i class="fas fa-plus"></i> Añadir Personalizado
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ 3. PLAYERAS ═══ -->
+        <div class="card">
+            <h2 class="card-title">
+                <i class="fas fa-tags"></i> 3. Playeras
+                <span id="indicador_meta" style="margin-left:auto; font-size:0.85rem; background:#EEF2FF; color:var(--primary); padding:4px 10px; border-radius:12px; border:1px solid #C7D2FE; display:none;">
+                    <i class="fas fa-info-circle"></i> Meta: <b id="meta_pzas">0</b> pzas
+                </span>
+            </h2>
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label for="origen_playeras">¿Quién aporta las playeras?</label>
+                <select id="origen_playeras" onchange="toggleCatalogoPlayeras()">
+                    <option value="" disabled selected>— Selecciona una opción —</option>
+                    <option value="cliente">Cliente envía sus playeras (incluir sobrante de merma)</option>
+                    <option value="comprar">Seleccionar playeras del catálogo</option>
+                </select>
+            </div>
+
+            <div id="catalogo_playeras_ui" style="display:none;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <select id="cat_marca" onchange="actualizarModelosPlayeras()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo / Tipo</label>
+                        <select id="cat_modelo" onchange="mostrarVariantesPlayera()"></select>
+                    </div>
+                </div>
+                <div id="variantes_container" class="playera-variantes-grid"></div>
+                
+                <div class="form-group" id="existencia_container" style="margin-top:1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <label>¿Contamos con las playeras en existencia física?</label>
+                    <div class="toggle-group">
+                        <button id="btn_exis_no" class="toggle-btn active-no" onclick="setExistencia('no')">✗ No (Pagar envío)</button>
+                        <button id="btn_exis_si" class="toggle-btn" onclick="setExistencia('si')">✓ Sí (Sin envío)</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;text-align:right;">
+                    <button class="btn" onclick="agregarAlCarrito()"><i class="fas fa-cart-plus"></i> Agregar al Carrito</button>
+                </div>
+                <div class="carrito-playeras" id="carrito_playeras_ui">
+                    <h4 style="margin-bottom:8px;color:#1D4ED8;"><i class="fas fa-shopping-basket"></i> Prendas en cotización</h4>
+                    <div id="lista_carrito"><p style="color:#94a3b8;">Sin prendas añadidas.</p></div>
+                    <div style="text-align:right;font-weight:700;margin-top:8px;color:#1D4ED8;" id="total_piezas_carrito">Total piezas: 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ 4. DISEÑO ═══ -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-paint-brush"></i> 4. Tipo de Diseño</h2>
+            <div class="form-group">
+                <label for="tipo_diseno">Selecciona el tipo de diseño</label>
+                <select id="tipo_diseno">
+                    <option value="" disabled selected>— Selecciona tipo de diseño —</option>
+                    <option value="cliente">Cliente envía diseño impreso/digital ($150)</option>
+                    <option value="guardado">Diseño guardado aquí ($200)</option>
+                    <option value="nuevo">Realizar diseño nuevo ($300)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ═══ BOTÓN CALCULAR ═══ -->
+        <div style="text-align:center;margin-bottom:1rem;">
+            <button class="btn btn-amber" style="font-size:1.15rem;padding:1rem 3rem;" onclick="calcularCotizacion()">
+                <i class="fas fa-calculator"></i> CALCULAR COTIZACIÓN
+            </button>
+        </div>
+
+        <!-- ═══ PANEL RESULTADOS ═══ -->
+        <div class="card resultados-panel" id="panel_resultados" style="display:none;">
+            <h3 style="font-family:'Outfit',sans-serif;font-size:1.5rem;margin-bottom:0.5rem;">📊 Cotización Final</h3>
+
+            <div class="res-top-grid">
+                <div class="res-box">
+                    <div class="res-label">Subtotal (sin IVA)</div>
+                    <div class="res-val" id="res_subtotal">$0.00</div>
+                </div>
+                <div class="res-box iva">
+                    <div class="res-label">IVA 16%</div>
+                    <div class="res-val" id="res_iva">$0.00</div>
+                </div>
+                <div class="res-box total">
+                    <div class="res-label">TOTAL NETO (con IVA)</div>
+                    <div class="res-val" id="res_total_neto">$0.00</div>
+                </div>
+            </div>
+
+            <div class="res-top-grid" style="margin-top:0.5rem;">
+                <div class="res-box">
+                    <div class="res-label">Costo Unitario sin IVA</div>
+                    <div class="res-val" style="font-size:1.3rem;" id="res_unit_sin">$0.00</div>
+                </div>
+                <div class="res-box">
+                    <div class="res-label">Costo Unitario con IVA</div>
+                    <div class="res-val" style="font-size:1.3rem;" id="res_unit_con">$0.00</div>
+                </div>
+            </div>
+
+            <button id="btn_explicacion" class="btn" style="background:rgba(255,255,255,0.15);margin-top:1.2rem;" onclick="toggleExplicacion()">
+                <i class="fas fa-file-invoice-dollar"></i> VER EXPLICACIÓN DETALLADA
+            </button>
+
+            <div class="detalles-hidden" id="explicacion_detalles"></div>
+        </div>
+
+        <!-- ═══ RESUMEN PARA CLIENTE (WHATSAPP) ═══ -->
+        <div class="resumen-panel" id="panel_resumen" style="display:none;">
+            <h3><i class="fab fa-whatsapp" style="color:var(--whatsapp);"></i> Resumen para el Cliente</h3>
+            <pre id="resumen_texto"></pre>
+            <div style="margin-top:1rem;">
+                <button id="btn_copiar" class="btn btn-green" onclick="copiarResumen()">
+                    <i class="fas fa-copy"></i> Copiar al Portapapeles
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ BOTÓN LIMPIAR ═══ -->
+        <div style="text-align:center;margin-top:2rem;">
+            <button class="btn btn-red" style="font-size:1rem;padding:0.9rem 2.5rem;" onclick="limpiarCampos()">
+                <i class="fas fa-trash-alt"></i> LIMPIAR CAMPOS
+            </button>
+        </div>
+
+    </div>
+
+    <!-- BOTÓN FLOTANTE COSTOS SISTEMA -->
+    <button class="floating-btn" onclick="abrirConfig()" title="Costos del Sistema">
+        <i class="fas fa-cogs"></i>
+    </button>
+
+    <!-- MODAL COSTOS DEL SISTEMA -->
+    <div class="modal" id="modalConfig">
+        <div class="modal-content">
+            <button class="close-modal" onclick="cerrarConfig()"><i class="fas fa-times"></i></button>
+            <h2 style="color:var(--primary);margin-bottom:1.5rem;font-family:'Outfit',sans-serif;">
+                <i class="fas fa-sliders-h"></i> Costos del Sistema (Tabulador)
+            </h2>
+            <div id="formTabulador"></div>
+            <button class="btn btn-green" style="width:100%;margin-top:1rem;" onclick="guardarConfig()">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <script src="js/config-textil.js"></script>
+    <script src="js/motor-textil.js"></script>
+</body>
+</html>
