@@ -1073,9 +1073,6 @@ function generarResumen(d) {
     lineas.push(`📍 Impresión: ${ubisTexto}`);
     if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
     lineas.push(`👕 Playeras: ${playerasTexto}`);
-    if (d.origenPlayeras === 'comprar') {
-        lineas.push(`🚚 Envío: ${d.hayExistencia ? 'Sin cargo (Existencia)' : '$' + d.costoEnvioTotal.toFixed(2)}`);
-    }
     lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
     if (descTexto) lineas.push(`💸 ${descTexto}`);
     lineas.push(`──────────────────────────`);
@@ -1499,13 +1496,7 @@ function generarResumenDTF(d) {
     lineas.push(`🎬 Servicio: DTF (Direct to Film)`);
     lineas.push(`📍 Impresión: ${ubicTexto}`);
     lineas.push(`💕 Tela: ${d.labelTela} / ${d.labelColor}`);
-    lineas.push(`🗐️ Material DTF: ${d.metrosTotales} mt${d.fraccionStr ? ' + ' + d.fraccionStr : ''} (${d.largoTotalCm.toFixed(1)}cm rollo)`);
-    lineas.push(`🎖️ Planchado: ${d.totalPlanchadas} bajadas`);
     lineas.push(`👕 Playeras: ${playerasTexto}`);
-    if (d.origenPlayeras === 'comprar') {
-        lineas.push(`🚚 Envío playeras: ${d.hayExistencia ? 'Sin cargo' : '$' + d.costoEnvioPlayeras.toFixed(2)}`);
-    }
-    lineas.push(`🚚 Envío DTF: ${d.envioDTFGratis ? '$0.00 (GRATIS)' : '$' + d.costoEnvioDTF.toFixed(2)}`);
     lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
     lineas.push(`──────────────────────────`);
     lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
@@ -2115,9 +2106,6 @@ function generarResumenSublimacion(d) {
     lineas.push(`📍 Impresión: ${ubisTexto}`);
     if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
     lineas.push(`👕 Playeras: ${playerasTexto}`);
-    if (d.origenPlayeras === 'comprar') {
-        lineas.push(`🚚 Envío: ${d.hayExistencia ? 'Sin cargo (Existencia)' : '$' + d.costoEnvioTotal.toFixed(2)}`);
-    }
     lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
     lineas.push(`──────────────────────────`);
     lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
@@ -2442,9 +2430,6 @@ function generarResumenTransfer(d) {
     lineas.push(`📍 Impresión: ${ubisTexto}`);
     if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
     lineas.push(`👕 Playeras: ${playerasTexto}`);
-    if (d.origenPlayeras === 'comprar') {
-        lineas.push(`🚚 Envío: ${d.hayExistencia ? 'Sin cargo (Existencia)' : '$' + d.costoEnvioTotal.toFixed(2)}`);
-    }
     lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
     lineas.push(`──────────────────────────`);
     lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
