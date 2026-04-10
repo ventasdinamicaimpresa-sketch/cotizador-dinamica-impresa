@@ -26,15 +26,22 @@ function cambiarServicio() {
     const esSerigrafia = servicioActual === 'serigrafia';
     const esDTF = servicioActual === 'dtf';
     const esSublimacion = servicioActual === 'sublimacion';
+    const esTransfer = servicioActual === 'transfer';
 
     document.getElementById('seccion_serigrafia').style.display = esSerigrafia ? 'block' : 'none';
     document.getElementById('seccion_dtf').style.display = esDTF ? 'block' : 'none';
     const secSubli = document.getElementById('seccion_sublimacion');
     if (secSubli) secSubli.style.display = esSublimacion ? 'block' : 'none';
+    const secTrans = document.getElementById('seccion_transfer');
+    if (secTrans) secTrans.style.display = esTransfer ? 'block' : 'none';
 
-    // Auto-select and disable inputs for Sublimacion
+    // Auto-select and disable inputs
     const tipoTelaEl = document.getElementById('tipo_tela');
     const colorTelaEl = document.getElementById('color_tela');
+    
+    // Restaurar opciones
+    Array.from(tipoTelaEl.options).forEach(opt => opt.disabled = false);
+
     if (esSublimacion) {
         tipoTelaEl.value = 'poliester';
         tipoTelaEl.style.pointerEvents = 'none';
@@ -42,6 +49,16 @@ function cambiarServicio() {
         colorTelaEl.value = 'blanca';
         colorTelaEl.style.pointerEvents = 'none';
         colorTelaEl.style.opacity = '0.7';
+    } else if (esTransfer) {
+        tipoTelaEl.style.pointerEvents = 'auto';
+        tipoTelaEl.style.opacity = '1';
+        colorTelaEl.style.pointerEvents = 'auto';
+        colorTelaEl.style.opacity = '1';
+        // En Transfer no va poliester (según reglas descritas suele ser solo algodon/mezcla)
+        if (tipoTelaEl.value === 'poliester') tipoTelaEl.value = 'algodon';
+        Array.from(tipoTelaEl.options).forEach(opt => {
+            if (opt.value === 'poliester') opt.disabled = true;
+        });
     } else {
         tipoTelaEl.style.pointerEvents = 'auto';
         tipoTelaEl.style.opacity = '1';
@@ -55,6 +72,9 @@ function cambiarServicio() {
     }
     if (esSublimacion && document.querySelectorAll('.sublimacion-row').length === 0) {
         agregarUbicacionSublimacion();
+    }
+    if (esTransfer && document.querySelectorAll('.transfer-row').length === 0) {
+        agregarUbicacionTransfer();
     }
     
     // Recargar marcas filtradas si cambió el servicio
@@ -224,6 +244,54 @@ function verificarTamanoSublimacion(id) {
 }
 
 // ─────────────────────────────────────────────
+//  GESTIÓN DE UBICACIONES TRANSFER
+// ─────────────────────────────────────────────
+let idTransfer = 0;
+function agregarUbicacionTransfer() {
+    idTransfer++;
+    const row = document.createElement('div');
+    // Using dtf-row class for grid layout styling convenience
+    row.className = 'transfer-row dtf-row';
+    row.id = `trans_${idTransfer}`;
+    row.innerHTML = `
+        <div class="form-group">
+            <label>Área de impresión</label>
+            <select class="trans-ubicacion">
+                <option value="" disabled selected>— Selecciona el área —</option>
+                <option value="frente">Frente</option>
+                <option value="espalda">Espalda</option>
+                <option value="escudo">Escudo (Pecho Izquierdo)</option>
+                <option value="manga_izq">Manga Izquierda</option>
+                <option value="manga_der">Manga Derecha</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tamaño Transfer</label>
+            <select class="trans-tamano">
+                <option value="carta">Carta (19 × 26 cm)</option>
+                <option value="media_carta">1/2 Carta</option>
+                <option value="tercio_carta">1/3 Carta</option>
+                <option value="cuarto_carta">1/4 Carta</option>
+            </select>
+        </div>
+        <div class="form-group"></div>
+        <div>
+            <button class="btn btn-red btn-sm" style="margin-top:18px;" onclick="eliminarUbicacionTransfer(${idTransfer})"><i class="fas fa-trash"></i></button>
+        </div>
+    `;
+    document.getElementById('contenedor_transfer').appendChild(row);
+}
+
+function eliminarUbicacionTransfer(id) {
+    if (document.querySelectorAll('.transfer-row').length > 1) {
+        document.getElementById(`trans_${id}`).remove();
+    } else {
+        alert('Debe haber por lo menos una ubicación de impresión.');
+    }
+}
+
+// ─────────────────────────────────────────────
 //  GESTIÓN DE PERSONALIZADO
 // ─────────────────────────────────────────────
 function setPersonalizado(val) {
@@ -275,6 +343,7 @@ function agregarPersonalizado() {
                 <option value="vinil">Vinil Textil</option>
                 <option value="dtf">DTF</option>
                 <option value="sublimacion">Sublimación</option>
+                <option value="transfer">Transfer</option>
             </select>
         </div>
         <div class="form-group" style="display:none;">
@@ -467,6 +536,14 @@ function calcularCotizacion() {
     // ============================================================
     if (servicio === 'sublimacion') {
         calcularCotizacionSublimacion(cantidadBase, tDis, origenPlayeras);
+        return;
+    }
+
+    // ============================================================
+    //  RAMA TRANSFER COMO SERVICIO PRINCIPAL
+    // ============================================================
+    if (servicio === 'transfer') {
+        calcularCotizacionTransfer(cantidadBase, tDis, origenPlayeras);
         return;
     }
 
@@ -1072,15 +1149,23 @@ function limpiarCampos() {
     if (secSubli) secSubli.innerHTML = '';
     idSublimacion = 0;
 
+    // Transfer
+    const secTrans = document.getElementById('contenedor_transfer');
+    if (secTrans) secTrans.innerHTML = '';
+    idTransfer = 0;
+
     servicioActual = 'serigrafia';
     document.getElementById('seccion_serigrafia').style.display = 'block';
     document.getElementById('seccion_dtf').style.display = 'none';
     const uiSubli = document.getElementById('seccion_sublimacion');
     if (uiSubli) uiSubli.style.display = 'none';
+    const uiTrans = document.getElementById('seccion_transfer');
+    if (uiTrans) uiTrans.style.display = 'none';
 
-    // Rehabilitar selects que sublimación inactiva
+    // Rehabilitar selects que sublimación inactiva o transfer limita
     const tipoTelaEl = document.getElementById('tipo_tela');
     const colorTelaEl = document.getElementById('color_tela');
+    Array.from(tipoTelaEl.options).forEach(opt => opt.disabled = false);
     tipoTelaEl.style.pointerEvents = 'auto';
     tipoTelaEl.style.opacity = '1';
     colorTelaEl.style.pointerEvents = 'auto';
@@ -2027,6 +2112,333 @@ function generarResumenSublimacion(d) {
     lineas.push(`━━━ COTIZACIÓN TEXTIL ━━━`);
     lineas.push(`📦 Cantidad: ${d.cantidadBase} prendas`);
     lineas.push(`🎨 Servicio: SUBLIMACIÓN`);
+    lineas.push(`📍 Impresión: ${ubisTexto}`);
+    if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
+    lineas.push(`👕 Playeras: ${playerasTexto}`);
+    if (d.origenPlayeras === 'comprar') {
+        lineas.push(`🚚 Envío: ${d.hayExistencia ? 'Sin cargo (Existencia)' : '$' + d.costoEnvioTotal.toFixed(2)}`);
+    }
+    lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
+    lineas.push(`──────────────────────────`);
+    lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
+    lineas.push(`Total c/ IVA:   $${d.costoNetoConIVA.toFixed(2)}`);
+    lineas.push(`Precio c/u:     $${d.unitarioConIVA.toFixed(2)} (con IVA)`);
+
+    document.getElementById('resumen_texto').innerText = lineas.join('\n');
+    document.getElementById('panel_resumen').style.display = 'block';
+}
+
+// ─────────────────────────────────────────────
+//  CALCULAR COTIZACIÓN TRANSFER (SERVICIO PRINCIPAL)
+// ─────────────────────────────────────────────
+function calcularCotizacionTransfer(cantidadBase, tDis, origenPlayeras) {
+    const t = TABULADOR_COSTOS;
+    const pTrans = t.transfer.precios_impresion;
+
+    const rowsTrans = document.querySelectorAll('.transfer-row');
+    if (rowsTrans.length === 0) { alert('⚠️ Agrega al menos una ubicación de Transfer.'); return; }
+
+    const idColor = document.getElementById('color_tela').value;
+    const usarTarifaColor = (idColor === 'negra_color');
+    const tarifasArr = usarTarifaColor ? pTrans.color : pTrans.blancos;
+
+    const detalleUbicTrans = [];
+    let costoTotalImpresion = 0;
+    let costoTotalPlanchado = 0;
+
+    for (const row of rowsTrans) {
+        const ubiSel = row.querySelector('.trans-ubicacion');
+        const tamSel = row.querySelector('.trans-tamano');
+        const ubiName = ubiSel.value ? ubiSel.options[ubiSel.selectedIndex].text : 'Sin especificar';
+        const tamName = tamSel.value ? tamSel.options[tamSel.selectedIndex].text : 'Carta';
+        const tamId = tamSel.value || 'carta';
+
+        if (!ubiSel.value) { alert('⚠️ Selecciona el área de impresión en todas las ubicaciones.'); return; }
+
+        let divisor = 1;
+        if (tamId === 'media_carta') divisor = 2;
+        else if (tamId === 'tercio_carta') divisor = 3;
+        else if (tamId === 'cuarto_carta') divisor = 4;
+
+        let hojasNec = Math.ceil(cantidadBase / divisor);
+        let objTarifa = tarifasArr.find(u => hojasNec <= u.max) || tarifasArr[tarifasArr.length - 1];
+        let costoHojaUnitario = objTarifa.costo;
+        let subtotalImpresionUbic = costoHojaUnitario * hojasNec;
+        
+        costoTotalImpresion += subtotalImpresionUbic;
+        detalleUbicTrans.push({ ubiName, tamName, tamId, divisor, hojasNec, costoHojaUnitario, subtotalImpresionUbic });
+    }
+
+    let totalPrensadasPrincipales = rowsTrans.length * cantidadBase;
+    let objPlanchaP = t.personalizado.tarifas_planchado.find(u => totalPrensadasPrincipales <= u.max) || t.personalizado.tarifas_planchado[t.personalizado.tarifas_planchado.length - 1];
+    let costoPlanchadoUbic = objPlanchaP.tarifa * totalPrensadasPrincipales;
+    costoTotalPlanchado += costoPlanchadoUbic;
+
+    let costoTotalPlayeras = 0;
+    let costoEnvioTotal = 0;
+    let numMermas = Math.ceil(cantidadBase / 100) * 5; 
+    let factorUtilidad = 2;
+    const detallePlayeras = [];
+    let infoEnvio = null;
+
+    if (origenPlayeras === 'comprar') {
+        if (carritoPlayeras.length === 0) { alert('⚠️ Agrega playeras al carrito antes de calcular.'); return; }
+        const objUtil = t.utilidad_playeras.find(u => cantidadBase <= u.max) || t.utilidad_playeras[t.utilidad_playeras.length - 1];
+        factorUtilidad = objUtil.util;
+        carritoPlayeras.forEach(c => {
+            const cantPz = c.cantidad;
+            const precioBase = cantidadBase >= 12 ? c.variante.mayor : c.variante.menor;
+            const precioVenta = precioBase * factorUtilidad;
+            const subtotalRenglon = precioVenta * cantPz;
+            costoTotalPlayeras += subtotalRenglon;
+            detallePlayeras.push({ cantPz, marca: c.marca, modelo: c.modelo, variante: c.variante.nombre, precioBase, factorUtilidad, precioVenta, subtotalRenglon });
+        });
+        const arrPreciosBase = carritoPlayeras.map(c => cantidadBase >= 12 ? c.variante.mayor : c.variante.menor);
+        const precioMermaBase = Math.max(...arrPreciosBase);
+        const costoMerma = precioMermaBase * factorUtilidad * numMermas;
+        costoTotalPlayeras += costoMerma;
+        detallePlayeras._merma = { numMermas, precioMermaBase, factorUtilidad, costoMerma };
+
+        if (!hayExistencia) {
+            const paquetesEnvio = Math.ceil(cantidadBase / 70);
+            costoEnvioTotal = paquetesEnvio * t.otros.envio_por_70_pz;
+            infoEnvio = { paquetesEnvio, costoEnvio: costoEnvioTotal, tarifa: t.otros.envio_por_70_pz };
+        }
+    }
+
+    let costoDiseno = 0;
+    let labelDiseno = '';
+    if (tDis === 'cliente') { costoDiseno = t.otros.diseno_cliente; labelDiseno = 'Archivo del cliente listo ($' + t.otros.diseno_cliente + ')'; }
+    else if (tDis === 'guardado') { costoDiseno = t.otros.diseno_guardado; labelDiseno = 'Diseño guardado en tienda ($' + t.otros.diseno_guardado + ')'; }
+    else { costoDiseno = t.otros.diseno_nuevo; labelDiseno = 'Diseño nuevo / Modificaciones ($' + t.otros.diseno_nuevo + ')'; }
+
+    let totalCostoPersonalizado = 0;
+    const personalizados = llevaPersonalizado ? leerPersonalizados() : [];
+    
+    // Preparar contenedores de personalizado
+    let itemsVinilEnResumen = [];
+    let detallesDTF = null;
+    let itemsSubliPersResumen = [];
+    let itemsTransferPersResumen = [];
+    let costoImpresionPersGeneral = 0;
+    let prensadasPersonalizado = 0;
+    let largoTotalDTF = 0;
+
+    const configVinil = {};
+    t.personalizado.viniles.forEach(v => { configVinil[v.id] = { nombre: v.nombre, precioM: v.costoM, largoCm: 0 }; });
+
+    if (personalizados && personalizados.length > 0) {
+        personalizados.forEach(p => {
+            if (p.ancho > 0 && p.alto > 0) {
+                prensadasPersonalizado += cantidadBase;
+                if (p.tecnica === 'transfer') {
+                    let pzasRot0 = Math.floor(t.transfer.medidas_material.carta.anchoCM / p.ancho) * Math.floor(t.transfer.medidas_material.carta.altoCM / p.alto);
+                    let pzasRot90 = Math.floor(t.transfer.medidas_material.carta.anchoCM / p.alto) * Math.floor(t.transfer.medidas_material.carta.altoCM / p.ancho);
+                    let pzasPerSheet = Math.max(pzasRot0, pzasRot90, 1);
+                    
+                    let sheetsNeeded = Math.ceil(cantidadBase / pzasPerSheet);
+                    let objTarifaT = tarifasArr.find(u => sheetsNeeded <= u.max) || tarifasArr[tarifasArr.length - 1];
+                    let costoItem = sheetsNeeded * objTarifaT.costo;
+                    
+                    costoImpresionPersGeneral += costoItem;
+                    itemsTransferPersResumen.push({ elemento: p.ubicacion, tam: "Carta", pzasPerSheet, sheetsNeeded, costoSheet: objTarifaT.costo, total: costoItem });
+                } else if (p.tecnica === 'sublimacion') {
+                    let hojaS = { w: t.sublimacion.medidas_material.carta.anchoCM, h: t.sublimacion.medidas_material.carta.altoCM };
+                    let pzasRot0 = Math.floor(hojaS.w / p.ancho) * Math.floor(hojaS.h / p.alto);
+                    let pzasRot90 = Math.floor(hojaS.w / p.alto) * Math.floor(hojaS.h / p.ancho);
+                    let pzasPerSheet = Math.max(pzasRot0, pzasRot90, 1);
+                    
+                    let sheetsNeeded = Math.ceil(cantidadBase / pzasPerSheet);
+                    let objTarifaS = t.sublimacion.precios_impresion.carta.find(u => sheetsNeeded <= u.max) || t.sublimacion.precios_impresion.carta[t.sublimacion.precios_impresion.carta.length - 1];
+                    let costoItem = sheetsNeeded * objTarifaS.costo;
+                    
+                    costoImpresionPersGeneral += costoItem;
+                    itemsSubliPersResumen.push({ elemento: p.ubicacion, tam: "Carta", pzasPerSheet, sheetsNeeded, costoSheet: objTarifaS.costo, total: costoItem });
+                } else if (p.tecnica === 'dtf') {
+                    let pzasR1 = Math.floor(t.personalizado.dtf.ancho_cm / (p.ancho + t.personalizado.dtf.margen_cm));
+                    let l1 = Math.ceil(cantidadBase / pzasR1) * (p.alto + t.personalizado.dtf.margen_cm);
+                    let pzasR2 = Math.floor(t.personalizado.dtf.ancho_cm / (p.alto + t.personalizado.dtf.margen_cm));
+                    let l2 = Math.ceil(cantidadBase / pzasR2) * (p.ancho + t.personalizado.dtf.margen_cm);
+                    largoTotalDTF += (l1 < l2) ? l1 : l2;
+                } else if (p.tecnica === 'vinil') {
+                    const anchoUtil = 44; 
+                    const cols1 = Math.floor(anchoUtil / p.ancho);
+                    const iter1 = cols1 > 0 ? Math.ceil(cantidadBase / cols1) * p.alto : Infinity;
+                    const cols2 = Math.floor(anchoUtil / p.alto);
+                    const iter2 = cols2 > 0 ? Math.ceil(cantidadBase / cols2) * p.ancho : Infinity; 
+                    if (configVinil[p.tipoVinilVal]) configVinil[p.tipoVinilVal].largoCm += Math.min(iter1, iter2) + 2;
+                }
+            }
+        });
+
+        // Sumar DTF al perzonalizado
+        if (largoTotalDTF > 0) {
+            const mtsNormales = Math.floor(largoTotalDTF / 100);
+            const sobrante = largoTotalDTF % 100;
+            const pDTFconfig = t.personalizado.dtf.precios;
+            let metrosTotales = mtsNormales;
+            let fraccionStr = "";
+            let ventaFraccion = 0, costoFraccion = 0;
+            if (sobrante > 0 && sobrante <= 25) { ventaFraccion = pDTFconfig.cuarto.costo * pDTFconfig.cuarto.util; costoFraccion = pDTFconfig.cuarto.costo; fraccionStr = " + 1/4 mt"; }
+            else if (sobrante > 25 && sobrante <= 50) { ventaFraccion = pDTFconfig.medio.costo * pDTFconfig.medio.util; costoFraccion = pDTFconfig.medio.costo; fraccionStr = " + 1/2 mt"; }
+            else if (sobrante > 50) { metrosTotales += 1; }
+            const costoBase = (metrosTotales * pDTFconfig.metro.costo) + costoFraccion;
+            const ventaMaterialDTF = (metrosTotales * pDTFconfig.metro.costo * pDTFconfig.metro.util) + ventaFraccion;
+            let ventaTotal = ventaMaterialDTF;
+            let costoEnvioDTF = 0;
+            if (costoBase < t.personalizado.dtf.envio.costo_minimo_gratis) {
+                const reqEnvios = Math.ceil(costoBase / t.personalizado.dtf.precios.metro.costo / t.personalizado.dtf.envio.metros_por_costo) || 1;
+                costoEnvioDTF = reqEnvios * t.personalizado.dtf.envio.costo;
+                ventaTotal += costoEnvioDTF;
+            }
+            totalCostoPersonalizado += ventaTotal;
+            detallesDTF = { largoTotalCm: largoTotalDTF, metrosTotales, fraccionStr, costoBase, ventaMaterialDTF, costoEnvioDTF, ventaTotal };
+        }
+
+        // Sumar Vinil al personalizado
+        Object.values(configVinil).forEach(v => {
+            if (v.largoCm > 0) {
+                let mtCobrar = v.largoCm / 100;
+                const objUtil = t.personalizado.utilidad_vinil.find(u => mtCobrar <= u.max) || t.personalizado.utilidad_vinil[t.personalizado.utilidad_vinil.length - 1];
+                const ventaMaterial = (mtCobrar * v.precioM) * objUtil.util;
+                let costoCorte = (mtCobrar < 1.0) ? t.personalizado.maquila.corte_min : (mtCobrar < 5.0 ? mtCobrar * t.personalizado.maquila.corte_metro_bajo : mtCobrar * t.personalizado.maquila.corte_metro_alto);
+                let costoDepilado = (mtCobrar <= 1.0) ? t.personalizado.maquila.depilado_min : (mtCobrar <= 10.0 ? mtCobrar * t.personalizado.maquila.depilado_metro_bajo : mtCobrar * t.personalizado.maquila.depilado_metro_alto);
+                const subtotalVinil = ventaMaterial + costoCorte + costoDepilado;
+                totalCostoPersonalizado += subtotalVinil;
+                itemsVinilEnResumen.push({ nombre: v.nombre, mtCobrar, utilidadMult: objUtil.util, precioM: v.precioM, costoMaterial: mtCobrar * v.precioM, ventaMaterial, costoCorte, costoDepilado, subtotalVinil });
+            }
+        });
+
+        totalCostoPersonalizado += costoImpresionPersGeneral;
+        if (prensadasPersonalizado > 0) {
+            let objPlanchaP2 = t.personalizado.tarifas_planchado.find(u => prensadasPersonalizado <= u.max) || t.personalizado.tarifas_planchado[t.personalizado.tarifas_planchado.length - 1];
+            costoTotalPlanchado += (objPlanchaP2.tarifa * prensadasPersonalizado);
+        }
+    }
+
+    let desglosePlanchado = { prensadas: totalPrensadasPrincipales + prensadasPersonalizado, total: costoTotalPlanchado };
+    const costoNetoSinIVA = costoTotalImpresion + costoTotalPlanchado + costoTotalPlayeras + costoEnvioTotal + totalCostoPersonalizado + costoDiseno;
+    const montoIVA = costoNetoSinIVA * 0.16;
+    const costoNetoConIVA = costoNetoSinIVA + montoIVA;
+    const unitarioSinIVA = costoNetoSinIVA / cantidadBase;
+    const unitarioConIVA = costoNetoConIVA / cantidadBase;
+
+    const dataReporte = {
+        servicio: 'transfer', t, cantidadBase, origenPlayeras, hayExistencia, numMermas,
+        usarTarifaColor, detalleUbicTrans, costoTotalImpresion, desglosePlanchado, factorUtilidad, costoTotalPlayeras, detallePlayeras,
+        infoEnvio, costoEnvioTotal, labelDiseno, costoDiseno, llevaPersonalizado, personalizados, totalCostoPersonalizado,
+        itemsVinilEnResumen, detallesDTF, itemsSubliPersResumen, itemsTransferPersResumen, costoImpresionPersGeneral,
+        costoNetoSinIVA, montoIVA, costoNetoConIVA, unitarioSinIVA, unitarioConIVA
+    };
+
+    generarDetalleTransfer(dataReporte);
+    generarResumenTransfer(dataReporte);
+}
+
+function generarDetalleTransfer(d) {
+    document.getElementById('res_subtotal').innerText = `$${d.costoNetoSinIVA.toFixed(2)}`;
+    document.getElementById('res_iva').innerText = `$${d.montoIVA.toFixed(2)}`;
+    document.getElementById('res_total_neto').innerText = `$${d.costoNetoConIVA.toFixed(2)}`;
+    document.getElementById('res_unit_sin').innerText = `$${d.unitarioSinIVA.toFixed(2)}`;
+    document.getElementById('res_unit_con').innerText = `$${d.unitarioConIVA.toFixed(2)}`;
+    document.getElementById('panel_resultados').style.display = 'block';
+    document.getElementById('explicacion_detalles').style.display = 'none';
+
+    let html = '<div class="detalles-grid">';
+    const sep = '<div class="dg-separator"></div>';
+
+    html += `<h4 class="dg-title">🖼️ IMPRESIÓN TRANSFER ${d.usarTarifaColor ? '(COLOR)' : '(BLANCOS)'}</h4>`;
+    html += `<p class="dg-note">Calculado por número de hojas efectivas necesarias.</p>`;
+    d.detalleUbicTrans.forEach(u => {
+        html += `<div class="dg-box"><b>Ubicación: ${u.ubiName} — Hoja: ${u.tamName}</b>`;
+        html += `<p class="dg-formula">(${u.hojasNec} hojas calculadas, divisor ${u.divisor}) × $${u.costoHojaUnitario.toFixed(2)}/u = <strong>$${u.subtotalImpresionUbic.toFixed(2)}</strong></p></div>`;
+    });
+    html += `<p class="dg-row dg-sum"><span>Total Hojas Impresión:</span><strong>$${d.costoTotalImpresion.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    if (d.llevaPersonalizado) {
+        html += `<h4 class="dg-title">⭐ PERSONALIZADO</h4>`;
+        if (d.itemsTransferPersResumen && d.itemsTransferPersResumen.length > 0) {
+            html += `<p class="dg-formula dg-warning">Material Transfer óptimo:</p>`;
+            d.itemsTransferPersResumen.forEach(s => {
+                html += `<div class="dg-box"><b>${s.elemento} (${s.tam})</b> - Caben ${s.pzasPerSheet} pzas/hoja<br>`;
+                html += `Se requieren ${s.sheetsNeeded} hojas × $${s.costoSheet.toFixed(2)}/u = <strong>$${s.total.toFixed(2)}</strong></div>`;
+            });
+        }
+        if (d.itemsSubliPersResumen && d.itemsSubliPersResumen.length > 0) {
+            html += `<p class="dg-formula dg-warning">Material Sublimación óptimo:</p>`;
+            d.itemsSubliPersResumen.forEach(s => {
+                html += `<div class="dg-box"><b>${s.elemento} (${s.tam})</b> - Caben ${s.pzasPerSheet} pzas/hoja<br>`;
+                html += `Se requieren ${s.sheetsNeeded} hojas × $${s.costoSheet.toFixed(2)}/u = <strong>$${s.total.toFixed(2)}</strong></div>`;
+            });
+        }
+        if (d.itemsVinilEnResumen && d.itemsVinilEnResumen.length > 0) {
+            d.itemsVinilEnResumen.forEach(v => {
+                 html += `<div class="dg-box dg-gray"><b>Vinil ${v.nombre}</b>: Total: <strong>$${v.subtotalVinil.toFixed(2)}</strong></div>`;
+            });
+        }
+        if (d.detallesDTF) {
+             html += `<div class="dg-box dg-gray"><b>DTF</b>: Subtotal $${d.detallesDTF.ventaTotal.toFixed(2)}</div>`;
+        }
+        html += `<p class="dg-row dg-sum"><span>Total Personalizado Textil:</span><strong>$${d.totalCostoPersonalizado.toFixed(2)}</strong></p>`;
+        html += sep;
+    }
+
+    html += `<h4 class="dg-title">🔥 PLANCHADO GENERAL</h4>`;
+    html += `<p class="dg-formula">${d.desglosePlanchado.prensadas} bajadas de plancha en total (Servicio principal + Personalizado)</p>`;
+    html += `<p class="dg-row dg-sum"><span>Total Planchado:</span><strong>$${d.desglosePlanchado.total.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">👕 PLAYERAS</h4>`;
+    if (d.origenPlayeras === 'comprar') {
+        d.detallePlayeras.filter(p=>p.cantPz).forEach(p => {
+             html += `<p class="dg-row"><span>${p.cantPz}pz ${p.marca} ${p.modelo} (${p.variante}) × $${p.precioVenta.toFixed(2)}</span><strong>$${p.subtotalRenglon.toFixed(2)}</strong></p>`;
+        });
+        html += `<p class="dg-row dg-warning" style="margin-top:6px;"><span>${d.detallePlayeras._merma.numMermas} pzs Merma (basado en ${d.detallePlayeras._merma.numMermas} pzs extra × ${(d.detallePlayeras._merma.precioMermaBase * d.detallePlayeras._merma.factorUtilidad).toFixed(2)})</span><strong>$${d.detallePlayeras._merma.costoMerma.toFixed(2)}</strong></p>`;
+        html += `<p class="dg-row dg-sum"><span>Total Playeras Reales + Merma:</span><strong>$${d.costoTotalPlayeras.toFixed(2)}</strong></p>`;
+        html += `<h4 class="dg-title">🚚 ENVÍO</h4>`;
+        if (d.hayExistencia) html += `<p class="dg-formula dg-green">✅ Playeras en existencia local. Costo Envío: $0.00</p>`;
+        else if (d.infoEnvio) html += `<p class="dg-formula">${d.infoEnvio.paquetesEnvio} paquete(s) × $${d.infoEnvio.tarifa} = <strong>$${d.costoEnvioTotal.toFixed(2)}</strong></p>`;
+    } else {
+         html += `<p class="dg-formula dg-green">✅ Cliente envía prendas.</p>`;
+         html += `<p class="dg-formula">⚠️ Pedir ${d.numMermas} piezas de merma.</p>`;
+    }
+    html += sep;
+    html += `<h4 class="dg-title">✏️ DISEÑO</h4>`;
+    html += `<p class="dg-formula">${d.labelDiseno}: <strong>$${d.costoDiseno}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">📊 RESUMEN FINAL</h4>`;
+    html += `<table class="dg-table"><tr><td>Impresión Transfer</td><td>$${d.costoTotalImpresion.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Costo Planchado</td><td>$${d.desglosePlanchado.total.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Costo de Playeras</td><td>$${d.costoTotalPlayeras.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Costo de Envío</td><td>$${d.costoEnvioTotal.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Personalizado Adicional</td><td>$${d.totalCostoPersonalizado.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Diseño</td><td>$${d.costoDiseno}</td></tr>`;
+    html += `<tr class="dg-tr-sub"><td><b>SUBTOTAL sin IVA</b></td><td><b>$${d.costoNetoSinIVA.toFixed(2)}</b></td></tr>`;
+    html += `<tr><td>IVA 16%: </td><td>$${d.montoIVA.toFixed(2)}</td></tr>`;
+    html += `<tr class="dg-tr-total"><td><b>TOTAL con IVA</b></td><td><b>$${d.costoNetoConIVA.toFixed(2)}</b></td></tr></table></div>`;
+    document.getElementById('explicacion_detalles').innerHTML = html;
+}
+
+function generarResumenTransfer(d) {
+    const lineas = [];
+    const ubisTexto = d.detalleUbicTrans.map(u => `${u.ubiName} (${u.tamName})`).join(' + ');
+
+    let playerasTexto = '';
+    if (d.origenPlayeras === 'comprar' && d.detallePlayeras.length > 0) {
+        playerasTexto = d.detallePlayeras.filter(p=>p.cantPz).map(p => `${p.cantPz}× ${p.marca} ${p.modelo} (${p.variante})`).join(', ');
+    } else {
+        playerasTexto = `Cliente envía (+ ${d.numMermas} pzas merma)`;
+    }
+
+    const persTexto = (d.personalizados && d.personalizados.length > 0)
+        ? d.personalizados.map(p => `${p.ubicacion} ${p.ancho}×${p.alto}cm ${(p.tecnica==='vinil')?p.tipoVinilTxt:(p.tecnica==='dtf'?'DTF':p.tecnica)}`).join(' | ')
+        : null;
+
+    lineas.push(`━━━ COTIZACIÓN TEXTIL ━━━`);
+    lineas.push(`📦 Cantidad: ${d.cantidadBase} prendas`);
+    lineas.push(`🎨 Servicio: TRANSFER ${d.usarTarifaColor ? '(COLOR)' : '(BLANCOS)'}`);
     lineas.push(`📍 Impresión: ${ubisTexto}`);
     if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
     lineas.push(`👕 Playeras: ${playerasTexto}`);

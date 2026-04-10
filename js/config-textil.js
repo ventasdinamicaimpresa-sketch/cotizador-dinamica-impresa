@@ -91,6 +91,23 @@ const DEFAULT_TABULADOR = {
             oficio: { anchoCM: 19, altoCM: 32 }
         }
     },
+    transfer: {
+        precios_impresion: {
+            blancos: [
+                { max: 20, costo: 74 },
+                { max: 49, costo: 58 },
+                { max: Infinity, costo: 48 }
+            ],
+            color: [
+                { max: 20, costo: 112 },
+                { max: 49, costo: 88 },
+                { max: Infinity, costo: 73 }
+            ]
+        },
+        medidas_material: {
+            carta: { anchoCM: 19, altoCM: 26 }
+        }
+    },
     otros: {
         envio_por_70_pz: 220,
         merma_porcentaje: 0.05, // 5 prendas por cada 100

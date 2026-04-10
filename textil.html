@@ -254,7 +254,7 @@
                         <option value="sublimacion">SUBLIMACIÓN</option>
                         <option value="bordado" disabled>BORDADO (Próximamente)</option>
                         <option value="full_print" disabled>FULL PRINT (Próximamente)</option>
-                        <option value="transfer" disabled>TRANSFER (Próximamente)</option>
+                        <option value="transfer">TRANSFER</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -315,6 +315,21 @@
             <div id="contenedor_sublimacion"></div>
             <button class="btn btn-green" style="background:#a855f7;" onclick="agregarUbicacionSublimacion()">
                 <i class="fas fa-plus"></i> Añadir Ubicación Sublimación
+            </button>
+        </div>
+
+        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN (TRANSFER) ═══ -->
+        <div class="card" id="seccion_transfer" style="display:none;">
+            <h2 class="card-title">
+                <i class="fas fa-images"></i> 2. Ubicaciones de Impresión
+                <span class="dtf-badge" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">TRANSFER</span>
+            </h2>
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
+                Selecciona área y tamaño. Fondeo sin cargo extra. El costo por hoja entera se divide según la fracción y cobra como hoja redondeada en total.
+            </p>
+            <div id="contenedor_transfer"></div>
+            <button class="btn btn-green" style="background:#3b82f6;" onclick="agregarUbicacionTransfer()">
+                <i class="fas fa-plus"></i> Añadir Ubicación Transfer
             </button>
         </div>
 
