@@ -72,7 +72,24 @@ const DEFAULT_TABULADOR = {
                 costo_minimo_gratis: 1550
             }
         }
-
+    },
+    sublimacion: {
+        precios_impresion: {
+            carta: [
+                { max: 20, costo: 30 },
+                { max: 49, costo: 25 },
+                { max: Infinity, costo: 19 }
+            ],
+            oficio: [
+                { max: 20, costo: 38 },
+                { max: 49, costo: 28 },
+                { max: Infinity, costo: 23 }
+            ]
+        },
+        medidas_material: {
+            carta: { anchoCM: 19, altoCM: 26 },
+            oficio: { anchoCM: 19, altoCM: 32 }
+        }
     },
     otros: {
         envio_por_70_pz: 220,
@@ -85,7 +102,7 @@ const DEFAULT_TABULADOR = {
 
 const DEFAULT_CATALOGO_PLAYERAS = [
     {
-        marca: "M&O",
+        marca: "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
         tipo: "4800 GOLD 100% ALGODÓN UNISEX",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 46.45, mayor: 33.54 }, // menor: 1 pz, mayor: 12+ pz
@@ -100,7 +117,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "M&O",
+        marca: "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
         tipo: "4810 GOLD 100% ALGODÓN DAMA",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 54.92, mayor: 40.91 },
@@ -110,7 +127,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "M&O",
+        marca: "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
         tipo: "4850 GOLD 100% ALGODÓN NIÑO",
         variantes: [
             { nombre: "BLANCO (XXS-M)", menor: 33.38, mayor: 26.04 },
@@ -125,7 +142,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "M&O",
+        marca: "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
         tipo: "7000 TIPO POLO PIQUE HOMBRE",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 98.50, mayor: 70.92 },
@@ -135,7 +152,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "M&O",
+        marca: "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
         tipo: "7600 TIPO POLO PIQUE DAMA",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 98.50, mayor: 71.91 },
@@ -145,7 +162,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "GILDAN",
+        marca: "GILDAN = CUELLO REDONDO PREMIUM",
         tipo: "64000 SOFT STYLE HOMBRE",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 56.43, mayor: 43.15 },
@@ -155,7 +172,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "GILDAN",
+        marca: "GILDAN = CUELLO REDONDO PREMIUM",
         tipo: "64000L SOFT STYLE DAMA",
         variantes: [
             { nombre: "BLANCO (X-XL)", menor: 57.09, mayor: 43.66 },
@@ -165,7 +182,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "MAXIMA DEPORTIVA",
+        marca: "MAXIMA DEPORITVA = TIPO POLO PREMIUM",
         tipo: "MAXPP TIPO POLO PIQUE HOMBRE",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 125.23, mayor: 106.44 }, // mayor es -15% (12+ pz) -> aprox 106.44
@@ -177,7 +194,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "MAXIMA DEPORTIVA",
+        marca: "MAXIMA DEPORITVA = TIPO POLO PREMIUM",
         tipo: "MAXDM TIPO POLO PIQUE DAMA",
         variantes: [
             { nombre: "BLANCO (S-XL)", menor: 121.67, mayor: 103.41 },
@@ -186,7 +203,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "ULTRA DRY",
+        marca: "ULTRA DRY = TELA DEPORTIVA",
         tipo: "UDCR MANGA CORTA DRY FIT",
         variantes: [
             { nombre: "UNISEX (S-XL)", menor: 101.31, mayor: 86.11 }, // -15%
@@ -196,7 +213,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "ULTRA DRY",
+        marca: "ULTRA DRY = TELA DEPORTIVA",
         tipo: "UDCRML MANGA LARGA DRY FIT",
         variantes: [
             { nombre: "UNISEX (S-XL)", menor: 140.54, mayor: 119.45 },
@@ -204,7 +221,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "ULTRA DRY",
+        marca: "ULTRA DRY = TELA DEPORTIVA",
         tipo: "UDTP TIPO POLO MANGA CORTA DRY FIT",
         variantes: [
             { nombre: "UNISEX (S-XL)", menor: 184.75, mayor: 157.03 },
@@ -214,7 +231,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "ULTRA DRY",
+        marca: "ULTRA DRY = TELA DEPORTIVA",
         tipo: "UDTPML TIPO POLO MANGA LARGA DRY FIT",
         variantes: [
             { nombre: "UNISEX (S-XL)", menor: 249.75, mayor: 212.28 },
@@ -222,7 +239,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "PLAYERYTEES",
+        marca: "PLAYERYTEES = SUBLIMACION",
         tipo: "4000C/D/N CUELLO REDONDO SUBLIMAR",
         variantes: [
             { nombre: "ADULTO/DAMA BLANCO (S-XL)", menor: 58.17, mayor: 48.14 }, // mayor 12pz
@@ -231,7 +248,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "YAZBEK",
+        marca: "YAZBECK = CUELLO REDONDO",
         tipo: "C0200 CUELLO REDONDO CABALLERO",
         variantes: [
             { nombre: "BLANCO (CH-EG)", menor: 60.00, mayor: 38.28 }, // menor: menudeo, mayor: mayoreo
@@ -243,7 +260,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "YAZBEK",
+        marca: "YAZBECK = CUELLO REDONDO",
         tipo: "N0300 CUELLO REDONDO NIÑOS",
         variantes: [
             { nombre: "BLANCO (CH a EG)", menor: 40.00, mayor: 27.26 },
@@ -251,7 +268,7 @@ const DEFAULT_CATALOGO_PLAYERAS = [
         ]
     },
     {
-        marca: "YAZBEK",
+        marca: "YAZBECK = CUELLO REDONDO",
         tipo: "J0300 CUELLO REDONDO JOVENES",
         variantes: [
             { nombre: "BLANCO (ECH-EG)", menor: 50.00, mayor: 31.32 },
@@ -263,13 +280,47 @@ const DEFAULT_CATALOGO_PLAYERAS = [
 let TABULADOR_COSTOS = JSON.parse(localStorage.getItem('TABULADOR_TEXTIL')) || DEFAULT_TABULADOR;
 let CATALOGO_PLAYERAS = JSON.parse(localStorage.getItem('CATALOGO_PLAYERAS_TEXTIL')) || DEFAULT_CATALOGO_PLAYERAS;
 
-// Asegurar que nuevas llaves (como 'personalizado') existan si vienen de un localStorage viejo
+// MAPPING DE MIGRACIÓN DE MARCAS
+const brandMigrationMap = {
+    "M&O": "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
+    "GILDAN": "GILDAN = CUELLO REDONDO PREMIUM",
+    "MAXIMA DEPORTIVA": "MAXIMA DEPORITVA = TIPO POLO PREMIUM",
+    "ULTRA DRY": "ULTRA DRY = TELA DEPORTIVA",
+    "PLAYERYTEES": "PLAYERYTEES = SUBLIMACION",
+    "YAZBEK": "YAZBECK = CUELLO REDONDO",
+    // También incluir las versiones de la migración anterior por si acaso
+    "CUELLO REDONDO Y TIPO POLO ECONOMICAS": "M&O = CUELLO REDNDO Y TIPO POLO ECONOMICAS",
+    "CUELLO REDONDO PREMIUM": "GILDAN = CUELLO REDONDO PREMIUM",
+    "TIPO POLO PREMIUM": "MAXIMA DEPORITVA = TIPO POLO PREMIUM",
+    "TELA DEPORTIVA": "ULTRA DRY = TELA DEPORTIVA",
+    "SUBLIMACION": "PLAYERYTEES = SUBLIMACION",
+    "CUELLO REDONDO": "YAZBECK = CUELLO REDONDO"
+};
+
+// Aplicar migración si detectamos nombres viejos en el catálogo cargado del localStorage
+let huboMigracion = false;
+CATALOGO_PLAYERAS.forEach(item => {
+    if (brandMigrationMap[item.marca]) {
+        item.marca = brandMigrationMap[item.marca];
+        huboMigracion = true;
+    }
+});
+
+if (huboMigracion) {
+    localStorage.setItem('CATALOGO_PLAYERAS_TEXTIL', JSON.stringify(CATALOGO_PLAYERAS));
+}
+
+// Asegurar que nuevas llaves existan si vienen de un localStorage viejo
 if (!TABULADOR_COSTOS.personalizado) {
     TABULADOR_COSTOS.personalizado = DEFAULT_TABULADOR.personalizado;
 } else if (!TABULADOR_COSTOS.personalizado.dtf) {
     TABULADOR_COSTOS.personalizado.dtf = DEFAULT_TABULADOR.personalizado.dtf;
 } else if (!TABULADOR_COSTOS.personalizado.dtf.envio) {
     TABULADOR_COSTOS.personalizado.dtf.envio = DEFAULT_TABULADOR.personalizado.dtf.envio;
+}
+
+if (!TABULADOR_COSTOS.sublimacion) {
+    TABULADOR_COSTOS.sublimacion = DEFAULT_TABULADOR.sublimacion;
 }
 
 function guardarTabulador() {

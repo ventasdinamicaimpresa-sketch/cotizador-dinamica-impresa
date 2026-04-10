@@ -97,6 +97,20 @@
             display: grid; grid-template-columns: 2fr 1.2fr 0.8fr auto; gap: 1rem; align-items: end;
         }
 
+        /* UBICACIONES DTF */
+        .dtf-row {
+            background: #FFF7ED; border: 1.5px dashed #FCA5A5;
+            padding: 1rem; border-radius: 10px; margin-bottom: 0.8rem;
+            display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 1rem; align-items: end;
+        }
+        .dtf-medidas { display: flex; gap: 8px; align-items: flex-end; }
+        .dtf-medidas .form-group { flex: 1; }
+        .dtf-badge {
+            display: inline-block; background: linear-gradient(135deg,#f97316,#ea580c); color:white;
+            font-size: 0.72rem; font-weight: 700; padding: 3px 9px;
+            border-radius: 99px; margin-left: 8px; vertical-align: middle;
+        }
+
         /* PERSONALIZADO */
         .personalizado-row {
             background: #FDF4FF; border: 1.5px dashed #D8B4FE;
@@ -233,11 +247,11 @@
                 </div>
                 <div class="form-group">
                     <label for="tipo_servicio">Servicio a Cotizar</label>
-                    <select id="tipo_servicio">
+                    <select id="tipo_servicio" onchange="cambiarServicio()">
                         <option value="" disabled selected>— Selecciona un servicio —</option>
                         <option value="serigrafia">SERIGRAFÍA IMPRESA</option>
-                        <option value="dtf" disabled>DTF (Próximamente)</option>
-                        <option value="sublimacion" disabled>SUBLIMACIÓN (Próximamente)</option>
+                        <option value="dtf">DTF (Direct to Film)</option>
+                        <option value="sublimacion">SUBLIMACIÓN</option>
                         <option value="bordado" disabled>BORDADO (Próximamente)</option>
                         <option value="full_print" disabled>FULL PRINT (Próximamente)</option>
                         <option value="transfer" disabled>TRANSFER (Próximamente)</option>
@@ -263,7 +277,7 @@
             </div>
         </div>
 
-        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN ═══ -->
+        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN (SERIGRAFÍA) ═══ -->
         <div class="card" id="seccion_serigrafia">
             <h2 class="card-title"><i class="fas fa-tshirt"></i> 2. Ubicaciones de Impresión (Serigrafía)</h2>
             <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
@@ -272,6 +286,36 @@
             </p>
             <div id="contenedor_ubicaciones"></div>
             <button class="btn btn-green" onclick="agregarUbicacion()"><i class="fas fa-plus"></i> Añadir Ubicación</button>
+        </div>
+
+        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN (DTF) ═══ -->
+        <div class="card" id="seccion_dtf" style="display:none;">
+            <h2 class="card-title">
+                <i class="fas fa-film"></i> 2. Ubicaciones de Impresión
+                <span class="dtf-badge">DTF</span>
+            </h2>
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
+                Ingresa el área (ancho × alto en cm) de cada impresión. El sistema calcula el metraje de rollo DTF (58cm de ancho) con 1cm extra de margen por cada lado.
+            </p>
+            <div id="contenedor_dtf"></div>
+            <button class="btn btn-green" onclick="agregarUbicacionDTF()">
+                <i class="fas fa-plus"></i> Añadir Ubicación DTF
+            </button>
+        </div>
+
+        <!-- ═══ 2. UBICACIONES DE IMPRESIÓN (SUBLIMACIÓN) ═══ -->
+        <div class="card" id="seccion_sublimacion" style="display:none;">
+            <h2 class="card-title">
+                <i class="fas fa-print"></i> 2. Ubicaciones de Impresión
+                <span class="dtf-badge" style="background: linear-gradient(135deg, #a855f7, #7e22ce);">SUBLIMACIÓN</span>
+            </h2>
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">
+                Selecciona cada área y el tamaño de la hoja (Carta/Oficio). No se usan tintas. Fondeo es gratis y el material se limita a poliéster blanco.
+            </p>
+            <div id="contenedor_sublimacion"></div>
+            <button class="btn btn-green" style="background:#a855f7;" onclick="agregarUbicacionSublimacion()">
+                <i class="fas fa-plus"></i> Añadir Ubicación Sublimación
+            </button>
         </div>
 
         <!-- ═══ 2.5 PERSONALIZADO ═══ -->

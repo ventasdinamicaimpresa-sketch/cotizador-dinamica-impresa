@@ -1,8 +1,10 @@
 let carritoPlayeras = [];
 let idUbicacion = 0;
 let idPersonalizado = 0;
+let idDTF = 0;
 let llevaPersonalizado = false;
 let hayExistencia = false;
+let servicioActual = 'serigrafia'; // 'serigrafia' | 'dtf'
 
 document.addEventListener('DOMContentLoaded', () => {
     agregarUbicacion();
@@ -15,6 +17,49 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('meta_pzas').innerText = val;
     });
 });
+
+// ─────────────────────────────────────────────
+//  CAMBIO DE SERVICIO
+// ─────────────────────────────────────────────
+function cambiarServicio() {
+    servicioActual = document.getElementById('tipo_servicio').value;
+    const esSerigrafia = servicioActual === 'serigrafia';
+    const esDTF = servicioActual === 'dtf';
+    const esSublimacion = servicioActual === 'sublimacion';
+
+    document.getElementById('seccion_serigrafia').style.display = esSerigrafia ? 'block' : 'none';
+    document.getElementById('seccion_dtf').style.display = esDTF ? 'block' : 'none';
+    const secSubli = document.getElementById('seccion_sublimacion');
+    if (secSubli) secSubli.style.display = esSublimacion ? 'block' : 'none';
+
+    // Auto-select and disable inputs for Sublimacion
+    const tipoTelaEl = document.getElementById('tipo_tela');
+    const colorTelaEl = document.getElementById('color_tela');
+    if (esSublimacion) {
+        tipoTelaEl.value = 'poliester';
+        tipoTelaEl.style.pointerEvents = 'none';
+        tipoTelaEl.style.opacity = '0.7';
+        colorTelaEl.value = 'blanca';
+        colorTelaEl.style.pointerEvents = 'none';
+        colorTelaEl.style.opacity = '0.7';
+    } else {
+        tipoTelaEl.style.pointerEvents = 'auto';
+        tipoTelaEl.style.opacity = '1';
+        colorTelaEl.style.pointerEvents = 'auto';
+        colorTelaEl.style.opacity = '1';
+    }
+
+    // Inicializar sección con al menos 1 fila si está vacía
+    if (esDTF && document.querySelectorAll('.dtf-row').length === 0) {
+        agregarUbicacionDTF();
+    }
+    if (esSublimacion && document.querySelectorAll('.sublimacion-row').length === 0) {
+        agregarUbicacionSublimacion();
+    }
+    
+    // Recargar marcas filtradas si cambió el servicio
+    cargarMarcasPlayeras();
+}
 
 // ─────────────────────────────────────────────
 //  GESTIÓN DE UBICACIONES (SERIGRAFÍA)
@@ -70,6 +115,115 @@ function eliminarUbicacion(id) {
 }
 
 // ─────────────────────────────────────────────
+//  GESTIÓN DE UBICACIONES DTF (SERVICIO PRINCIPAL)
+// ─────────────────────────────────────────────
+function agregarUbicacionDTF() {
+    idDTF++;
+    const row = document.createElement('div');
+    row.className = 'dtf-row';
+    row.id = `dtf_${idDTF}`;
+    row.innerHTML = `
+        <div class="form-group">
+            <label>Área de impresión</label>
+            <select class="dtf-ubicacion">
+                <option value="" disabled selected>— Selecciona el área —</option>
+                <option value="frente">Frente</option>
+                <option value="espalda">Espalda</option>
+                <option value="escudo">Escudo (Pecho Izquierdo)</option>
+                <option value="manga_izq">Manga Izquierda</option>
+                <option value="manga_der">Manga Derecha</option>
+                <option value="cuello">Cuello / Nuca</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Ancho (cm)</label>
+            <input type="number" class="dtf-ancho" min="1" step="0.5" placeholder="Ej: 20">
+        </div>
+        <div class="form-group">
+            <label>Alto (cm)</label>
+            <input type="number" class="dtf-alto" min="1" step="0.5" placeholder="Ej: 15">
+        </div>
+        <div>
+            <button class="btn btn-red btn-sm" style="margin-top:18px;" onclick="eliminarUbicacionDTF(${idDTF})"><i class="fas fa-trash"></i></button>
+        </div>
+    `;
+    document.getElementById('contenedor_dtf').appendChild(row);
+}
+
+function eliminarUbicacionDTF(id) {
+    if (document.querySelectorAll('.dtf-row').length > 1) {
+        document.getElementById(`dtf_${id}`).remove();
+    } else {
+        alert('Debe haber por lo menos una ubicación de impresión.');
+    }
+}
+
+// ─────────────────────────────────────────────
+//  GESTIÓN DE UBICACIONES SUBLIMACIÓN
+// ─────────────────────────────────────────────
+let idSublimacion = 0;
+function agregarUbicacionSublimacion() {
+    idSublimacion++;
+    const row = document.createElement('div');
+    // Using dtf-row class for grid layout styling convenience
+    row.className = 'sublimacion-row dtf-row';
+    row.id = `subli_${idSublimacion}`;
+    row.innerHTML = `
+        <div class="form-group">
+            <label>Área de impresión</label>
+            <select class="subli-ubicacion" onchange="verificarTamanoSublimacion(${idSublimacion})">
+                <option value="" disabled selected>— Selecciona el área —</option>
+                <option value="frente">Frente</option>
+                <option value="espalda">Espalda</option>
+                <option value="escudo">Escudo (Pecho Izquierdo)</option>
+                <option value="manga_izq">Manga Izquierda</option>
+                <option value="manga_der">Manga Derecha</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tamaño Hoja</label>
+            <select class="subli-tamano">
+                <option value="carta">Carta (19 × 26 cm)</option>
+                <option value="oficio">Oficio (19 × 32 cm)</option>
+            </select>
+        </div>
+        <div class="form-group"></div>
+        <div>
+            <button class="btn btn-red btn-sm" style="margin-top:18px;" onclick="eliminarUbicacionSublimacion(${idSublimacion})"><i class="fas fa-trash"></i></button>
+        </div>
+    `;
+    document.getElementById('contenedor_sublimacion').appendChild(row);
+}
+
+function eliminarUbicacionSublimacion(id) {
+    if (document.querySelectorAll('.sublimacion-row').length > 1) {
+        document.getElementById(`subli_${id}`).remove();
+    } else {
+        alert('Debe haber por lo menos una ubicación de impresión.');
+    }
+}
+
+function verificarTamanoSublimacion(id) {
+    const row = document.getElementById(`subli_${id}`);
+    const ubi = row.querySelector('.subli-ubicacion').value;
+    const selTamano = row.querySelector('.subli-tamano');
+    
+    if (ubi === 'escudo' || ubi === 'manga_izq' || ubi === 'manga_der') {
+        selTamano.innerHTML = `
+            <option value="cuarto_carta">1/4 Carta (4 por hoja)</option>
+            <option value="cuarto_oficio">1/4 Oficio (4 por hoja)</option>
+        `;
+    } else {
+        selTamano.innerHTML = `
+            <option value="carta">Carta (19 × 26 cm)</option>
+            <option value="oficio">Oficio (19 × 32 cm)</option>
+        `;
+    }
+}
+
+// ─────────────────────────────────────────────
 //  GESTIÓN DE PERSONALIZADO
 // ─────────────────────────────────────────────
 function setPersonalizado(val) {
@@ -120,6 +274,7 @@ function agregarPersonalizado() {
                 <option value="" disabled selected>— Selecciona —</option>
                 <option value="vinil">Vinil Textil</option>
                 <option value="dtf">DTF</option>
+                <option value="sublimacion">Sublimación</option>
             </select>
         </div>
         <div class="form-group" style="display:none;">
@@ -170,7 +325,14 @@ function setExistencia(val) {
 }
 
 function cargarMarcasPlayeras() {
-    const marcasMap = [...new Set(CATALOGO_PLAYERAS.map(c => c.marca))];
+    let marcasList = CATALOGO_PLAYERAS;
+    if (servicioActual === 'sublimacion') {
+        marcasList = marcasList.filter(c => 
+            c.marca.includes('MAXIMA DEPORITVA') || 
+            c.marca.includes('PLAYERYTEES')
+        );
+    }
+    const marcasMap = [...new Set(marcasList.map(c => c.marca))];
     const selMarca = document.getElementById('cat_marca');
     selMarca.innerHTML = marcasMap.map(m => `<option value="${m}">${m}</option>`).join('');
     actualizarModelosPlayeras();
@@ -291,6 +453,22 @@ function calcularCotizacion() {
     if (!idColor) { alert('⚠️ Selecciona el color de la tela.'); return; }
     if (!tDis) { alert('⚠️ Selecciona el tipo de diseño.'); return; }
     if (!origenPlayeras) { alert('⚠️ Selecciona quién aporta las playeras.'); return; }
+
+    // ============================================================
+    //  RAMA DTF COMO SERVICIO PRINCIPAL
+    // ============================================================
+    if (servicio === 'dtf') {
+        calcularCotizacionDTF(cantidadBase, idTela, idColor, tDis, origenPlayeras);
+        return;
+    }
+
+    // ============================================================
+    //  RAMA SUBLIMACIÓN COMO SERVICIO PRINCIPAL
+    // ============================================================
+    if (servicio === 'sublimacion') {
+        calcularCotizacionSublimacion(cantidadBase, tDis, origenPlayeras);
+        return;
+    }
 
     // ── 2. UBICACIONES ───────────────────────
     const rows = document.querySelectorAll('.ubicacion-row');
@@ -880,10 +1058,33 @@ function limpiarCampos() {
     document.getElementById('btn_exis_no').className = 'toggle-btn active-no';
     document.getElementById('btn_exis_si').className = 'toggle-btn';
 
-    // Ubicaciones
+    // Ubicaciones seri
     document.getElementById('contenedor_ubicaciones').innerHTML = '';
     idUbicacion = 0;
     agregarUbicacion();
+
+    // DTF
+    document.getElementById('contenedor_dtf').innerHTML = '';
+    idDTF = 0;
+
+    // Sublimación
+    const secSubli = document.getElementById('contenedor_sublimacion');
+    if (secSubli) secSubli.innerHTML = '';
+    idSublimacion = 0;
+
+    servicioActual = 'serigrafia';
+    document.getElementById('seccion_serigrafia').style.display = 'block';
+    document.getElementById('seccion_dtf').style.display = 'none';
+    const uiSubli = document.getElementById('seccion_sublimacion');
+    if (uiSubli) uiSubli.style.display = 'none';
+
+    // Rehabilitar selects que sublimación inactiva
+    const tipoTelaEl = document.getElementById('tipo_tela');
+    const colorTelaEl = document.getElementById('color_tela');
+    tipoTelaEl.style.pointerEvents = 'auto';
+    tipoTelaEl.style.opacity = '1';
+    colorTelaEl.style.pointerEvents = 'auto';
+    colorTelaEl.style.opacity = '1';
 
     // Personalizado
     llevaPersonalizado = false;
@@ -906,6 +1107,329 @@ function limpiarCampos() {
     document.getElementById('explicacion_detalles').innerHTML = '';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────
+//  CALCULAR COTIZACIÓN DTF (SERVICIO PRINCIPAL)
+// ─────────────────────────────────────────────
+function calcularCotizacionDTF(cantidadBase, idTela, idColor, tDis, origenPlayeras) {
+    const t = TABULADOR_COSTOS;
+    const pDTF = t.personalizado.dtf.precios;
+    const configEnvio = t.personalizado.dtf.envio;
+
+    // ── Leer ubicaciones DTF ──────────────────────
+    const rowsDTF = document.querySelectorAll('.dtf-row');
+    if (rowsDTF.length === 0) { alert('⚠️ Agrega al menos una ubicación DTF.'); return; }
+
+    let largoTotalCm = 0;
+    const detalleUbicDTF = [];
+
+    for (const row of rowsDTF) {
+        const ubiSel = row.querySelector('.dtf-ubicacion');
+        const ubiName = ubiSel.value ? ubiSel.options[ubiSel.selectedIndex].text : 'Sin especificar';
+        const ancho = parseFloat(row.querySelector('.dtf-ancho').value);
+        const alto = parseFloat(row.querySelector('.dtf-alto').value);
+
+        if (!ubiSel.value) { alert('⚠️ Selecciona el área de impresión en todas las ubicaciones DTF.'); return; }
+        if (isNaN(ancho) || ancho <= 0) { alert(`⚠️ Ingresa el ancho (cm) para: ${ubiName}`); return; }
+        if (isNaN(alto) || alto <= 0) { alert(`⚠️ Ingresa el alto (cm) para: ${ubiName}`); return; }
+        if (ancho + 2 > 58) { alert(`⚠️ El ancho ${ancho}cm + 2cm de margen supera los 58cm del rollo DTF en: ${uniName}`); return; }
+
+        // Agregar 1cm de margen por cada lado = +2cm en cada dimensión
+        const anchoConMargen = ancho + 2;
+        const altoConMargen = alto + 2;
+
+        // Calcular cuántas columnas caben en los 58cm de ancho del rollo
+        const cols = Math.floor(58 / anchoConMargen);
+        if (cols < 1) { alert(`⚠️ La medida ${ancho}cm de ancho (+ 2cm margen = ${anchoConMargen}cm) supera los 58cm del rollo. Contacta al proveedor.`); return; }
+
+        // Cuntas filas se necesitan para las cantidadBase prendas
+        const filas = Math.ceil(cantidadBase / cols);
+        // Largo total en cm que ocupa esta ubicación
+        const largoCmUbi = filas * altoConMargen;
+        largoTotalCm += largoCmUbi;
+
+        detalleUbicDTF.push({ ubiName, ancho, alto, anchoConMargen, altoConMargen, cols, filas, largoCmUbi });
+    }
+
+    // ── Convertir largo total a metros y calcular tramos ───────────
+    // El total de metros se construye por tramos:
+    // 1/4 = 0-25cm, 1/2 = 26-50cm, 1 metro = 51-100cm
+    // Si supera 1 metro, se acumula 1 metro + el sobrante según regla
+    
+    let costoMaterial = 0;
+    let ventaMaterial = 0;
+    let tramosTexto = [];
+    let metrosTotales = 0;
+    let restoFraccion = 0; // en cm
+    let fraccionStr = '';
+
+    // Metros completos
+    metrosTotales = Math.floor(largoTotalCm / 100);
+    restoFraccion = largoTotalCm % 100;
+
+    // Calcular costo de los metros completos
+    costoMaterial += metrosTotales * pDTF.metro.costo;
+    ventaMaterial += metrosTotales * pDTF.metro.costo * pDTF.metro.util;
+    if (metrosTotales > 0) tramosTexto.push(`${metrosTotales} metro(s) × $${pDTF.metro.costo}`);
+
+    // Calcular costo de la fracción
+    if (restoFraccion > 0 && restoFraccion <= 25) {
+        costoMaterial += pDTF.cuarto.costo;
+        ventaMaterial += pDTF.cuarto.costo * pDTF.cuarto.util;
+        fraccionStr = '1/4 mt';
+        tramosTexto.push(`1/4 mt × $${pDTF.cuarto.costo}`);
+    } else if (restoFraccion > 25 && restoFraccion <= 50) {
+        costoMaterial += pDTF.medio.costo;
+        ventaMaterial += pDTF.medio.costo * pDTF.medio.util;
+        fraccionStr = '1/2 mt';
+        tramosTexto.push(`1/2 mt × $${pDTF.medio.costo}`);
+    } else if (restoFraccion > 50) {
+        // Se cobra otro metro completo
+        metrosTotales += 1;
+        costoMaterial += pDTF.metro.costo;
+        ventaMaterial += pDTF.metro.costo * pDTF.metro.util;
+        fraccionStr = '(redond. a 1 mt extra)';
+        tramosTexto.push(`1 mt extra × $${pDTF.metro.costo}`);
+    }
+
+    // Metros lineales totales facturados (para cálculo de envío)
+    const metrosFacturados = metrosTotales + (fraccionStr === '1/4 mt' ? 0.25 : fraccionStr === '1/2 mt' ? 0.50 : 0);
+
+    // ── Cálculo de Envío DTF ──────────────────────
+    // Si el costo (sin utilidad) >= $1,550 -> envío gratis
+    // De lo contrario: $200 por cada 10 mt lineales
+    let costoEnvioDTF = 0;
+    let envioDTFGratis = false;
+
+    if (costoMaterial >= configEnvio.costo_minimo_gratis) {
+        envioDTFGratis = true;
+        costoEnvioDTF = 0;
+    } else {
+        const tramos = Math.ceil(metrosFacturados / configEnvio.metros_por_costo);
+        costoEnvioDTF = tramos * configEnvio.costo;
+    }
+
+    // ── Planchado ────────────────────────────
+    // Cada ubicación DTF = 1 planchada por prenda
+    const totalPlanchadas = rowsDTF.length * cantidadBase;
+    const objPlancha = t.personalizado.tarifas_planchado.find(p => cantidadBase <= p.max) || t.personalizado.tarifas_planchado[t.personalizado.tarifas_planchado.length - 1];
+    const tarifaPlanchado = objPlancha.tarifa;
+    const costoPlanchado = totalPlanchadas * tarifaPlanchado;
+
+    // ── Playeras ──────────────────────────────
+    let costoTotalPlayeras = 0;
+    let costoEnvioPlayeras = 0;
+    let numMermas = Math.ceil(cantidadBase / 100) * 5;
+    let factorUtilidad = 2;
+    const detallePlayeras = [];
+    let infoEnvioPlayeras = null;
+
+    if (origenPlayeras === 'comprar') {
+        if (carritoPlayeras.length === 0) { alert('⚠️ Agrega playeras al carrito.'); return; }
+        const objUtil = t.utilidad_playeras.find(u => cantidadBase <= u.max) || t.utilidad_playeras[t.utilidad_playeras.length - 1];
+        factorUtilidad = objUtil.util;
+
+        carritoPlayeras.forEach(c => {
+            const cantPz = c.cantidad;
+            const precioBase = cantidadBase >= 12 ? c.variante.mayor : c.variante.menor;
+            const precioVenta = precioBase * factorUtilidad;
+            const subtotalRenglon = precioVenta * cantPz;
+            costoTotalPlayeras += subtotalRenglon;
+            detallePlayeras.push({ cantPz, marca: c.marca, modelo: c.modelo, variante: c.variante.nombre, precioBase, factorUtilidad, precioVenta, subtotalRenglon });
+        });
+
+        // Merma
+        const precioMermaBase = carritoPlayeras[0].variante.mayor;
+        const costoMerma = precioMermaBase * factorUtilidad * numMermas;
+        costoTotalPlayeras += costoMerma;
+        detallePlayeras._merma = { numMermas, precioMermaBase, factorUtilidad, costoMerma };
+
+        // Envío playeras (solo si no hay existencia)
+        if (!hayExistencia) {
+            const paquetes = Math.ceil(cantidadBase / 70);
+            costoEnvioPlayeras = paquetes * t.otros.envio_por_70_pz;
+            infoEnvioPlayeras = { paquetesEnvio: paquetes, costoEnvio: costoEnvioPlayeras, tarifa: t.otros.envio_por_70_pz };
+        }
+    }
+
+    // ── Diseño ───────────────────────────────
+    const labelDiseno = document.getElementById('tipo_diseno').options[document.getElementById('tipo_diseno').selectedIndex].text;
+    let costoDiseno = 0;
+    if (tDis === 'cliente') costoDiseno = t.otros.diseno_cliente;
+    else if (tDis === 'guardado') costoDiseno = t.otros.diseno_guardado;
+    else costoDiseno = t.otros.diseno_nuevo;
+
+    // ── Labels tela/color ───────────────────────
+    const labelTela = document.getElementById('tipo_tela').options[document.getElementById('tipo_tela').selectedIndex].text;
+    const labelColor = document.getElementById('color_tela').options[document.getElementById('color_tela').selectedIndex].text;
+
+    // ── Totales ───────────────────────────────
+    const costoNetoSinIVA = ventaMaterial + costoEnvioDTF + costoPlanchado + costoTotalPlayeras + costoEnvioPlayeras + costoDiseno;
+    const montoIVA = costoNetoSinIVA * 0.16;
+    const costoNetoConIVA = costoNetoSinIVA + montoIVA;
+    const unitarioSinIVA = costoNetoSinIVA / cantidadBase;
+    const unitarioConIVA = costoNetoConIVA / cantidadBase;
+
+    // ── Mostrar resultado ───────────────────────
+    document.getElementById('res_subtotal').innerText = `$${costoNetoSinIVA.toFixed(2)}`;
+    document.getElementById('res_iva').innerText = `$${montoIVA.toFixed(2)}`;
+    document.getElementById('res_total_neto').innerText = `$${costoNetoConIVA.toFixed(2)}`;
+    document.getElementById('res_unit_sin').innerText = `$${unitarioSinIVA.toFixed(2)}`;
+    document.getElementById('res_unit_con').innerText = `$${unitarioConIVA.toFixed(2)}`;
+    document.getElementById('panel_resultados').style.display = 'block';
+    document.getElementById('explicacion_detalles').style.display = 'none';
+
+    const ctx = {
+        modo: 'dtf',
+        cantidadBase, labelTela, labelColor, origenPlayeras, numMermas,
+        detalleUbicDTF, largoTotalCm,
+        metrosTotales, restoFraccion, fraccionStr, metrosFacturados, tramosTexto,
+        costoMaterial, ventaMaterial,
+        costoEnvioDTF, envioDTFGratis, configEnvio,
+        totalPlanchadas, tarifaPlanchado, costoPlanchado,
+        factorUtilidad, detallePlayeras, costoTotalPlayeras,
+        infoEnvioPlayeras, costoEnvioPlayeras, hayExistencia,
+        costoDiseno, labelDiseno, tDis,
+        costoNetoSinIVA, montoIVA, costoNetoConIVA,
+        unitarioSinIVA, unitarioConIVA, t
+    };
+
+    generarDesgloseDTF(ctx);
+    generarResumenDTF(ctx);
+}
+
+// ─────────────────────────────────────────────
+//  DESGLOSE DTF
+// ─────────────────────────────────────────────
+function generarDesgloseDTF(d) {
+    const sep = `<hr style="border-color:rgba(255,255,255,0.15);margin:10px 0;">`;
+    let html = `<div class="desglose-section">`;
+
+    html += `<h4 class="dg-title">📦 DATOS GENERALES</h4>`;
+    html += `<p class="dg-row"><span>Prendas:</span><strong>${d.cantidadBase} piezas</strong></p>`;
+    html += `<p class="dg-row"><span>Servicio:</span><strong>DTF (Direct to Film)</strong></p>`;
+    html += `<p class="dg-row"><span>Tela:</span><strong>${d.labelTela}</strong></p>`;
+    html += `<p class="dg-row"><span>Color tela:</span><strong>${d.labelColor}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">🎬 UBICACIONES DE IMPRESIÓN DTF</h4>`;
+    html += `<p class="dg-note">Rollo DTF: <code>58cm de ancho</code>. Se agrega <code>+1cm de margen por lado</code> a cada medida.</p>`;
+    d.detalleUbicDTF.forEach((u, i) => {
+        html += `<div class="dg-box">`;
+        html += `<b>📍 ${u.ubiName.toUpperCase()}</b><br>`;
+        html += `<p class="dg-formula">Medida: ${u.ancho}×${u.alto}cm + margen = <strong>${u.anchoConMargen}×${u.altoConMargen}cm</strong></p>`;
+        html += `<p class="dg-formula">Columnas en rollo (58/${u.anchoConMargen}): <strong>${u.cols} col.</strong></p>`;
+        html += `<p class="dg-formula">Filas para ${d.cantidadBase} pzas: ceil(${d.cantidadBase}/${u.cols}) = <strong>${u.filas} filas</strong></p>`;
+        html += `<p class="dg-formula">Largo esta ubicación: ${u.filas} × ${u.altoConMargen}cm = <strong>${u.largoCmUbi.toFixed(1)}cm</strong></p>`;
+        html += `</div>`;
+    });
+    html += `<p class="dg-row dg-sum"><span>Largo total de rollo DTF:</span><strong>${d.largoTotalCm.toFixed(1)} cm = ${(d.largoTotalCm/100).toFixed(3)} m</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">💰 CÁLCULO DE MATERIAL DTF</h4>`;
+    html += `<p class="dg-note">Precios: 1/4 mt = costo $${d.t.personalizado.dtf.precios.cuarto.costo} × ${d.t.personalizado.dtf.precios.cuarto.util} | 1/2 mt = $${d.t.personalizado.dtf.precios.medio.costo} × ${d.t.personalizado.dtf.precios.medio.util} | 1 mt = $${d.t.personalizado.dtf.precios.metro.costo} × ${d.t.personalizado.dtf.precios.metro.util}</p>`;
+    html += `<p class="dg-note">Regla: sobrante 0-25cm = cobrar 1/4 mt | 26-50cm = cobrar 1/2 mt | 51-100cm = cobrar 1 mt extra</p>`;
+    d.tramosTexto.forEach(tr => { html += `<p class="dg-formula">${tr}</p>`; });
+    html += `<p class="dg-row"><span>Costo material (sin utilidad):</span><strong>$${d.costoMaterial.toFixed(2)}</strong></p>`;
+    html += `<p class="dg-row dg-sum"><span>Venta material (con utilidad):</span><strong class="dg-green">$${d.ventaMaterial.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">🚚 ENVÍO DTF</h4>`;
+    if (d.envioDTFGratis) {
+        html += `<p class="dg-formula dg-green">✅ Costo de material ($${d.costoMaterial.toFixed(2)}) ≥ $${d.configEnvio.costo_minimo_gratis}. <strong>Envío GRATIS</strong></p>`;
+    } else {
+        const tramos = Math.ceil(d.metrosFacturados / d.configEnvio.metros_por_costo);
+        html += `<p class="dg-formula">${d.metrosFacturados}mt lineales ÷ ${d.configEnvio.metros_por_costo}mt/envío = ${tramos} tramo(s) × $${d.configEnvio.costo} = <strong>$${d.costoEnvioDTF.toFixed(2)}</strong></p>`;
+    }
+    html += sep;
+
+    html += `<h4 class="dg-title">🔧 PLANCHADO / TRANSFERENCIA</h4>`;
+    html += `<p class="dg-note">${d.detalleUbicDTF.length} ubicación(es) × ${d.cantidadBase} prendas = ${d.totalPlanchadas} planchadas.</p>`;
+    html += `<p class="dg-formula">Tarifa: $${d.tarifaPlanchado}/planchada (${d.cantidadBase <= 25 ? '≤1-25 pzas' : '>25 pzas'})</p>`;
+    html += `<p class="dg-formula dg-sum">${d.totalPlanchadas} planchadas × $${d.tarifaPlanchado} = <strong>$${d.costoPlanchado.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">👕 PLAYERAS</h4>`;
+    if (d.origenPlayeras === 'comprar') {
+        html += `<p class="dg-formula">Factor utilidad aplicado: <strong>×${d.factorUtilidad}</strong></p>`;
+        d.detallePlayeras.forEach(p => {
+            html += `<div class="dg-box"><b>${p.cantPz}× ${p.marca} — ${p.modelo} (${p.variante})</b>`;
+            html += `<p class="dg-formula">$${p.precioBase} × ${p.factorUtilidad} = $${p.precioVenta.toFixed(2)}/pza × ${p.cantPz} = <strong>$${p.subtotalRenglon.toFixed(2)}</strong></p></div>`;
+        });
+        if (d.detallePlayeras._merma) {
+            const m = d.detallePlayeras._merma;
+            html += `<div class="dg-box dg-warning"><b>🔄 MERMA</b>: ${m.numMermas} prendas × $${(m.precioMermaBase * m.factorUtilidad).toFixed(2)} = <strong>$${m.costoMerma.toFixed(2)}</strong></div>`;
+        }
+        html += `<p class="dg-row dg-sum"><span>Total playeras:</span><strong>$${d.costoTotalPlayeras.toFixed(2)}</strong></p>`;
+        html += sep;
+        html += `<h4 class="dg-title">🚚 ENVÍO PLAYERAS</h4>`;
+        if (d.hayExistencia) {
+            html += `<p class="dg-formula dg-green">✅ En existencia. Envío: $0.00</p>`;
+        } else if (d.infoEnvioPlayeras) {
+            const e = d.infoEnvioPlayeras;
+            html += `<p class="dg-formula">${e.paquetesEnvio} paquetes × $${e.tarifa} = <strong>$${e.costoEnvio.toFixed(2)}</strong></p>`;
+        }
+    } else {
+        html += `<p class="dg-formula dg-green">✅ Cliente envía playeras. Costo = $0</p>`;
+        html += `<p class="dg-formula">⚠️ Pedir ${d.numMermas} piezas extra de sobrante.</p>`;
+    }
+    html += sep;
+
+    html += `<h4 class="dg-title">✏️ DISEÑO</h4>`;
+    html += `<p class="dg-formula">${d.labelDiseno}: <strong>$${d.costoDiseno}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">📊 RESUMEN FINAL</h4>`;
+    html += `<table class="dg-table">
+        <tr><td>Material DTF (con utilidad)</td><td>$${d.ventaMaterial.toFixed(2)}</td></tr>
+        <tr><td>Envío DTF</td><td>$${d.costoEnvioDTF.toFixed(2)}</td></tr>
+        <tr><td>Planchado</td><td>$${d.costoPlanchado.toFixed(2)}</td></tr>
+        <tr><td>Playeras</td><td>$${d.costoTotalPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Envío playeras</td><td>$${d.costoEnvioPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Diseño</td><td>$${d.costoDiseno}</td></tr>
+        <tr class="dg-tr-sub"><td><b>SUBTOTAL sin IVA</b></td><td><b>$${d.costoNetoSinIVA.toFixed(2)}</b></td></tr>
+        <tr><td>IVA 16%</td><td>$${d.montoIVA.toFixed(2)}</td></tr>
+        <tr class="dg-tr-total"><td><b>TOTAL con IVA</b></td><td><b>$${d.costoNetoConIVA.toFixed(2)}</b></td></tr>
+        <tr><td>Costo unitario sin IVA</td><td>$${d.unitarioSinIVA.toFixed(2)}</td></tr>
+        <tr><td>Costo unitario con IVA</td><td>$${d.unitarioConIVA.toFixed(2)}</td></tr>
+    </table>`;
+
+    html += `</div>`;
+    document.getElementById('explicacion_detalles').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────
+//  RESUMEN DTF
+// ─────────────────────────────────────────────
+function generarResumenDTF(d) {
+    const lineas = [];
+    const ubicTexto = d.detalleUbicDTF.map(u => `${u.ubiName} ${u.ancho}×${u.alto}cm`).join(' + ');
+    let playerasTexto = d.origenPlayeras === 'comprar' && d.detallePlayeras.length > 0
+        ? d.detallePlayeras.map(p => `${p.cantPz}× ${p.marca} ${p.modelo} (${p.variante})`).join(', ')
+        : `Cliente envía (+ ${d.numMermas} pzas merma)`;
+
+    lineas.push(`━━━ COTIZACIÓN TEXTIL DTF ━━━`);
+    lineas.push(`📦 Cantidad: ${d.cantidadBase} prendas`);
+    lineas.push(`🎬 Servicio: DTF (Direct to Film)`);
+    lineas.push(`📍 Impresión: ${ubicTexto}`);
+    lineas.push(`💕 Tela: ${d.labelTela} / ${d.labelColor}`);
+    lineas.push(`🗐️ Material DTF: ${d.metrosTotales} mt${d.fraccionStr ? ' + ' + d.fraccionStr : ''} (${d.largoTotalCm.toFixed(1)}cm rollo)`);
+    lineas.push(`🎖️ Planchado: ${d.totalPlanchadas} bajadas`);
+    lineas.push(`👕 Playeras: ${playerasTexto}`);
+    if (d.origenPlayeras === 'comprar') {
+        lineas.push(`🚚 Envío playeras: ${d.hayExistencia ? 'Sin cargo' : '$' + d.costoEnvioPlayeras.toFixed(2)}`);
+    }
+    lineas.push(`🚚 Envío DTF: ${d.envioDTFGratis ? '$0.00 (GRATIS)' : '$' + d.costoEnvioDTF.toFixed(2)}`);
+    lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
+    lineas.push(`──────────────────────────`);
+    lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
+    lineas.push(`IVA 16%:        $${d.montoIVA.toFixed(2)}`);
+    lineas.push(`Total:          $${d.costoNetoConIVA.toFixed(2)}`);
+    lineas.push(`Precio c/u:     $${d.unitarioConIVA.toFixed(2)} (con IVA)`);
+
+    document.getElementById('resumen_texto').innerText = lineas.join('\n');
+    document.getElementById('panel_resumen').style.display = 'block';
 }
 
 // ─────────────────────────────────────────────
@@ -1099,4 +1623,422 @@ function guardarConfig() {
     renderCarrito();
 
     alert('✅ Tabulador y Catálogo guardados correctamente.');
+}
+
+// ─────────────────────────────────────────────
+//  CALCULAR COTIZACIÓN SUBLIMACIÓN (SERVICIO PRINCIPAL)
+// ─────────────────────────────────────────────
+function calcularCotizacionSublimacion(cantidadBase, tDis, origenPlayeras) {
+    const t = TABULADOR_COSTOS;
+    const pSubli = t.sublimacion.precios_impresion;
+
+    // ── Leer ubicaciones Sublimación ──────────
+    const rowsSub = document.querySelectorAll('.sublimacion-row');
+    if (rowsSub.length === 0) { alert('⚠️ Agrega al menos una ubicación de Sublimación.'); return; }
+
+    const detalleUbicSub = [];
+    let costoTotalImpresion = 0;
+    let costoTotalPlanchado = 0;
+    
+    for (const row of rowsSub) {
+        const ubiSel = row.querySelector('.subli-ubicacion');
+        const tamSel = row.querySelector('.subli-tamano');
+        const ubiName = ubiSel.value ? ubiSel.options[ubiSel.selectedIndex].text : 'Sin especificar';
+        const tamName = tamSel.value ? tamSel.options[tamSel.selectedIndex].text : 'Carta';
+        const tamId = tamSel.value || 'carta';
+
+        if (!ubiSel.value) { alert('⚠️ Selecciona el área de impresión en todas las ubicaciones.'); return; }
+
+        let tamIdBase = tamId.replace('cuarto_', '');
+        let esCuarto = tamId.startsWith('cuarto_');
+        let pzasEfectivas = esCuarto ? Math.ceil(cantidadBase / 4) : cantidadBase;
+
+        let tarifasArr = (tamIdBase === 'carta') ? pSubli.carta : pSubli.oficio;
+        let objTarifa = tarifasArr.find(u => pzasEfectivas <= u.max) || tarifasArr[tarifasArr.length - 1];
+        let costoHojaUnitario = objTarifa.costo;
+        let subtotalImpresionUbic = costoHojaUnitario * pzasEfectivas;
+        
+        costoTotalImpresion += subtotalImpresionUbic;
+        
+        detalleUbicSub.push({
+            ubiName,
+            tamName,
+            tamId,
+            costoHojaUnitario,
+            pzasEfectivas,
+            subtotalImpresionUbic
+        });
+    }
+
+    // Planchado para las ubicaciones principales
+    let totalPrensadasPrincipales = rowsSub.length * cantidadBase;
+    let objPlanchaP = t.personalizado.tarifas_planchado.find(u => totalPrensadasPrincipales <= u.max) || t.personalizado.tarifas_planchado[t.personalizado.tarifas_planchado.length - 1];
+    let costoPlanchadoUbic = objPlanchaP.tarifa * totalPrensadasPrincipales;
+    costoTotalPlanchado += costoPlanchadoUbic;
+
+    // ── Playeras ──────────────────────────────
+    let costoTotalPlayeras = 0;
+    let costoEnvioTotal = 0;
+    
+    // Nueva lógica de Mermas
+    let numMermas = 0;
+    if (cantidadBase <= 10 && cantidadBase > 0) {
+        numMermas = 1;
+    } else if (cantidadBase > 10) {
+        numMermas = Math.ceil(cantidadBase / 50) * 2;
+    }
+
+    let factorUtilidad = 2;
+    const detallePlayeras = [];
+    let infoEnvio = null;
+
+    if (origenPlayeras === 'comprar') {
+        if (carritoPlayeras.length === 0) { alert('⚠️ Agrega playeras al carrito antes de calcular.'); return; }
+
+        const objUtil = t.utilidad_playeras.find(u => cantidadBase <= u.max) || t.utilidad_playeras[t.utilidad_playeras.length - 1];
+        factorUtilidad = objUtil.util;
+
+        carritoPlayeras.forEach(c => {
+            const cantPz = c.cantidad;
+            const precioBase = cantidadBase >= 12 ? c.variante.mayor : c.variante.menor;
+            const precioVenta = precioBase * factorUtilidad;
+            const subtotalRenglon = precioVenta * cantPz;
+            costoTotalPlayeras += subtotalRenglon;
+            detallePlayeras.push({ cantPz, marca: c.marca, modelo: c.modelo, variante: c.variante.nombre, precioBase, factorUtilidad, precioVenta, subtotalRenglon });
+        });
+
+        // La merma más cara cotizada
+        let arrPreciosBase = carritoPlayeras.map(c => cantidadBase >= 12 ? c.variante.mayor : c.variante.menor);
+        const precioMermaBase = Math.max(...arrPreciosBase);
+        const costoMerma = precioMermaBase * factorUtilidad * numMermas;
+        costoTotalPlayeras += costoMerma;
+        detallePlayeras._merma = { numMermas, precioMermaBase, factorUtilidad, costoMerma };
+
+        if (!hayExistencia) {
+            const paquetesEnvio = Math.ceil(cantidadBase / 70);
+            costoEnvioTotal = paquetesEnvio * t.otros.envio_por_70_pz;
+            infoEnvio = { paquetesEnvio, costoEnvio: costoEnvioTotal, tarifa: t.otros.envio_por_70_pz };
+        }
+    }
+
+    // ── Diseño ────────────────────────────────
+    let costoDiseno = 0;
+    let labelDiseno = '';
+    if (tDis === 'cliente') { costoDiseno = t.otros.diseno_cliente; labelDiseno = 'Archivo del cliente listo ($' + t.otros.diseno_cliente + ')'; }
+    else if (tDis === 'guardado') { costoDiseno = t.otros.diseno_guardado; labelDiseno = 'Diseño guardado en tienda ($' + t.otros.diseno_guardado + ')'; }
+    else { costoDiseno = t.otros.diseno_nuevo; labelDiseno = 'Diseño nuevo / Modificaciones ($' + t.otros.diseno_nuevo + ')'; }
+
+    // ── Personalizado Adicional ───────────────
+    let totalCostoPersonalizado = 0;
+    const personalizados = llevaPersonalizado ? leerPersonalizados() : [];
+    
+    const configVinil = {};
+    t.personalizado.viniles.forEach(v => { configVinil[v.id] = { nombre: v.nombre, precioM: v.costoM, largoCm: 0 }; });
+    const itemsVinilEnResumen = [];
+    let largoTotalDTF = 0;
+    let detallesDTF = null;
+
+    let itemsSubliPersResumen = [];
+    let costoImpresionPersSubli = 0;
+    let prensadasPersonalizado = 0;
+
+    if (personalizados && personalizados.length > 0) {
+        personalizados.forEach(p => {
+            if (p.tecnica === 'vinil') {
+                if (p.ancho > 0 && p.alto > 0) {
+                    const anchoUtil = 44; 
+                    const cols1 = Math.floor(anchoUtil / p.ancho);
+                    const iter1 = cols1 > 0 ? Math.ceil(cantidadBase / cols1) * p.alto : Infinity;
+                    const cols2 = Math.floor(anchoUtil / p.alto);
+                    const iter2 = cols2 > 0 ? Math.ceil(cantidadBase / cols2) * p.ancho : Infinity;
+                    const minLargo = Math.min(iter1, iter2);
+                    if (minLargo !== Infinity) configVinil[p.tipoVinilVal].largoCm += minLargo;
+                }
+                prensadasPersonalizado += cantidadBase;
+            } else if (p.tecnica === 'dtf') {
+                if (p.ancho > 0 && p.alto > 0) {
+                    const anchoDTF = t.personalizado.dtf.ancho_cm;
+                    const adic = t.personalizado.dtf.margen_cm;
+                    const pA = p.ancho + adic;
+                    const pAl = p.alto + adic;
+                    const cols1 = Math.floor(anchoDTF / pA);
+                    const iter1 = cols1 > 0 ? Math.ceil(cantidadBase / cols1) * pAl : Infinity;
+                    const cols2 = Math.floor(anchoDTF / pAl);
+                    const iter2 = cols2 > 0 ? Math.ceil(cantidadBase / cols2) * pA : Infinity;
+                    const minLargo = Math.min(iter1, iter2);
+                    if (minLargo !== Infinity) largoTotalDTF += minLargo;
+                }
+                prensadasPersonalizado += cantidadBase;
+            } else if (p.tecnica === 'sublimacion') {
+                if (p.ancho > 0 && p.alto > 0) {
+                    // Validar si entra en carta u oficio
+                    let wCarta = t.sublimacion.medidas_material.carta.anchoCM; // 19
+                    let hCarta = t.sublimacion.medidas_material.carta.altoCM; // 26
+                    let wOfic = t.sublimacion.medidas_material.oficio.anchoCM; // 19
+                    let hOfic = t.sublimacion.medidas_material.oficio.altoCM; // 32
+                    
+                    const canFit = (w, h, pW, pH) => {
+                        let c1 = Math.floor(w / pW); let r1 = Math.floor(h / pH);
+                        let c2 = Math.floor(w / pH); let r2 = Math.floor(h / pW);
+                        return Math.max(c1 * r1, c2 * r2);
+                    };
+
+                    let qtyCarta = canFit(wCarta, hCarta, p.ancho, p.alto);
+                    let qtyOfic = canFit(wOfic, hOfic, p.ancho, p.alto);
+
+                    if (qtyCarta > 0) {
+                        let sheetsNeeded = Math.ceil(cantidadBase / qtyCarta);
+                        let subTarifas = pSubli.carta;
+                        let sObj = subTarifas.find(u => sheetsNeeded <= u.max) || subTarifas[subTarifas.length - 1];
+                        let costoSheets = sheetsNeeded * sObj.costo;
+                        itemsSubliPersResumen.push({ 
+                            elemento: p.ubicacion, tam: 'Carta', sheetsNeeded, pzasPerSheet: qtyCarta, costoSheet: sObj.costo, total: costoSheets 
+                        });
+                        costoImpresionPersSubli += costoSheets;
+                    } else if (qtyOfic > 0) {
+                        let sheetsNeeded = Math.ceil(cantidadBase / qtyOfic);
+                        let subTarifas = pSubli.oficio;
+                        let sObj = subTarifas.find(u => sheetsNeeded <= u.max) || subTarifas[subTarifas.length - 1];
+                        let costoSheets = sheetsNeeded * sObj.costo;
+                        itemsSubliPersResumen.push({ 
+                            elemento: p.ubicacion, tam: 'Oficio', sheetsNeeded, pzasPerSheet: qtyOfic, costoSheet: sObj.costo, total: costoSheets 
+                        });
+                        costoImpresionPersSubli += costoSheets;
+                    } else {
+                        alert(`⚠️ El personalizado de sublimación '${p.ubicacion}' es demasiado grande para Carta y Oficio. Redúcelo o usa otra técnica.`);
+                        return;
+                    }
+                    prensadasPersonalizado += cantidadBase;
+                }
+            }
+        });
+
+        // (Calcular Vinil)
+        Object.keys(configVinil).forEach(key => {
+            const v = configVinil[key];
+            if (v.largoCm > 0) {
+                const mtCobrar = Math.ceil((v.largoCm / 100) * 4) / 4;
+                const objUtil = t.personalizado.utilidad_vinil.find(u => mtCobrar <= u.max) || t.personalizado.utilidad_vinil[t.personalizado.utilidad_vinil.length - 1];
+                let utilidadMult = objUtil.util;
+                const costoMaterial = mtCobrar * v.precioM;
+                const ventaMaterial = costoMaterial * utilidadMult;
+                
+                let costoCorte = 0, costoDepilado = 0;
+                const mC = t.personalizado.maquila;
+                if (mtCobrar < 1.0) costoCorte = mC.corte_min;
+                else if (mtCobrar < 5.0) costoCorte = mtCobrar * mC.corte_metro_bajo;
+                else costoCorte = mtCobrar * mC.corte_metro_alto;
+                if (mtCobrar <= 1.0) costoDepilado = mC.depilado_min;
+                else if (mtCobrar <= 10.0) costoDepilado = mtCobrar * mC.depilado_metro_bajo;
+                else costoDepilado = mtCobrar * mC.depilado_metro_alto;
+                
+                const subtotalVinil = ventaMaterial + costoCorte + costoDepilado;
+                totalCostoPersonalizado += subtotalVinil;
+                itemsVinilEnResumen.push({ nombre: v.nombre, mtCobrar, utilidadMult, precioM: v.precioM, costoMaterial, ventaMaterial, costoCorte, costoDepilado, subtotalVinil });
+            }
+        });
+
+        // (Calcular DTF)
+        if (largoTotalDTF > 0) {
+            const mtsNormales = Math.floor(largoTotalDTF / 100);
+            const sobrante = largoTotalDTF % 100;
+            const pDTFconfig = t.personalizado.dtf.precios;
+            let metrosTotales = mtsNormales;
+            let fraccionStr = "";
+            let ventaFraccion = 0, costoFraccion = 0;
+            if (sobrante > 0 && sobrante <= 25) { ventaFraccion = pDTFconfig.cuarto.costo * pDTFconfig.cuarto.util; costoFraccion = pDTFconfig.cuarto.costo; fraccionStr = " + 1/4 mt"; }
+            else if (sobrante > 25 && sobrante <= 50) { ventaFraccion = pDTFconfig.medio.costo * pDTFconfig.medio.util; costoFraccion = pDTFconfig.medio.costo; fraccionStr = " + 1/2 mt"; }
+            else if (sobrante > 50) { metrosTotales += 1; }
+            const costoBase = (metrosTotales * pDTFconfig.metro.costo) + costoFraccion;
+            const ventaMaterialMts = (metrosTotales * pDTFconfig.metro.costo) * pDTFconfig.metro.util;
+            const ventaMaterialDTF = ventaMaterialMts + ventaFraccion;
+            let ventaTotal = ventaMaterialDTF;
+            let costoEnvioDTF = 0;
+            if (costoBase < t.personalizado.dtf.envio.costo_minimo_gratis) {
+                const reqEnvios = Math.ceil(costoBase / t.personalizado.dtf.precios.metro.costo / t.personalizado.dtf.envio.metros_por_costo) || 1;
+                costoEnvioDTF = reqEnvios * t.personalizado.dtf.envio.costo;
+                ventaTotal += costoEnvioDTF;
+            }
+            totalCostoPersonalizado += ventaTotal;
+            detallesDTF = { largoTotalCm: largoTotalDTF, metrosTotales, fraccionStr, costoBase, ventaMaterialDTF, costoEnvioDTF, ventaTotal };
+        }
+
+        // Sumar sublimacion a personalizado total
+        totalCostoPersonalizado += costoImpresionPersSubli;
+
+        if (prensadasPersonalizado > 0) {
+            let objPlanchaP2 = t.personalizado.tarifas_planchado.find(u => prensadasPersonalizado <= u.max) || t.personalizado.tarifas_planchado[t.personalizado.tarifas_planchado.length - 1];
+            let costoPlanchadoPers = objPlanchaP2.tarifa * prensadasPersonalizado;
+            costoTotalPlanchado += costoPlanchadoPers;
+        }
+    }
+
+    // ── Resumen ───────────────────────────────
+    let desglosePlanchado = {
+        prensadas: totalPrensadasPrincipales + prensadasPersonalizado,
+        total: costoTotalPlanchado
+    };
+
+    const costoNetoSinIVA = costoTotalImpresion + costoTotalPlanchado + costoTotalPlayeras + costoEnvioTotal + totalCostoPersonalizado + costoDiseno;
+    const montoIVA = costoNetoSinIVA * 0.16;
+    const costoNetoConIVA = costoNetoSinIVA + montoIVA;
+
+    const unitarioSinIVA = costoNetoSinIVA / cantidadBase;
+    const unitarioConIVA = costoNetoConIVA / cantidadBase;
+
+    const dataReporte = {
+        servicio: 'sublimacion', t,
+        cantidadBase, origenPlayeras, hayExistencia, numMermas,
+        detalleUbicSub, costoTotalImpresion, 
+        desglosePlanchado,
+        factorUtilidad, costoTotalPlayeras, detallePlayeras,
+        infoEnvio, costoEnvioTotal,
+        labelDiseno, costoDiseno,
+        llevaPersonalizado, personalizados, totalCostoPersonalizado, itemsVinilEnResumen, detallesDTF, itemsSubliPersResumen, costoImpresionPersSubli,
+        costoNetoSinIVA, montoIVA, costoNetoConIVA, unitarioSinIVA, unitarioConIVA
+    };
+
+    generarDetalleSublimacion(dataReporte);
+    generarResumenSublimacion(dataReporte);
+}
+
+function generarDetalleSublimacion(d) {
+    document.getElementById('res_subtotal').innerText = `$${d.costoNetoSinIVA.toFixed(2)}`;
+    document.getElementById('res_iva').innerText = `$${d.montoIVA.toFixed(2)}`;
+    document.getElementById('res_total_neto').innerText = `$${d.costoNetoConIVA.toFixed(2)}`;
+    document.getElementById('res_unit_sin').innerText = `$${d.unitarioSinIVA.toFixed(2)}`;
+    document.getElementById('res_unit_con').innerText = `$${d.unitarioConIVA.toFixed(2)}`;
+    
+    document.getElementById('panel_resultados').style.display = 'block';
+    document.getElementById('explicacion_detalles').style.display = 'none';
+
+    let html = '';
+    const sep = '<div class="dg-separator"></div>';
+
+    html += `<div class="detalles-grid">`;
+    html += `<h4 class="dg-title">🖨️ IMPRESIÓN SUBLIMACIÓN</h4>`;
+    html += `<p class="dg-note">Calculado por hoja según tabulador de volumen base.</p>`;
+    
+    d.detalleUbicSub.forEach(u => {
+        html += `<div class="dg-box">`;
+        html += `<b>Ubicación: ${u.ubiName} — Hoja: ${u.tamName}</b>`;
+        let textPzas = u.pzasEfectivas !== d.cantidadBase ? `(${u.pzasEfectivas} pliegos efectivos, 4 pz x hoja)` : `${u.pzasEfectivas} pzas`;
+        html += `<p class="dg-formula">${textPzas} × $${u.costoHojaUnitario.toFixed(2)}/u = <strong>$${u.subtotalImpresionUbic.toFixed(2)}</strong></p>`;
+        html += `</div>`;
+    });
+    html += `<p class="dg-row dg-sum"><span>Total Hojas Impresión:</span><strong>$${d.costoTotalImpresion.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    if (d.llevaPersonalizado) {
+        html += `<h4 class="dg-title">⭐ PERSONALIZADO</h4>`;
+        if (d.itemsSubliPersResumen && d.itemsSubliPersResumen.length > 0) {
+            html += `<p class="dg-formula dg-warning">Material Sublimación óptimo:</p>`;
+            d.itemsSubliPersResumen.forEach(s => {
+                html += `<div class="dg-box">`;
+                html += `<b>${s.elemento} (${s.tam})</b> - Caben ${s.pzasPerSheet} pzas/hoja<br>`;
+                html += `Se requieren ${s.sheetsNeeded} hojas × $${s.costoSheet.toFixed(2)}/u = <strong>$${s.total.toFixed(2)}</strong>`;
+                html += `</div>`;
+            });
+        }
+        if (d.itemsVinilEnResumen && d.itemsVinilEnResumen.length > 0) {
+            d.itemsVinilEnResumen.forEach(v => {
+                 html += `<div class="dg-box dg-gray">`;
+                 html += `<b>Vinil ${v.nombre}</b>: Venta Material $${v.ventaMaterial.toFixed(2)} + Maquila (Corte $${v.costoCorte.toFixed(2)} y Depilado $${v.costoDepilado.toFixed(2)})<br>`;
+                 html += `Total: <strong>$${v.subtotalVinil.toFixed(2)}</strong></div>`;
+            });
+        }
+        if (d.detallesDTF) {
+             html += `<div class="dg-box dg-gray"><b>DTF</b>: Subtotal $${d.detallesDTF.ventaTotal.toFixed(2)}</div>`;
+        }
+        html += `<p class="dg-row dg-sum"><span>Total Personalizado Textil:</span><strong>$${d.totalCostoPersonalizado.toFixed(2)}</strong></p>`;
+        html += sep;
+    }
+
+    if (d.desglosePlanchado) {
+        html += `<h4 class="dg-title">🔥 PLANCHADO</h4>`;
+        html += `<p class="dg-formula">${d.desglosePlanchado.prensadas} prensadas totales × Tabulador = <strong>$${d.desglosePlanchado.total.toFixed(2)}</strong></p>`;
+        html += `<p class="dg-row dg-sum"><span>Total Planchado:</span><strong>$${d.desglosePlanchado.total.toFixed(2)}</strong></p>`;
+        html += sep;
+    }
+
+    html += `<h4 class="dg-title">👕 PLAYERAS</h4>`;
+    if (d.origenPlayeras === 'comprar') {
+        html += `<p class="dg-formula">Utilidad: <strong>×${d.factorUtilidad}</strong> para ${d.cantidadBase} prendas</p>`;
+        d.detallePlayeras.forEach(p => {
+            if (p.cantPz) {
+                html += `<div class="dg-box"><b>${p.cantPz}× ${p.marca} — ${p.modelo} (${p.variante})</b><br>`;
+                html += `$${p.precioVenta.toFixed(2)} × ${p.cantPz} = <strong>$${p.subtotalRenglon.toFixed(2)}</strong></div>`;
+            }
+        });
+        if (d.detallePlayeras._merma) {
+            const m = d.detallePlayeras._merma;
+            html += `<div class="dg-box dg-warning"><b>🔄 MERMA</b>: ${m.numMermas} prendas necesarias extra = <strong>$${m.costoMerma.toFixed(2)}</strong></div>`;
+        }
+        html += `<p class="dg-row dg-sum"><span>Total Playeras (con merma):</span><strong>$${d.costoTotalPlayeras.toFixed(2)}</strong></p>`;
+        html += sep;
+        
+        html += `<h4 class="dg-title">🚚 ENVÍO</h4>`;
+        if (d.hayExistencia) {
+            html += `<p class="dg-formula dg-green">✅ Playeras en existencia local. Costo Envío: $0.00</p>`;
+        } else if (d.infoEnvio) {
+            html += `<p class="dg-formula">${d.infoEnvio.paquetesEnvio} paquete(s) × $${d.infoEnvio.tarifa} = <strong>$${d.costoEnvioTotal.toFixed(2)}</strong></p>`;
+        }
+    } else {
+         html += `<p class="dg-formula dg-green">✅ Cliente envía prendas.</p>`;
+         html += `<p class="dg-formula">⚠️ Pedir ${d.numMermas} piezas de merma.</p>`;
+    }
+    html += sep;
+
+    html += `<h4 class="dg-title">✏️ DISEÑO</h4>`;
+    html += `<p class="dg-formula">${d.labelDiseno}: <strong>$${d.costoDiseno}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">📊 RESUMEN FINAL</h4>`;
+    html += `<table class="dg-table">
+        <tr><td>Impresión Sublimación</td><td>$${d.costoTotalImpresion.toFixed(2)}</td></tr>
+        <tr><td>Costo Planchado</td><td>$${d.desglosePlanchado.total.toFixed(2)}</td></tr>
+        <tr><td>Costo de Playeras</td><td>$${d.costoTotalPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Costo de Envío</td><td>$${d.costoEnvioTotal.toFixed(2)}</td></tr>
+        <tr><td>Personalizado Adicional</td><td>$${d.totalCostoPersonalizado.toFixed(2)}</td></tr>
+        <tr><td>Diseño</td><td>$${d.costoDiseno}</td></tr>
+        <tr class="dg-tr-sub"><td><b>SUBTOTAL sin IVA</b></td><td><b>$${d.costoNetoSinIVA.toFixed(2)}</b></td></tr>
+        <tr><td>IVA 16%: </td><td>$${d.montoIVA.toFixed(2)}</td></tr>
+        <tr class="dg-tr-total"><td><b>TOTAL con IVA</b></td><td><b>$${d.costoNetoConIVA.toFixed(2)}</b></td></tr>
+    </table>`;
+    html += `</div>`;
+    document.getElementById('explicacion_detalles').innerHTML = html;
+}
+
+function generarResumenSublimacion(d) {
+    const lineas = [];
+    const ubisTexto = d.detalleUbicSub.map(u => `${u.ubiName} (${u.tamName})`).join(' + ');
+
+    let playerasTexto = '';
+    if (d.origenPlayeras === 'comprar' && d.detallePlayeras.length > 0) {
+        playerasTexto = d.detallePlayeras.filter(p=>p.cantPz).map(p => `${p.cantPz}× ${p.marca} ${p.modelo} (${p.variante})`).join(', ');
+    } else {
+        playerasTexto = `Cliente envía (+ ${d.numMermas} pzas merma)`;
+    }
+
+    const persTexto = (d.personalizados && d.personalizados.length > 0)
+        ? d.personalizados.map(p => `${p.ubicacion} ${p.ancho}×${p.alto}cm ${(p.tecnica==='vinil')?p.tipoVinilTxt:(p.tecnica==='dtf'?'DTF':'Sublimación')}`).join(' | ')
+        : null;
+
+    lineas.push(`━━━ COTIZACIÓN TEXTIL ━━━`);
+    lineas.push(`📦 Cantidad: ${d.cantidadBase} prendas`);
+    lineas.push(`🎨 Servicio: SUBLIMACIÓN`);
+    lineas.push(`📍 Impresión: ${ubisTexto}`);
+    if (persTexto) lineas.push(`⭐ Personalizado: ${persTexto}`);
+    lineas.push(`👕 Playeras: ${playerasTexto}`);
+    if (d.origenPlayeras === 'comprar') {
+        lineas.push(`🚚 Envío: ${d.hayExistencia ? 'Sin cargo (Existencia)' : '$' + d.costoEnvioTotal.toFixed(2)}`);
+    }
+    lineas.push(`✏️ Diseño: ${d.labelDiseno.split('(')[0].trim()}`);
+    lineas.push(`──────────────────────────`);
+    lineas.push(`Subtotal:       $${d.costoNetoSinIVA.toFixed(2)}`);
+    lineas.push(`Total c/ IVA:   $${d.costoNetoConIVA.toFixed(2)}`);
+    lineas.push(`Precio c/u:     $${d.unitarioConIVA.toFixed(2)} (con IVA)`);
+
+    document.getElementById('resumen_texto').innerText = lineas.join('\n');
+    document.getElementById('panel_resumen').style.display = 'block';
 }
