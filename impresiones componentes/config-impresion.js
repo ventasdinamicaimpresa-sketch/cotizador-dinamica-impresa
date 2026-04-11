@@ -19,7 +19,7 @@ window.PAPELES = {
     {id:'couche300o',name:'Couché 300gr (oficio)',costo:7.37,tamanos:['oficio','32x50'],impacto:'alto'},
   ],
   opalina:[
-    {id:'opal120c', name:'Opalina Blanca 120gr (carta)',costo:3.80,tamanos:['carta','doblecarta','30x45'],impacto:'medio'},
+    {id:'opal120c', name:'Papel opalina 120gr',costo:3.80,tamanos:['carta','doblecarta','30x45'],impacto:'medio'},
     {id:'opal120o', name:'Opalina Blanca 120gr (oficio)',costo:5.07,tamanos:['oficio','32x50'],impacto:'medio'},
     {id:'cart225b', name:'Cartulina Opalina Blanca 225gr',costo:7.34,tamanos:['carta','oficio','doblecarta','30x45'],impacto:'alto'},
     {id:'cart225c', name:'Cartulina Opalina Crema 225gr',costo:6.20,tamanos:['carta','oficio','doblecarta','30x45'],impacto:'alto'},

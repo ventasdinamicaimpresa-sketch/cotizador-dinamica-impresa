@@ -101,7 +101,23 @@ function calcularPartida(p){
   const costoHojaFinal = costoHojaBruta * multPapel;
 
   // Cortes
-  const costoCortes = (p.cortes || 0) * 25;
+  let costoCortes = 0;
+  let detalleCorte = "";
+  if (p.tipoCorte === 'registro') {
+    if (cantidad <= 9) {
+      costoCortes = 150;
+      detalleCorte = `Tarifa base de $150.00 (1 a 9 hojas)`;
+    } else if (cantidad <= 25) {
+      costoCortes = cantidad * 13;
+      detalleCorte = `${cantidad} hojas x $13.00 c/u (10 a 25 hojas)`;
+    } else {
+      costoCortes = cantidad * 10;
+      detalleCorte = `${cantidad} hojas x $10.00 c/u (más de 25 hojas)`;
+    }
+  } else if (p.tipoCorte === 'guillotina' || p.cortes > 0) {
+    costoCortes = (p.cortes || 0) * 25;
+    detalleCorte = `${p.cortes || 0} cortes x $25.00 c/u`;
+  }
 
   // Diseño
   const costoDiseno = p.diseno;
@@ -110,7 +126,7 @@ function calcularPartida(p){
   const unitario = subtotal / cantidad;
 
   return {
-    costoImpFrente, costoImpReverso, costoPapel, costoCortes, costoDiseno,
+    costoImpFrente, costoImpReverso, costoPapel, costoCortes, detalleCorte, costoDiseno,
     subtotal, unitario, pliegos, hojasPorPliego,
     precioImpFrente, precioImpReverso, 
     precioNormalFrente, precioNormalReverso, clicksAContar,

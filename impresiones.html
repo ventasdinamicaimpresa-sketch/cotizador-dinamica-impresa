@@ -436,7 +436,7 @@ function filtrarPapeles(){
     if(p.tamanos.includes(tamano)) {
       const o = document.createElement('option');
       o.value = p.id;
-      o.textContent = `${p.name} – $${p.costo.toFixed(2)}/pliego`;
+      o.textContent = p.name;
       sel.appendChild(o);
     }
   });
@@ -577,6 +577,7 @@ function eliminarPartida(i){
 // ============================================================
 function realizarCotizacion(){
   if(partidas.length===0){alert('⚠️ Agrega al menos una partida');return;}
+  const fMil = n => typeof n === 'number' ? n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : n;
   let totalGeneral=0;
   let htmlResultado='';
   let clienteTexto='🧾 *COTIZACIÓN DE IMPRESIONES*\n➖➖➖➖➖➖➖➖➖➖➖➖\n\n';
@@ -593,26 +594,26 @@ function realizarCotizacion(){
 
     htmlResultado+=`
     <div class="result-box" style="margin-bottom:14px">
-      <div style="font-size:.82rem;color:var(--text2);margin-bottom:10px;font-weight:600">PARTIDA ${i+1} – ${p.cantidad} IMP. TAMAÑO ${tamShow}</div>
-      <div class="result-row"><span class="result-label">🖨️ Impresión Frente (${frenteTxt})</span><span class="result-value">$${calc.costoImpFrente.toFixed(2)}</span></div>
-      ${p.reverso!=='no'?`<div class="result-row"><span class="result-label">🖨️ Impresión Reverso (${reversoTxt.replace('REVERSO ','').replace(' A ','/')})</span><span class="result-value">$${calc.costoImpReverso.toFixed(2)}</span></div>`:''}
-      <div class="result-row"><span class="result-label">📄 Papel (${p.papelNombre})</span><span class="result-value">$${calc.costoPapel.toFixed(2)}</span></div>
-      ${calc.costoCortes>0?`<div class="result-row"><span class="result-label">✂️ Corte (${p.tipoCorte==='registro'?'Registro':'Guillotina'})</span><span class="result-value">$${calc.costoCortes.toFixed(2)}</span></div>`:''}
-      ${calc.costoDiseno>0?`<div class="result-row"><span class="result-label">🎨 Diseño</span><span class="result-value">$${calc.costoDiseno.toFixed(2)}</span></div>`:''}
+      <div style="font-size:.82rem;color:var(--text2);margin-bottom:10px;font-weight:600">PARTIDA ${i+1} – ${fMil(p.cantidad)} IMP. TAMAÑO ${tamShow}</div>
+      <div class="result-row"><span class="result-label">🖨️ Impresión Frente (${frenteTxt})</span><span class="result-value">$${fMil(calc.costoImpFrente)}</span></div>
+      ${p.reverso!=='no'?`<div class="result-row"><span class="result-label">🖨️ Impresión Reverso (${reversoTxt.replace('REVERSO ','').replace(' A ','/')})</span><span class="result-value">$${fMil(calc.costoImpReverso)}</span></div>`:''}
+      <div class="result-row"><span class="result-label">📄 Papel (${p.papelNombre})</span><span class="result-value">$${fMil(calc.costoPapel)}</span></div>
+      ${calc.costoCortes>0?`<div class="result-row"><span class="result-label">✂️ Corte (${p.tipoCorte==='registro'?'Registro':'Guillotina'})</span><span class="result-value">$${fMil(calc.costoCortes)}</span></div>`:''}
+      ${calc.costoDiseno>0?`<div class="result-row"><span class="result-label">🎨 Diseño</span><span class="result-value">$${fMil(calc.costoDiseno)}</span></div>`:''}
       <div class="result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
         <span class="result-label" style="font-weight:700">Subtotal partida</span>
-        <span class="result-total">$${calc.subtotal.toFixed(2)}</span>
+        <span class="result-total">$${fMil(calc.subtotal)}</span>
       </div>
-      <div class="result-row"><span class="result-label">Precio unitario</span><span class="result-unit">$${calc.unitario.toFixed(4)}</span></div>
+      <div class="result-row"><span class="result-label">Costo unitario | Subtotal</span><span class="result-unit">$${fMil(calc.unitario)} | $${fMil(calc.subtotal)}</span></div>
     </div>`;
 
     const cobertDesc = p.cobertura==='50'?'(50% COBERTURA)':p.cobertura==='80'?'(80% COBERTURA)':'(100% COBERTURA)';
     const emojiFrente = p.frente==='color'?'🎨':'⬛';
-    const textActCorte = p.tipoCorte==='registro' ? '\n🎯 CON CORTE A REGISTRO' : (p.tipoCorte==='guillotina' && p.cortes>0 ? `\n✂️ +${p.cortes} cortes de guillotina` : '');
-    const textCostoCorte = calc.costoCortes > 0 ? `\n✂️ COSTO CORTE: $${calc.costoCortes.toFixed(2)}` : '';
-    const textCostoDiseno = calc.costoDiseno > 0 ? `\n🎨 COSTO DISEÑO: $${calc.costoDiseno.toFixed(2)}` : '';
+    const textActCorte = p.tipoCorte==='registro' ? '\n🎯 CON CORTE A REGISTRO' : (p.tipoCorte==='guillotina' && p.cortes>0 ? `\n✂️ CORTE A LA MEDIDA QUE SOLICITA` : '');
+    const textCostoDiseno = calc.costoDiseno > 0 ? `\n🎨 COSTO DISEÑO: $${fMil(calc.costoDiseno)}` : '';
     
-    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${p.cantidad} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}${textActCorte}${textCostoCorte}${textCostoDiseno}\n💵 UNITARIO: $${calc.unitario.toFixed(2)}  |  SUBTOTAL: $${calc.subtotal.toFixed(2)}\n\n`;
+    // Per user request, removing the cost of cuts and the old unitario sin iva line
+    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${fMil(p.cantidad)} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}${textActCorte}${textCostoDiseno}\n\n`;
   });
 
   const iva = totalGeneral * 0.16;
@@ -623,13 +624,13 @@ function realizarCotizacion(){
   const unitarioIva = totalCantidad>0 ? (totalConIva / totalCantidad) : 0;
 
   htmlResultado+=`<div class="result-box" style="background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(16,185,129,.1));border-color:var(--accent)">
-    <div class="result-row"><span class="result-label">SUBTOTAL GENERAL</span><span class="result-value">$${totalGeneral.toFixed(2)}</span></div>
-    <div class="result-row"><span class="result-label">IVA 16%</span><span class="result-value">$${iva.toFixed(2)}</span></div>
-    <div class="result-row"><span class="result-label" style="font-size:1.1rem;font-weight:800;color:var(--text)">TOTAL CON IVA</span><span class="result-total" style="font-size:1.5rem">$${totalConIva.toFixed(2)}</span></div>
-    <div class="result-row" style="border-top:1px solid rgba(0,0,0,0.05);padding-top:8px;margin-top:4px"><span class="result-label">Costo unitario (con IVA)</span><span class="result-value" style="color:var(--accent2);font-weight:700">$${unitarioIva.toFixed(4)} c/u</span></div>
+    <div class="result-row"><span class="result-label">SUBTOTAL GENERAL</span><span class="result-value">$${fMil(totalGeneral)}</span></div>
+    <div class="result-row"><span class="result-label">IVA 16%</span><span class="result-value">$${fMil(iva)}</span></div>
+    <div class="result-row"><span class="result-label" style="font-size:1.1rem;font-weight:800;color:var(--text)">TOTAL CON IVA</span><span class="result-total" style="font-size:1.5rem">$${fMil(totalConIva)}</span></div>
+    <div class="result-row" style="border-top:1px solid rgba(0,0,0,0.05);padding-top:8px;margin-top:4px"><span class="result-label">Costo unitario (con IVA)</span><span class="result-value" style="color:var(--accent2);font-weight:700">$${fMil(unitarioIva)} c/u</span></div>
   </div>`;
 
-  clienteTexto+=`➖➖➖➖➖➖➖➖➖➖➖➖\n📊 SUBTOTAL: $${totalGeneral.toFixed(2)}\n➕ IVA 16%:   $${iva.toFixed(2)}\n✅ TOTAL:     $${totalConIva.toFixed(2)} (Neto)\n➖➖➖➖➖➖➖➖➖➖➖➖`;
+  clienteTexto+=`➖➖➖➖➖➖➖➖➖➖➖➖\n📊 SUBTOTAL: $${fMil(totalGeneral)}\n➕ IVA 16%:   $${fMil(iva)}\n✅ TOTAL NETO: $${fMil(totalConIva)}  |  PRECIO UNITARIO NETO: $${fMil(unitarioIva)}\n➖➖➖➖➖➖➖➖➖➖➖➖`;
 
   document.getElementById('resultadoContenido').innerHTML=htmlResultado;
   document.getElementById('resultadoCard').style.display='';

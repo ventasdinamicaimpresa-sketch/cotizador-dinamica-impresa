@@ -1,0 +1,138 @@
+ya con estos precios quiero ahcer una aplicacion web , es solo para mi y mi equipo el cliente no tinee acceso , es para dar precios al instante 
+me ayudias con esto , queir que esta bionita y myy funcional ,
+actúa el mejor programador con diseño uix , que este colorida bonita , 
+el codifo que tenga buenas praticas 
+
+la pagina se llamra = impresiones.hmtl 
+un subtitulo crado por = JOEL ADRIAN MTZ MEZA , 8341446103
+
+PRIMEOR HAY QUE AHCER UN FORMULARIO PARA PODER SACAR LOS COSTOS 
+
+1 PREUNTAR , CAUTIDAD DE IMPRESIONES = UN CUADRO PARA PONER LA CANTIDA , QUE DANTRO DEL CUADRO DIGA = ESCURBIE AQUI LA CANTIADA A COTIZAR 
+2 TAMAÑO DE IMPRESION = PODER SELECCIONAR TAMAÑO DE IMPRESION = CARTA , OFICIO , DOBLE CARTA Y 30 X 45 CM 3, 32 X 50CM 
+3 LADOS A IMPRMIR = PODER SERCCINAR LOS LADOS A IMPRMIR , FRENTE = COLOR , BLANCO Y NEGRO  EN UN CUADRO ,Y EN OTRO CUADOR , REVERSO = SOLO 1 LADO FRENTE , COLOR , BLANCO Y NEGRO , 
+4 TIPO DE PAPEL =  papel bond 75gr, papel bond 90gr, papel bond 120gr , papel lustrolito o couche (son lo mismo ) de 128-130 , 150 , 200 , 250 y 300 gr, papel opalina blanca 120 gr , papel opalina crema 120gr , cartulina oplina blanca 225gr, cartulina oplina crema 225gr, PAPEL ADHESIVO BILLANTE , PAPEL ADHESIVO REFIGERANTE , CARTULINA CROMACOTE 10PT , CARTULINA SULFATADA 12PT , PAPEL ALBANENE , PAPEL ACETATO , MASTER , CARTULINA STARDEAM KANT SILK , CARULINA BRISTOL, papel stardem  
+
+4.1 , QUIERO QUE LA SEELECCON DE PAPELES , PARA QUE LA LSITA NO ESTE MUY LAGRA CALISIFCALOS POR TIPOS DE PAPEL , BOND = PAPEL BOND 75GR , 90 Y 120GR , LUSTOLITOS = 128-130GR,150,200,250,300, OPALINAS= BALNCAS 120, 225GR, CREMA 120 Y 220GR , ADHESIVOS = BIRLLANTE , REFIGERANTE , GRUESOS = SULTADA 12PT, COMRACOTE 10PT, BISTOL , TRASLUCIDOS = PAPEL ALBANENE , ACETATO , INVITACION = CARTULINA STARDEAM KANT SILK , CARTULIAN TEXTURIZADA = (PEDNEIDETE DE AGREGAR )
+
+5 COBERTURA DE IMPRESION = PODER SELECCIONAR LA COBERTURA DE IMPRESION (PLASTAS DE IMPRESION) = 50, 80% 100% , ABAJO DE POSENTAJE DE IMPRESON AGREGAR UNA TEXTO PARA EPLICAR = SI EL CLEINTE NO ENVIA EL DISEÑO SE SELECCIONA 100% DE PORSENTAJE , SI ES UNA REVISTA O FOTOS EN UN DOCUMETNO SE SELECCIONA TAMBIEN 100% 
+
+6 VAMOS A USAR LOS COSTOS DE IMPRESION DE LA 842 , DEPENDE DE LA CANTIAD EL EL PRECIO DE VENTA 
+7 LOS PRECIOS QUE SACAMOS SON TAMAÑO CARTA , SI ES TAMÑO OFICIO , SE AGREGA 15% DEL COSTO DE IMPRESION POR CONSEPTO TAMAÑO CARTA , SI ES DOBLE CARTA , EL COSTO DE IMRPESION  carta se multiplica X 2 (QUE SERIAN 2 CARTAS) , SI ES 30X45 EL CSOTO ES X2.5 PRO EL TAMAÑO Y SI EL TAMAÑO ES 32 X 50  EL PRECIO DE IMPRESION CARTA ES X 3.5 , 
+SI ES POR AMBOS LADOS EL COSTO DE IMPRESION FRENTE SE MULTIPLCIA X 2 , POEQUE ES POR AMBOS LADOS 
+
+8 PONER UN BOTON DE AGREGAR , PARA PODER AGREGAR = EJEMPLO PARA PODER ESCOJER 50 IMP CARTA COLOR 1 LADO Y 20 IMP DOBLE CARTA COLOR AMBOS LADOS , TODAS CON PERSNETJES DITIOTOS Y PAPELES DIDNTINTOS , 
+
+9 ABAJO AGREGAR UN A SELECCION = DISEÑO = CLEINTE ENVIA DISEÑO LISTO PARA IMPRESION Y TAMAÑO (NO SO COBRA NADA) , MODIFICAR TAMAÑO Y MEDIDAS O QUE QUEOPAN EN UNA HOJA (TIENE UN COSTO DE $85 , Y HACER DISEÑO $250 
+
+10 AREGAR UNA SELECION ABAJO = PRECIOS DE MAQUILA , SU FUNCION ES DAR EL PRECIO DE MAQUILA DEL PAPEL 
+ 
+11 AGREGAR UN BOTON ABAJO QUE SE LLAME = REALIZAR COTIZACION , QUE SU FUNCION SEA QUE AL TOCAR REALZIAE LA COTIZACION NECESITADA DE TODO LO QUE LLENAMOS EN EL FOMRULARIO 
+12 AGREGAR UN BOTON A LADO DERECHO DEL REALIZAR COTIZACION QUE SE LLAME = LIMPIAR FOMULARIO = QUE SU FUNIION SEA LIMPIAR TODO EL FORMULARIO 
+13 agregar u botón alado del precio que da la cotización que se llame = explicaicon costos = su función sea , explicar los costos , que al tocar espanda una eplicacion completa de todo lo que se enceista para sacar los costos , todo super detallado, que sea facul de entender pero muy bien explicado, todo por secciones no todo revuelto )
+14 agregar una sección abajo de tood donde este un cuadro , que salga los precios escitos , su fucion sea un resumen para el cliente , para poder tocar u botno que se llaame = copaiar para cliente, y pueda compiar todo lo que viene y poderlo enviar por whatss o correo fácil mente sin tener que trascibnir los costos 
+la explicación debe estar limpia , sin bicons en 1 sola linea ejm= 500 IMPRESIONES TAMAÑO CARTA IMPRESAS A COLOR FENTE , REVESO EN BLANCO Y NEGRO , EN PAPEL COUCHE 250GR (80% COBERTURA DE IMPRESION) = $ PRECIO UNITARIO , $ PRECIO TOTAL NETO 
+ 
+15 al final de todo un botón en grande que se llanme=  costos del sistema , que al tocar , expanda y de por secciones los precios de cada cosa para sacar esta pagina , todos los pecios que este la lista completa, para poder viusalrar los costos siempre 
+
+te comparto los costos de los papeles 
+
+
+
+
+DEL PLEIOGO 
+TIPOS DE PAPEL                            COSTO    
+PAPEL UNI OPALINA 57X87 BLANCO 120GRS     $3.80    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+PAPEL UNI OPALINA 70X95 BLANCO 120 GRS    $5.07    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+CART UNI OPALINA 57X87CM 225 GRS          $7.34    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+CART UNI OPALINA MARFIL 57X72CM 225 GRS   $6.20    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+PAPEL UNIBOND 61X90 BLANCO 75GRS PZA      $1.56    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+PAPEL UNIBOND 70X95 BLANCO 75GRS PZA      $1.63    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+PAPEL UNIBOND 61X90 BLANCO 90GRS PZA      $1.60    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+PAPEL UNIBOND 70X95 BLANCO 90GRS PZA      $1.95    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+COUCHE BRILL 2C 61X90CMS 128GR 71.3KG     $2.31    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+COUCHE BRILL 2C 72X95CMS 130GRS 89KG      $3.26    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+COUCHE BRILL 2C 72X95CMS 150GRS 102.6KG   $3.50    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+COUCHE BRILL 2C 61X90CMS 148GR 82KG       $2.95    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+CART COUCHE BRILL 2C 61X90CM 200GR 110KG  $3.42    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+CART COUCHE BRILL 2C 72X95CM 200GS        $4.91    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+CART COUCHE BRILL 2C 61X90CM 250GR        $4.51    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+CART COUCHE BRILL 2C 72X95CM 250GR        $6.23    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+CART COUCHE BRILL 2C 61X90CM 300GR        $5.40    CARTA (21.6 X 28)        DOBLE CARTA (28 X 43.2)
+CART COUCHE BRILL 2C 72X95CM 300GR        $7.37    OFICIO (21.6 X 34)       DOBLE OFICIO (34 X 43.2)
+CARTULINA STARDEAM KANT SILK 72X51 CM  $28
+PAPEL STARDEAM KANT SILK 72 X 51 = $ 20
+PAPEL ALBANENE 180GR 61X90 $ 16
+CARTULINA CORMACOTE 70X100 $15.50
+PAPEL ADHESIVO BRILLANTE 51X66 = $ 11
+PAPEL ADHESIVO REFIGERACION 51X66 $ 12.50
+
+
+
+para cuando seleccionen papeles para un tamaño carta u doble carta o sus derivcados mas chicos  = usar los papales que te indico para ese tamaño o si es oficio , seleccionar los papales para tamaño oficio o sus devados 
+
+EN IMPRESIONES NO HAY MEDIDA DOBEL OFICIO 
+MEDIDA DE PAPEL = 
+57X87 CARTAS CABEN 8PZ Y 4 PZ DOBEL CARTA de 30x45 y 32x50 salen 2 pz
+70 X 95 = CABEN 8 PZ OFICIO , 
+61X90 = CABEN 8 PZ CARTA , Y 4 PZ DOBLE CARTA y de 30x45 salen 4pz de 30x45 salen 4 pz 
+70x95 caben 8 pz oficio y 32 x 50 salen 3 pz 
+51X66 CABEB 5 CARTAS , 3 OFICIOS ,30x45 y 32x50 salen 1 pz
+72X51 CABEB 5 CARTAS , 3 OFICIOS ,30x45 y 32x50 salen 1 pz
+
+
+la utilidad del papel carta y doble carta = costo papel x 2 (de utilidad ) 
+para tamaños oficio (agregar $150 por concepto de corte extra por medida ) y utilidad x2.3 del costo 
+para medidas 30x45 y 32x45 , utilidad del papel x3 y agregar $ 150 extra por concepto de corte 
+
+COSTOS DE IMPRESION = 
+ODOS LOS PRECIOS SON SIN IVA Y NO INCLUYEN EL COSTO DEL PAPEL.
+
+---------------------------------------------------------------------------
+1. CLASIFICACIÓN DE PAPELES POR IMPACTO (DESGASTE)
+---------------------------------------------------------------------------
+- BAJO IMPACTO: Bond (todas las marcas), Lustrolito < 150g, Adhesivo, Acetato.
+- MEDIO IMPACTO: Opalinas, Papel Master, Lustrolito 200-250g, Couché medio.
+- ALTO IMPACTO: Sulfatada (10pt, 12pt), Cartulinas 300g, StarDream, Cromacote.
+
+---------------------------------------------------------------------------
+2. RICOH SP C842 - TABLA DE VENTA COLOR (MARGENES 100% A 35%)
+---------------------------------------------------------------------------
+PAPEL / COBERTURA | COSTO | MAQUILA(35%) | 501+(38%) | 351-500(45%) | 151-350(55%) | 81-150(70%) | 26-80(85%) | 1-25(100%)
+------------------|-------|--------------|-----------|--------------|--------------|-------------|------------|-----------
+BAJO IMPACTO      |       |              |           |              |              |             |            |           
+50% Plasta        | $9.46 | $12.77       | $13.05    | $13.72       | $14.66       | $16.08      | $17.50     | $18.92    
+80% Plasta        | $15.63| $21.10       | $21.57    | $22.66       | $24.23       | $26.57      | $28.92     | $31.26    
+100% Plasta       | $19.95| $26.93       | $27.53    | $28.93       | $30.92       | $33.92      | $36.91     | $39.90    
+------------------|-------|--------------|-----------|--------------|--------------|-------------|------------|-----------
+MEDIO IMPACTO     |       |              |           |              |              |             |            |           
+50% Plasta        | $9.58 | $12.93       | $13.22    | $13.89       | $14.85       | $16.29      | $17.72     | $19.16    
+80% Plasta        | $15.76| $21.28       | $21.75    | $22.85       | $24.43       | $26.79      | $29.16     | $31.52    
+100% Plasta       | $20.09| $27.12       | $27.72    | $29.13       | $31.14       | $34.15      | $37.17     | $40.18    
+------------------|-------|--------------|-----------|--------------|--------------|-------------|------------|-----------
+ALTO IMPACTO      |       |              |           |              |              |             |            |           
+50% Plasta        | $9.70 | $13.10       | $13.39    | $14.07       | $15.04       | $16.49      | $17.95     | $19.40    
+80% Plasta        | $15.89| $21.45       | $21.93    | $23.04       | $24.63       | $27.01      | $29.40     | $31.78    
+100% Plasta       | $20.22| $27.30       | $27.90    | $29.32       | $31.34       | $34.37      | $37.41     | $40.44    
+
+---------------------------------------------------------------------------
+3. RICOH SP C842 - TABLA DE VENTA B/N (MARGENES 100% A 35%)
+---------------------------------------------------------------------------
+PAPEL / COBERTURA | COSTO | MAQUILA(35%) | 501+(38%) | 351-500(45%) | 151-350(55%) | 81-150(70%) | 26-80(85%) | 1-25(100%)
+------------------|-------|--------------|-----------|--------------|--------------|-------------|------------|-----------
+BAJO IMPACTO      |       |              |           |              |              |             |            |           
+50% Negro         | $2.26 | $3.05        | $3.12     | $3.28        | $3.50        | $3.84       | $4.18      | $4.52     
+100% Negro        | $3.75 | $5.06        | $5.18     | $5.44        | $5.81        | $6.38       | $6.94      | $7.50     
+------------------|-------|--------------|-----------|--------------|--------------|-------------|------------|-----------
+ALTO IMPACTO      |       |              |           |              |              |             |            |           
+50% Negro         | $2.50 | $3.38        | $3.45     | $3.63        | $3.88        | $4.25       | $4.63      | $5.00     
+100% Negro        | $4.02 | $5.43        | $5.55     | $5.83        | $6.23        | $6.83       | $7.44      | $8.04     
+
+---------------------------------------------------------------------------
+
+LÍNEA ROJA: NUNCA VENDER POR DEBAJO DE LA COLUMNA "MAQUILA (35%)".
+===========================================================================
+
+SI TIENES DUDAS ME DICES 
+
+
