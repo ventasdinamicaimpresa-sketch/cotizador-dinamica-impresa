@@ -54,11 +54,11 @@ function calcularPartida(p){
   const corteExtra = CORTE_EXTRA[tamano]||0;
   const ambosLados = reverso !== 'no';
   
-  // Calcular cantidad total de clics (Frente + Reverso) para bracket de precio
-  const clicksAContar = cantidad * (ambosLados ? 2 : 1);
+  // Calcular cantidad total de clics (Frente + Reverso) para bracket de precio, agrupando por factor de tamaño
+  const clicksAContar = Math.ceil(cantidad * (ambosLados ? 2 : 1) * multImp);
 
   // Impresión frente
-  const precioNormalFrente = getPrecioImp(frente, papel.impacto, cobertura, cantidad, maquila);
+  const precioNormalFrente = getPrecioImp(frente, papel.impacto, cobertura, cantidad * multImp, maquila);
   const precioImpFrente = getPrecioImp(frente, papel.impacto, cobertura, clicksAContar, maquila);
   let costoImpFrente = precioImpFrente * multImp * cantidad;
 
@@ -67,7 +67,7 @@ function calcularPartida(p){
   let precioNormalReverso = 0;
   let precioImpReverso = 0;
   if(ambosLados){
-    precioNormalReverso = getPrecioImp(reverso, papel.impacto, cobertura, cantidad, maquila);
+    precioNormalReverso = getPrecioImp(reverso, papel.impacto, cobertura, cantidad * multImp, maquila);
     precioImpReverso = getPrecioImp(reverso, papel.impacto, cobertura, clicksAContar, maquila);
     costoImpReverso = precioImpReverso * multImp * cantidad;
   }

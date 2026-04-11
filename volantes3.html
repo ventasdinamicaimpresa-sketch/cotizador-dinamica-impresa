@@ -378,6 +378,10 @@
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                     <label
                         style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
+                        <input type="radio" name="cobertura" value="30"> ⚪ 30% (texto ligero)
+                    </label>
+                    <label
+                        style="font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#fff;">
                         <input type="radio" name="cobertura" value="50" checked> 🟢 50% (texto / diseño ligero)
                     </label>
                     <label
@@ -772,7 +776,7 @@
             const rangosImp = window.RANGOS || [];
             const modosImp = [['color', '🖨️ Color'], ['bn', '⬛ Blanco y Negro']];
             const impactosImp = [['bajo', 'Bajo (bond, couche 130)'], ['medio', 'Medio (opalina 120, couche 150-200)'], ['alto', 'Alto (opalina 225, couche 250-300)']];
-            const coberturasImp = ['50', '80', '100'];
+            const coberturasImp = ['30', '50', '80', '100'];
             const multsTam = [['carta', 'Carta x1', 1], ['doble-carta', 'Doble Carta x2', 2], ['oficio', 'Oficio x1.15', 1.15]];
 
             if (!tablaImp.color) {

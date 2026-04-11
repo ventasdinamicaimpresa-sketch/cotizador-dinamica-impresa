@@ -151,13 +151,16 @@
                     <label class="section-title block"><i class="fas fa-tint mr-1"></i> Cobertura de Impresión (Plasta)</label>
                     <div class="flex flex-wrap gap-3 mt-1">
                         <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
-                            <input type="radio" name="cobertura" value="50" class="form-radio text-blue-600" checked> <span>🟢 50% (texto / diseño ligero)</span>
+                            <input type="radio" name="cobertura" value="30" class="form-radio text-blue-600"> <span>⚪ 30% (texto ligero)</span>
                         </label>
                         <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
-                            <input type="radio" name="cobertura" value="80" class="form-radio text-blue-600"> <span>🟡 80% (diseño mixto)</span>
+                            <input type="radio" name="cobertura" value="50" class="form-radio text-blue-600" checked> <span>🟢 50% (texto/diseño mixto)</span>
                         </label>
                         <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
-                            <input type="radio" name="cobertura" value="100" class="form-radio text-blue-600"> <span>🔴 100% (fotos / diseño a sangre)</span>
+                            <input type="radio" name="cobertura" value="80" class="form-radio text-blue-600"> <span>🟡 80% (fondos/imágenes)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm">
+                            <input type="radio" name="cobertura" value="100" class="form-radio text-blue-600"> <span>🔴 100% (fotos/plasta completas)</span>
                         </label>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">Si son fotos o diseño a sangre → usa <b>100%</b>.</p>
@@ -185,14 +188,35 @@
                     </div>
                 </div>
 
+                <!-- 12. Corte Extra -->
+                <div>
+                    <label class="section-title block"><i class="fas fa-cut mr-1"></i> Servicio de Corte Extra</label>
+                    <div class="flex flex-col gap-3 mt-1">
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm w-full md:w-auto">
+                                <input type="radio" name="tipoCorte" value="no" class="form-radio text-blue-600" checked onchange="document.getElementById('corteInputs').style.display='none'"> 
+                                <span>🚫 Sin corte (Incluido)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer bg-white border p-3 rounded hover:bg-blue-50 text-sm w-full md:w-auto">
+                                <input type="radio" name="tipoCorte" value="guillotina" class="form-radio text-blue-600" onchange="document.getElementById('corteInputs').style.display='flex'"> 
+                                <span>📏 Corte Guillotina (+$25 por corte)</span>
+                            </label>
+                        </div>
+                        <div id="corteInputs" style="display: none;" class="flex items-center gap-3 bg-white p-3 border rounded shadow-sm w-fit">
+                            <label class="text-sm font-semibold text-gray-700">Cantidad de cortes:</label>
+                            <input type="number" id="cantidadCortes" min="1" value="1" class="input-field w-24 text-center">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Botones de Acción -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button type="button" id="btnCalcular" onclick="calcular()"
+                    <button type="button" id="btnAgregar" onclick="agregarPartida()"
                         class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-lg">
-                        <i class="fas fa-calculator text-blue-200"></i> CALCULAR COTIZACIÓN
+                        <i class="fas fa-plus text-blue-200"></i> AGREGAR A COTIZACIÓN
                     </button>
 
-                    <button type="button" onclick="limpiarCampos()"
+                    <button type="button" onclick="limpiarFormularioIngreso()"
                         class="flex-1 sm:flex-none bg-red-100 hover:bg-red-200 text-red-600 font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-200">
                         <i class="fas fa-trash-alt"></i> Limpiar
                     </button>
@@ -200,35 +224,54 @@
             </form>
         </div>
 
+        <!-- LISTA DE PARTIDAS -->
+        <div id="partidasContainer" class="card overflow-hidden border-2 border-slate-200 shadow-md hidden">
+            <div class="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center">
+                <p class="text-sm font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-list-ol"></i> Partidas Agregadas (<span id="countPartidas">0</span>)
+                </p>
+                <button type="button" onclick="calcularCotizacionGlobal()"
+                    class="hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow transform transition-all hover:scale-[1.05] active:scale-95 flex items-center justify-center gap-2 text-sm z-10" style="background-color: #10b981;">
+                    <i class="fas fa-calculator"></i> CALCULAR GLOBAL
+                </button>
+            </div>
+            <div class="p-4" id="listaPartidas">
+                <!-- Se llenan con JS -->
+            </div>
+        </div>
+
         <!-- RESULTADOS (Oculto inicialmente) -->
         <div id="resultadosSection" class="hidden space-y-6">
 
             <!-- Tarjeta Principal de Resultado -->
-            <div class="card overflow-hidden border-2 border-indigo-100 shadow-xl">
-                <div class="bg-indigo-50 p-6 text-center border-b border-indigo-100">
-                    <p class="text-sm font-bold text-indigo-500 uppercase tracking-widest mb-1">Costo Total Estimado</p>
-                    <p class="text-5xl font-black text-green-600 drop-shadow-sm mb-2" id="displayTotal">$0.00</p>
-                    <div class="inline-block bg-white px-3 py-1 rounded-full border border-indigo-200 shadow-sm">
-                        <p class="text-sm text-indigo-600 font-bold"><span id="displayUnitario">$0.00</span> / unidad
-                        </p>
+            <div class="card overflow-hidden border-2 border-emerald-100 shadow-xl relative">
+                <!-- Decorative background elements -->
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-emerald-50 opacity-50"></div>
+                <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-teal-50 opacity-50"></div>
+                
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-8 text-center border-b border-emerald-100 relative z-10">
+                    <p class="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle"></i> Gran Total (IVA Incluido)
+                    </p>
+                    <p class="text-5xl font-black text-slate-800 drop-shadow-sm mb-3">
+                        <span id="displayTotal" class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">
+                            $0.00
+                        </span>
+                    </p>
+                    
+                    <div class="flex justify-center gap-4 mt-4">
+                        <div class="bg-white/80 backdrop-blur px-4 py-2 rounded-lg border border-emerald-100 shadow-sm">
+                            <p class="text-xs text-slate-500 font-semibold uppercase mb-1">Subtotal Global</p>
+                            <p class="text-lg font-bold text-slate-700" id="displaySubtotalGlobal">$0.00</p>
+                        </div>
+                        <div class="bg-white/80 backdrop-blur px-4 py-2 rounded-lg border border-emerald-100 shadow-sm">
+                            <p class="text-xs text-slate-500 font-semibold uppercase mb-1">IVA (16%)</p>
+                            <p class="text-lg font-bold text-slate-700" id="displayIvaGlobal">$0.00</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="p-6">
-                    <!-- Botón Toggle Desglose -->
-                    <div class="flex justify-end mb-4">
-                        <button onclick="document.getElementById('internalBreakdown').classList.toggle('hidden')"
-                            class="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors text-sm uppercase tracking-wide">
-                            <i class="fas fa-info-circle"></i> Explicación de Costos
-                        </button>
-                    </div>
-
-                    <!-- Desglose Interno (Collapsible) -->
-                    <div id="internalBreakdown"
-                        class="hidden transition-all duration-300 ease-in-out bg-white p-4 rounded-lg border border-gray-200 shadow-inner mb-6">
-                        <!-- Content injected via JS -->
-                    </div>
-
                     <!-- Resumen Cliente -->
                     <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
                         <div class="flex justify-between items-center mb-3">
@@ -240,10 +283,16 @@
                                 class="text-sm text-gray-700 font-mono whitespace-pre-wrap leading-relaxed min-h-[4rem]">
                             </p>
                         </div>
-                        <button onclick="copiarAlPortapapeles()"
-                            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 text-lg">
-                            <i class="fas fa-copy"></i> COPIAR AL PORTAPAPELES
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button onclick="copiarAlPortapapeles()"
+                                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 text-lg">
+                                <i class="fas fa-copy"></i> COPIAR AL PORTAPAPELES
+                            </button>
+                            <button type="button" onclick="reiniciarCotizacionGlobal()"
+                                class="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-200">
+                                <i class="fas fa-sync-alt"></i> Nueva Cotización
+                            </button>
+                        </div>
                         <p id="copyFeedback"
                             class="text-center text-green-600 text-sm mt-2 hidden font-bold animate-pulse">
                             <i class="fas fa-check-circle"></i> ¡Copiado con éxito!
@@ -313,6 +362,26 @@
             { max: 50, precios: { carta: 7, doble_carta: 10, oficio: 7 } },
             { max: 100, precios: { carta: 6, doble_carta: 8, oficio: 6 } },
             { max: 999999, precios: { carta: 4, doble_carta: 6, oficio: 4 } }
+        ];
+
+        // Costos de Impresión de Referencia (Basados en Cobertura 100%, Impacto Alto)
+        // Valores obtenidos de la tabla de impresión general para fines informativos en el desglose de precios.
+        const preciosImpresionColor = [
+            { max: 25, precios: { carta: 38.95, doble_carta: 77.90, oficio: 44.79 } },
+            { max: 80, precios: { carta: 36.03, doble_carta: 72.06, oficio: 41.43 } },
+            { max: 150, precios: { carta: 33.10, doble_carta: 66.20, oficio: 38.07 } },
+            { max: 350, precios: { carta: 30.18, doble_carta: 60.36, oficio: 34.71 } },
+            { max: 500, precios: { carta: 28.24, doble_carta: 56.48, oficio: 32.48 } },
+            { max: 999999, precios: { carta: 26.87, doble_carta: 53.74, oficio: 30.90 } }
+        ];
+
+        const preciosImpresionBN = [
+            { max: 25, precios: { carta: 8.04, doble_carta: 16.08, oficio: 9.25 } },
+            { max: 80, precios: { carta: 7.44, doble_carta: 14.88, oficio: 8.56 } },
+            { max: 150, precios: { carta: 6.83, doble_carta: 13.66, oficio: 7.85 } },
+            { max: 350, precios: { carta: 6.23, doble_carta: 12.46, oficio: 7.16 } },
+            { max: 500, precios: { carta: 5.83, doble_carta: 11.66, oficio: 6.70 } },
+            { max: 999999, precios: { carta: 5.55, doble_carta: 11.10, oficio: 6.38 } }
         ];
 
         // --- DATA PAPELES ---
@@ -390,7 +459,20 @@
             });
         }
 
-        function calcular() {
+        let partidasEnmicado = [];
+
+        function limpiarFormularioIngreso() {
+            document.getElementById('cantidad').value = '';
+            document.getElementById('tamano').value = '';
+            document.getElementById('grosor').value = '';
+            document.getElementById('colorFrente').value = '';
+            document.getElementById('colorReverso').value = '';
+            document.getElementById('papel').innerHTML = '<option value="" disabled selected>Primero seleccione un tamaño</option>';
+            document.querySelector('input[name="cobertura"][value="50"]').checked = true;
+            document.querySelector('input[name="diseno"][value="0"]').checked = true;
+        }
+
+        function agregarPartida() {
             // 1. Obtener valores
             const cantidad = parseInt(document.getElementById('cantidad').value);
             if (!cantidad || cantidad < 1) {
@@ -403,6 +485,11 @@
             const colorFrente = document.getElementById('colorFrente').value;
             const colorReverso = document.getElementById('colorReverso').value;
 
+            if (!tamano || !grosor || !colorFrente || !colorReverso) {
+                alert("Por favor complete todos los campos de tamaño, grosor e impresión.");
+                return;
+            }
+
             // Papel: Buscar objeto en array
             const papelId = document.getElementById('papel').value;
             const papelObj = papeles.find(p => p.id === papelId);
@@ -414,16 +501,18 @@
 
             const papelPrecioPliego = papelObj.precio;
             const papelNombre = papelObj.nombre;
-            const papelMedidas = papelObj.medidas; // Needed for internal logic if we want to log it
-            const papelNombreCompleto = `${papelObj.nombre} (${papelObj.medidas})`; // Restaurar visualización completa para logs internos si se desea
+            const papelMedidas = papelObj.medidas; 
+            const papelNombreCompleto = `${papelObj.nombre} (${papelObj.medidas})`; 
 
             const disenoCosto = parseFloat(document.querySelector('input[name="diseno"]:checked').value);
+            const tipoCorte = document.querySelector('input[name="tipoCorte"]:checked').value;
+            const cantidadCortes = tipoCorte === 'guillotina' ? parseInt(document.getElementById('cantidadCortes').value) || 0 : 0;
+            const corteCosto = cantidadCortes * 25;
 
-            let logs = []; // Para el desglose interno
+            let logs = []; 
 
             // --- A. CÁLCULO PAPEL ---
             let cortesPorPliego = 0;
-            // Lógica de cortes según descripción
             if (tamano === 'carta') cortesPorPliego = 8;
             else if (tamano === 'oficio') cortesPorPliego = 8;
             else if (tamano === 'doble_carta') cortesPorPliego = 4;
@@ -444,14 +533,14 @@
             const impacto = IMPACTO_PAPEL_ENMICADO[papelId] || 'bajo';
             const multTam = MULT_TAMANO_ENMICADO[tamano] || 1;
 
-            // Clicks totales para volumen (frente + reverso)
+            // Clicks totales para volumen (frente + reverso) multiplicados por el impacto del tamaño
             const tieneReverso = (colorReverso !== 'none');
-            const clicksTotales = cantidad * (tieneReverso ? 2 : 1);
+            const clicksTotales = Math.ceil(cantidad * (tieneReverso ? 2 : 1) * multTam);
 
             let costoImpresionUnitario = 0;
             let detalleImp = '';
 
-            // Frente
+            // Frente (Se manda clicksTotales para saber la tarifa con descuento, no la tarifa bruta)
             const pFrente = window.getPrecioImp(colorFrente, impacto, cobertura, clicksTotales, 'no') * multTam;
             costoImpresionUnitario += pFrente;
             detalleImp += `Frente ${colorFrente === 'color' ? 'Color' : 'B/N'} ($${pFrente.toFixed(2)}) `;
@@ -499,6 +588,13 @@
             logs.push(`Costo Total Refilado: ${lotesRefilado} * $80 = $${costoTotalRefilado.toFixed(2)}`);
             logs.push(`Costo Refilado prorrateado x unidad: $${costoRefiladoPorUnidad.toFixed(4)}`);
 
+            logs.push(`--- 6. CORTE EXTRA ---`);
+            if (tipoCorte === 'guillotina') {
+                logs.push(`Corte Guillotina: ${cantidadCortes} cortes x $25 = $${corteCosto.toFixed(2)}`);
+            } else {
+                logs.push(`Sin corte extra.`);
+            }
+
             // --- TOTALES ---
 
             // Suma Unitaria (Sin IVA aun, segun instrucciones "costos que te pase son sin iva... al final agregar IVA")
@@ -507,8 +603,8 @@
             const subtotalUnitario = papelCostoConUtilidad + costoImpresionUnitario + costoMicaConUtilidad + costoEnmicadoUnitario + costoRefiladoPorUnidad;
             const subtotalTotal = subtotalUnitario * cantidad;
 
-            // Agregar diseño al subtotal general
-            const baseImponibleTotal = subtotalTotal + disenoCosto;
+            // Agregar diseño y corte al subtotal general
+            const baseImponibleTotal = subtotalTotal + disenoCosto + corteCosto;
 
             const ivaTotal = baseImponibleTotal * 0.16;
             const granTotal = baseImponibleTotal + ivaTotal;
@@ -518,57 +614,156 @@
             logs.push(`Subtotal Unitario (Papel+Imp+Mica+MO+Refil): $${subtotalUnitario.toFixed(4)}`);
             logs.push(`Subtotal x Cantidad (${cantidad}): $${subtotalTotal.toFixed(2)}`);
             logs.push(`+ Diseño: $${disenoCosto.toFixed(2)}`);
+            logs.push(`+ Corte: $${corteCosto.toFixed(2)}`);
             logs.push(`Base Imponible: $${baseImponibleTotal.toFixed(2)}`);
             logs.push(`+ IVA (16%): $${ivaTotal.toFixed(2)}`);
             logs.push(`TOTAL NETO: $${granTotal.toFixed(2)}`);
 
-            // --- RENDERIZADO ---
-            document.getElementById('displayTotal').innerText = formatMoney(granTotal);
-            document.getElementById('displayUnitario').innerText = formatMoney(precioUnitarioFinal);
+            // --- RENDERIZADO AL ARRAY ---
+            const partida = {
+              cantidad, tamano, grosor, colorFrente, colorReverso,
+              cobertura, papelId, papelNombre, disenoCosto, corteCosto, cantidadCortes, tipoCorte,
+              precioUnitarioFinal, granTotal, 
+              baseImponibleTotal, subtotalUnitario,
+              logs
+            };
 
-            // Llenar desglose interno
-            const breakdownContainer = document.getElementById('internalBreakdown');
-            breakdownContainer.innerHTML = logs.map(log => `<div class="border-b border-gray-100 py-1">${log}</div>`).join('');
+            partidasEnmicado.push(partida);
+            renderPartidas();
+            limpiarFormularioIngreso();
+            
+            document.getElementById('partidasContainer').classList.remove('hidden');
+        }
 
-            // Generar Resumen Cliente
-            // Formato: CANTIDAD... TAMAÑO... IMPRESOS... 1 LADO... EN PAPEL... MICA... DISEÑO... COSTO UNITARIO... COSTO TOTAL...
-            // Generar Resumen Cliente
-            // Formato: CANTIDAD ENMICADOS TAMAÑO TIPO_DE_TAMAÑO IMPRESOS A COLOR 1 LADO EN COUCHE 300GR, MICA RIDIDA 10 ML, CLIENTE ENVIA DISEÑO $... PRESIO UNTARIO, TOTAL$ …. YA NETO
+        function eliminarPartida(index) {
+            partidasEnmicado.splice(index, 1);
+            renderPartidas();
+            if (partidasEnmicado.length === 0) {
+                document.getElementById('partidasContainer').classList.add('hidden');
+                document.getElementById('resultadosSection').classList.add('hidden');
+            }
+        }
 
-            let impresionTxt = "";
-            if (colorFrente === 'color' && colorReverso === 'none') impresionTxt = "IMPRESOS A COLOR 1 LADO";
-            else if (colorFrente === 'color' && colorReverso === 'color') impresionTxt = "IMPRESOS A COLOR 2 LADOS";
-            else if (colorFrente === 'bn' && colorReverso === 'none') impresionTxt = "IMPRESOS A BLANCO Y NEGRO 1 LADO";
-            else if (colorFrente === 'bn' && colorReverso === 'bn') impresionTxt = "IMPRESOS A BLANCO Y NEGRO 2 LADOS";
-            else if (colorFrente === 'color' && colorReverso === 'bn') impresionTxt = "IMPRESOS A COLOR FRENTE Y B/N REVERSO";
-            else if (colorFrente === 'bn' && colorReverso === 'color') impresionTxt = "IMPRESOS A B/N FRENTE Y COLOR REVERSO";
+        function renderPartidas() {
+            const list = document.getElementById('listaPartidas');
+            document.getElementById('countPartidas').innerText = partidasEnmicado.length;
+            list.innerHTML = '';
 
-            const papelDetalle = papelNombre.split('-')[0].trim().replace(/\s*\(.*\)\s*$/, ''); // "Unibond 75g" or "Cart. Opalina 225g"
-            let micaDetalle = "";
-            if (grosor === '5mil') micaDetalle = 'MICA DELGADA 5 MIL';
-            else if (grosor === '10mil') micaDetalle = 'MICA RÍGIDA 10 MIL';
+            partidasEnmicado.forEach((p, index) => {
+                let impresionTxt = "";
+                if (p.colorFrente === 'color' && p.colorReverso === 'none') impresionTxt = "1L COLOR";
+                else if (p.colorFrente === 'color' && p.colorReverso === 'color') impresionTxt = "2L COLOR";
+                else if (p.colorFrente === 'bn' && p.colorReverso === 'none') impresionTxt = "1L B/N";
+                else if (p.colorFrente === 'bn' && p.colorReverso === 'bn') impresionTxt = "2L B/N";
+                else impresionTxt = "MIXTO";
 
-            let disenoDetalle = "";
-            if (disenoCosto === 0) disenoDetalle = 'CLIENTE ENVIA DISEÑO';
-            else if (disenoCosto === 150) disenoDetalle = 'DISEÑO GUARDADO AQUI';
-            else if (disenoCosto === 250) disenoDetalle = 'INCLUYE DISEÑO';
+                const micaTxt = p.grosor === '5mil' ? '5 mil' : '10 mil';
 
+                let corteTxt = "";
+                if (p.tipoCorte === 'guillotina') {
+                    corteTxt = `<span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs ml-1 whitespace-nowrap"><i class="fas fa-cut"></i> ${p.cantidadCortes} Corte(s) (+$${p.corteCosto.toFixed(2)})</span>`;
+                }
 
-            const resumenTxt = `${cantidad} ENMICADOS TAMAÑO ${tamano.toUpperCase().replace('_', ' ')} ${impresionTxt} EN ${papelNombre.toUpperCase()}, ${micaDetalle}, ${disenoDetalle}, ${formatMoney(precioUnitarioFinal)} PRECIO UNITARIO, TOTAL ${formatMoney(granTotal)} YA NETO.`;
+                list.innerHTML += `
+                <div class="bg-white border rounded-lg p-4 mb-3 shadow-sm hover:shadow transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-slate-800">${formatMoney(p.cantidad)} ud. | ${p.tamano.toUpperCase().replace('_', ' ')}</p>
+                            <p class="text-sm text-slate-600 mt-1 flex flex-wrap gap-1 leading-relaxed">
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs whitespace-nowrap"><i class="fas fa-scroll"></i> ${p.papelNombre}</span>
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs whitespace-nowrap"><i class="fas fa-layer-group"></i> Mica: ${micaTxt}</span>
+                                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs whitespace-nowrap"><i class="fas fa-print"></i> ${impresionTxt}</span>
+                                ${corteTxt}
+                            </p>
+                            <p class="text-xs text-slate-500 mt-2">
+                                Subtotal Unitario: <span class="font-semibold text-slate-700">${formatMoney(p.subtotalUnitario)}</span> |
+                                Diseño: <span class="font-semibold text-slate-700">${formatMoney(p.disenoCosto)}</span> |
+                                <span class="text-green-600 font-bold ml-1 text-sm bg-green-50 px-2 py-1 rounded">Total: ${formatMoney(p.granTotal)}</span>
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="document.getElementById('logs_${index}').classList.toggle('hidden')" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded border border-indigo-100 transition-colors">
+                                <i class="fas fa-info-circle"></i> Info
+                            </button>
+                            <button onclick="eliminarPartida(${index})" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded border border-red-100 transition-colors">
+                                <i class="fas fa-trash"></i> Quitar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="logs_${index}" class="hidden mt-3 p-3 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600 max-h-40 overflow-y-auto">
+                        ${p.logs.map(log => `<div class="border-b border-gray-100 py-1 font-mono">${log}</div>`).join('')}
+                    </div>
+                </div>
+                `;
+            });
+        }
 
-            document.getElementById('clienteResumen').innerText = resumenTxt;
+        function calcularCotizacionGlobal() {
+            if (partidasEnmicado.length === 0) {
+                alert("No hay partidas agregadas a la cotización.");
+                return;
+            }
 
-            // Mostrar sección resultados
+            let subtotalGlobalNeto = 0; // Costo + Diseño
+            let ivaGlobal = 0;
+            let granTotalGlobal = 0;
+            let clienteTexto = '🧾 *COTIZACIÓN DE ENMICADO*\n➖➖➖➖➖➖➖➖➖➖➖➖\n\n';
+
+            partidasEnmicado.forEach((p, index) => {
+                subtotalGlobalNeto += p.baseImponibleTotal;
+
+                let impresionTxt = "";
+                if (p.colorFrente === 'color' && p.colorReverso === 'none') impresionTxt = "IMPRESOS A COLOR 1 LADO";
+                else if (p.colorFrente === 'color' && p.colorReverso === 'color') impresionTxt = "IMPRESOS A COLOR 2 LADOS";
+                else if (p.colorFrente === 'bn' && p.colorReverso === 'none') impresionTxt = "IMPRESOS A B/N 1 LADO";
+                else if (p.colorFrente === 'bn' && p.colorReverso === 'bn') impresionTxt = "IMPRESOS A B/N 2 LADOS";
+                else if (p.colorFrente === 'color' && p.colorReverso === 'bn') impresionTxt = "IMPRESOS A COLOR FRENTE Y B/N REVERSO";
+                else if (p.colorFrente === 'bn' && p.colorReverso === 'color') impresionTxt = "IMPRESOS A B/N FRENTE Y COLOR REVERSO";
+
+                const papelDetalle = p.papelNombre.split('-')[0].trim().replace(/\s*\(.*\)\s*$/, '');
+                let micaDetalle = "";
+                if (p.grosor === '5mil') micaDetalle = 'MICA DELGADA 5 MIL';
+                else if (p.grosor === '10mil') micaDetalle = 'MICA RÍGIDA 10 MIL';
+
+                let disenoDetalle = "";
+                if (p.disenoCosto === 0) disenoDetalle = 'CLIENTE ENVIA DISEÑO';
+                else if (p.disenoCosto === 150) disenoDetalle = 'DISEÑO GUARDADO AQUI';
+                else if (p.disenoCosto === 250) disenoDetalle = 'INCLUYE DISEÑO';
+
+                // Añadir al texto del cliente
+                clienteTexto += `📌 PARTIDA ${index + 1}:\n🖨️ ${p.cantidad} ENMICADOS TAMAÑO ${p.tamano.toUpperCase().replace('_', ' ')}\n${impresionTxt} EN ${p.papelNombre.toUpperCase()}\n🛡️ ${micaDetalle}\n🎨 ${disenoDetalle}\n\n`;
+            });
+
+            ivaGlobal = subtotalGlobalNeto * 0.16;
+            granTotalGlobal = subtotalGlobalNeto + ivaGlobal;
+
+            let totalCantidad = 0;
+            partidasEnmicado.forEach(p => totalCantidad += p.cantidad);
+            const precioUnitarioGlobal = granTotalGlobal / totalCantidad;
+
+            // Totales al final
+            clienteTexto += `➖➖➖➖➖➖➖➖➖➖➖➖\n📊 SUBTOTAL: ${formatMoney(subtotalGlobalNeto)}\n➕ IVA 16%:   ${formatMoney(ivaGlobal)}\n✅ TOTAL NETO: ${formatMoney(granTotalGlobal)}\n💎 PRECIO UNITARIO NETO: ${formatMoney(precioUnitarioGlobal)}\n➖➖➖➖➖➖➖➖➖➖➖➖`;
+
+            // UI
+            document.getElementById('displayTotal').innerText = formatMoney(granTotalGlobal);
+            document.getElementById('displaySubtotalGlobal').innerText = formatMoney(subtotalGlobalNeto);
+            document.getElementById('displayIvaGlobal').innerText = formatMoney(ivaGlobal);
+            
+            document.getElementById('clienteResumen').innerText = clienteTexto;
+
             document.getElementById('resultadosSection').classList.remove('hidden');
-            // Scroll hacia resultados
             document.getElementById('resultadosSection').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function limpiarCampos() {
-            document.getElementById('quoteForm').reset();
-            document.getElementById('resultadosSection').classList.add('hidden');
-            document.getElementById('copyFeedback').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function reiniciarCotizacionGlobal() {
+            if(confirm("¿Estás seguro de que deseas limpiar todas las partidas y empezar de nuevo?")) {
+                partidasEnmicado = [];
+                renderPartidas();
+                document.getElementById('resultadosSection').classList.add('hidden');
+                document.getElementById('partidasContainer').classList.add('hidden');
+                limpiarFormularioIngreso();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         function copiarAlPortapapeles() {
