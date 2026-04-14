@@ -226,17 +226,19 @@
 
         <!-- LISTA DE PARTIDAS -->
         <div id="partidasContainer" class="card overflow-hidden border-2 border-slate-200 shadow-md hidden">
-            <div class="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center">
+            <div class="bg-slate-100 p-4 border-b border-slate-200">
                 <p class="text-sm font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
                     <i class="fas fa-list-ol"></i> Partidas Agregadas (<span id="countPartidas">0</span>)
                 </p>
-                <button type="button" onclick="calcularCotizacionGlobal()"
-                    class="hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow transform transition-all hover:scale-[1.05] active:scale-95 flex items-center justify-center gap-2 text-sm z-10" style="background-color: #10b981;">
-                    <i class="fas fa-calculator"></i> CALCULAR GLOBAL
-                </button>
             </div>
             <div class="p-4" id="listaPartidas">
                 <!-- Se llenan con JS -->
+            </div>
+            <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-center">
+                <button type="button" onclick="calcularCotizacionGlobal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-lg sm:text-xl text-center w-full sm:w-auto">
+                    <i class="fas fa-calculator text-blue-200 text-2xl"></i> Toca aquí para realizar la cotización final
+                </button>
             </div>
         </div>
 
