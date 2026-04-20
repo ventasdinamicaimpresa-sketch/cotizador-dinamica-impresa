@@ -542,12 +542,18 @@
                                 <label class="btn btn-outline-info" for="catListon">Liston Sublimado</label>
                             </div>
                         </div>
-                        
                         <div class="mb-4">
                             <label class="form-label fw-bold text-white"><i class="fas fa-ring"></i> Tipo Específico:</label>
                             <div id="opcionesEspecificas" class="border rounded p-3 bg-dark">
                                 <!-- Opciones específicas se cargarán aquí dinámicamente -->
                             </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="cantidad_brazaletes" class="form-label fw-bold text-white"><i
+                                    class="fas fa-sort-numeric-up"></i> Cantidad a cotizar:</label>
+                            <input type="number" class="form-control" id="cantidad_brazaletes" min="1"
+                                placeholder="Escribe la cantidad...">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -644,12 +650,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="cantidad_brazaletes" class="form-label fw-bold text-white"><i
-                                class="fas fa-sort-numeric-up"></i> Cantidad a cotizar:</label>
-                        <input type="number" class="form-control" id="cantidad_brazaletes" min="1"
-                            placeholder="Escribe la cantidad...">
                     </div>
                 </div>
 
@@ -1676,76 +1676,73 @@
 
             // Función para expandir imágenes
             function setupImagenExpandible() {
-                const modal = new bootstrap.Modal(document.getElementById('imagenModal'));
                 const imagenExpandida = document.getElementById('imagenExpandida');
                 
                 document.querySelectorAll('.imagen-expandible').forEach(img => {
                     img.addEventListener('click', function() {
                         imagenExpandida.src = this.src;
                         const modalTitle = document.getElementById('imagenModalLabel');
-                        modalTitle.textContent = this.alt;
-                        modal.show();
+                        if (modalTitle) modalTitle.textContent = this.alt;
+                        
+                        // Verificar si Bootstrap está cargado antes de usarlo
+                        if (typeof bootstrap !== 'undefined') {
+                            const modal = new bootstrap.Modal(document.getElementById('imagenModal'));
+                            modal.show();
+                        } else {
+                            console.warn('Bootstrap no está cargado. Se intentará abrir la imagen directamente.');
+                            alert('No se pudo abrir el visor (Bootstrap bloqueado). La imagen se abrirá en una pestaña nueva.');
+                            window.open(this.src, '_blank');
+                        }
                     });
                 });
             }
 
-            // Inicializar
-            document.addEventListener('DOMContentLoaded', function() {
-                // No cargar opciones iniciales, esperar a que usuario seleccione categoría
-                // cargarOpcionesEspecificas('papel');
-                
-                // Configurar expansión de imágenes
-                setupImagenExpandible();
-                
-                // Event listener para cambio de categoría
-                document.querySelectorAll('input[name="categoriaBrazalete"]').forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        const categoria = this.value;
-                        cargarOpcionesEspecificas(categoria);
-                        
-                        // Mostrar u ocultar campos adicionales para LISTON SUBLIMADO
-                        const camposListon = document.getElementById('camposListonSublimado');
-                        if (categoria === 'liston') {
-                            camposListon.style.display = 'block';
-                        } else {
-                            camposListon.style.display = 'none';
-                        }
-                        
-                        // Solo llamar a cotizar si hay cantidad y tipo seleccionado
-                        const cantidad = parseInt(cantidadInput.value, 10) || 0;
-                        if (cantidad > 0) {
-                            setTimeout(() => cotizar(), 100); // Pequeño delay para que se carguen las opciones
-                        }
-                    });
-                });
-                
-                // Configurar event listeners principales aquí
-                cantidadInput.addEventListener('input', cotizar);
-                opcionesDisenoEl.addEventListener('change', cotizar);
-                limpiarBtn.addEventListener('click', limpiarCampos);
-                copiarBtn.addEventListener('click', copiarResumen);
-                
-                // Event listeners para campos adicionales de LISTON SUBLIMADO
-                document.querySelectorAll('input[name="tipoImpresion"], input[name="colorImpresion"]').forEach(radio => {
-                    radio.addEventListener('change', cotizar);
-                });
-                
-                // Event listeners directos para los radios de stock (más prioritarios)
-                document.querySelectorAll('input[name="stockBrazalete"]').forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        console.log('Stock cambiado a:', this.value);
-                        cotizar();
-                    });
-                });
-                
-                // Event listener general como respaldo
-                document.addEventListener('change', function(e) {
-                    if (e.target.name === 'stockBrazalete') {
-                        console.log('Event listener general - Stock cambiado a:', e.target.value);
-                        cotizar();
+            // --- INICIALIZACIÓN ---
+            setupImagenExpandible();
+            
+            // Delegación de eventos para manejar cambios en cualquier parte del documento
+            document.addEventListener('change', function(e) {
+                // Seleccionar CATEGORÍA de brazalete
+                if (e.target.name === 'categoriaBrazalete') {
+                    const categoria = e.target.value;
+                    cargarOpcionesEspecificas(categoria);
+                    
+                    // Mostrar/ocultar campos de listón
+                    const camposListon = document.getElementById('camposListonSublimado');
+                    if (camposListon) {
+                        camposListon.style.display = (categoria === 'liston') ? 'block' : 'none';
                     }
-                });
+                    
+                    // Solo cotizar si hay cantidad
+                    const cantidad = parseInt(cantidadInput.value, 10) || 0;
+                    if (cantidad > 0) {
+                        setTimeout(() => cotizar(), 100);
+                    }
+                }
+                
+                // Seleccionar TIPO ESPECÍFICO (radios creados dinámicamente)
+                if (e.target.name === 'tipoBrazalete') {
+                    cotizar();
+                }
+                
+                // Cambiar STOCK
+                if (e.target.name === 'stockBrazalete') {
+                    cotizar();
+                }
             });
+            
+            // Listeners para campos adicionales de LISTON (se manejan por delegación pero aseguramos los de tipo/color)
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'tipoImpresion' || e.target.name === 'colorImpresion') {
+                    cotizar();
+                }
+            });
+
+            // Listeners fijos
+            cantidadInput.addEventListener('input', cotizar);
+            opcionesDisenoEl.addEventListener('change', cotizar);
+            limpiarBtn.addEventListener('click', limpiarCampos);
+            copiarBtn.addEventListener('click', copiarResumen);
 
             function getPrecioVenta(cantidad, tipo) {
                 const tabla = preciosVenta[tipo];
@@ -1847,12 +1844,19 @@
                 } else {
                     // Lógica normal para otros brazaletes
                     const { precio: precioVentaUnitario, utilidad } = getPrecioVenta(cantidad, tipo);
-                    subtotalBrazaletes = cantidad * precioVentaUnitario;
                     
+                    // 1. Costos directos de producción (INTERNOS)
                     const costoBaseUnitario = costosBase[tipo];
-                    const costoBaseTotal = (cantidad + 10) * costoBaseUnitario; // +10 de sobrante
+                    const costoBaseInterno = (cantidad + 10) * costoBaseUnitario; // +10 de sobrante por merma
                     costoImpresion = Math.max(280, Math.ceil(cantidad / 10) * 20);
-                    costoProduccionTotal = costoBaseTotal + COSTO_MARCO + costoImpresion;
+                    costoProduccionTotal = costoBaseInterno + COSTO_MARCO + costoImpresion;
+
+                    // 2. Lo que se le cobra al CLIENTE
+                    // El cliente paga el material (con utilidad aplicada) + el costo fijo de marco e impresión
+                    const cobroPuroMaterial = cantidad * precioVentaUnitario; 
+                    subtotalBrazaletes = cobroPuroMaterial + COSTO_MARCO + costoImpresion;
+                    
+                    // 3. Utilidad Real
                     utilidadBruta = subtotalBrazaletes - costoProduccionTotal;
                 }
 
@@ -1872,11 +1876,12 @@
                 if (tipo.startsWith('liston')) {
                     utilidadAplicadaEl.textContent = 'x2.5 (incluida)';
                     
-                    // Detalles explicativos para LISTON SUBLIMADO
+                    // Cálculos base para LISTON
                     const costoMetroListon = tipo === 'liston_16mm' ? 4.5 : 5.5;
-                    const piezasPorMetro = 3; // 27 cm por pieza, 100 cm / 27 cm = 3.7, redondeamos a 3
+                    const piezasPorMetro = 3; // 27 cm por pieza, caben 3
                     const costoUnitarioSinUtilidad = costoMetroListon / piezasPorMetro;
                     const costoUnitarioConUtilidad = costoUnitarioSinUtilidad * 2.5;
+                    
                     const piezasPorHoja = tipo === 'liston_16mm' ? 9 : 7;
                     const hojasNecesarias = Math.ceil(cantidad / piezasPorHoja);
                     
@@ -1893,56 +1898,91 @@
                     const costoTotalImpresion = hojasNecesarias * costoImpresionUnitario;
                     const costoTotalPlanchado = hojasNecesarias * costoPlanchadoUnitario;
                     
-                    // Actualizar detalles con explicación completa
+                    const totalCobradoMaterial = cantidad * costoUnitarioConUtilidad;
+
+                    // Actualizar detalles con explicación muy didáctica y colapsable
                     detalleCostoBaseEl.innerHTML = `
-                        <small class="text-muted">
-                            • Costo metro listón: $${costoMetroListon.toFixed(2)}<br>
-                            • Piezas por metro: ${piezasPorMetro} pz (27 cm c/u)<br>
-                            • Costo unitario sin utilidad: $${costoUnitarioSinUtilidad.toFixed(2)}<br>
-                            • Utilidad x2.5: $${(costoUnitarioSinUtilidad * 1.5).toFixed(2)}<br>
-                            • Costo final unitario: $${costoUnitarioConUtilidad.toFixed(2)}<br>
-                            • Total (${cantidad} pz): 
-                        </small>`;
-                    costoBaseTotalEl.textContent = formatoMoneda(cantidad * costoUnitarioConUtilidad);
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-info w-100" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#explicaCostosListon" aria-expanded="false" aria-controls="explicaCostosListon">
+                                <i class="fas fa-chevron-down"></i> Ver explicación de fórmulas (Listón)
+                            </button>
+                            <div class="collapse" id="explicaCostosListon">
+                                <div class="alert alert-dark mt-2 p-3 border border-secondary" style="font-size: 0.9rem; border-radius: 8px;">
+                                    <h6 class="text-info fw-bold mb-2"><i class="fas fa-list-ol"></i> EXPLICACIÓN DE FÓRMULAS</h6>
+                                    
+                                    <strong class="text-warning d-block mt-2">1. Cálculo del Listón:</strong>
+                                    El metro de listón cuesta $${costoMetroListon.toFixed(2)}. De un metro salen ${piezasPorMetro} brazaletes (27cm c/u).<br>
+                                    Costo <strong>comprado</strong> por cada pieza: $${costoMetroListon.toFixed(2)} / ${piezasPorMetro} = <strong>$${costoUnitarioSinUtilidad.toFixed(2)}</strong>.<br>
+                                    Costo <strong>vendido</strong> al cliente (con utilidad x2.5): $${costoUnitarioSinUtilidad.toFixed(2)} x 2.5 = <strong>$${costoUnitarioConUtilidad.toFixed(2)}</strong>.<br>
+                                    Cobro total de material: ${cantidad} piezas x $${costoUnitarioConUtilidad.toFixed(2)} = <strong>$${totalCobradoMaterial.toFixed(2)}</strong>.
+
+                                    <strong class="text-warning d-block mt-3">2. Cálculo de Impresión (Sublimación):</strong>
+                                    En una hoja caben ${piezasPorHoja} piezas. Para ${cantidad} brazaletes, necesitas <strong>${hojasNecesarias} hojas</strong>.<br>
+                                    El costo por imprimir cada hoja para este volumen es <strong>$${costoImpresionUnitario.toFixed(2)}</strong>.<br>
+                                    Total impresión: ${hojasNecesarias} hojas x $${costoImpresionUnitario.toFixed(2)} = <strong>$${costoTotalImpresion.toFixed(2)}</strong>.
+
+                                    <strong class="text-warning d-block mt-3">3. Cálculo de Planchado:</strong>
+                                    El planchado cobra <strong>$${costoPlanchadoUnitario.toFixed(2)}</strong> por cada hoja.<br>
+                                    Total planchado: ${hojasNecesarias} hojas x $${costoPlanchadoUnitario.toFixed(2)} = <strong>$${costoTotalPlanchado.toFixed(2)}</strong>.
+                                </div>
+                            </div>
+                        </div>`;
+                        
+                    costoBaseTotalEl.textContent = formatoMoneda(cantidad * costoUnitarioSinUtilidad); // Costo interno puro
                     
-                    // Detalles de impresión
                     const detalleImpresion = document.getElementById('detalleCostoImpresion_brazaletes');
-                    if (detalleImpresion) {
-                        detalleImpresion.innerHTML = `
-                            <small class="text-muted">
-                                • Piezas por hoja: ${piezasPorHoja} pz<br>
-                                • Hojas necesarias: ${hojasNecesarias}<br>
-                                • Costo impresión por hoja: $${costoImpresionUnitario.toFixed(2)}<br>
-                                • Total impresión: 
-                            </small>`;
-                    }
+                    if (detalleImpresion) detalleImpresion.innerHTML = '';
                     
                     costoMarcoEl.textContent = formatoMoneda(0); // No aplica para listón
                     costoImpresionTotalEl.textContent = formatoMoneda(costoTotalImpresion);
-                    
-                    // Agregar detalle de planchado en el campo de costo de producción
-                    const detalleProduccion = document.getElementById('detalleCostoBase_brazaletes');
-                    if (detalleProduccion) {
-                        detalleProduccion.innerHTML += `
-                            <small class="text-muted d-block mt-2">
-                                <strong>Costos de Producción Detallados:</strong><br>
-                                • Costo planchado por hoja: $${costoPlanchadoUnitario.toFixed(2)}<br>
-                                • Total planchado (${hojasNecesarias} hojas): $${costoTotalPlanchado.toFixed(2)}<br>
-                                • Costo total producción: 
-                            </small>`;
-                    }
-                    
                     costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
                     utilidadBrutaEl.textContent = formatoMoneda(utilidadBruta);
                 } else {
                     const { utilidad } = getPrecioVenta(cantidad, tipo);
+                    const multiplicadorNum = parseFloat(utilidad.replace('x', ''));
                     const costoBaseUnitario = costosBase[tipo];
-                    const costoBaseTotal = (cantidad + 10) * costoBaseUnitario;
+                    const costoBaseInterno = (cantidad + 10) * costoBaseUnitario;
+                    const cobroMaterialCliente = cantidad * costoBaseUnitario * multiplicadorNum;
                     
                     utilidadAplicadaEl.textContent = utilidad;
-                    detalleCostoBaseEl.textContent = `(${cantidad} + 10 pz) x ${formatoMoneda(costoBaseUnitario)} = `;
-                    costoBaseTotalEl.textContent = formatoMoneda(costoBaseTotal);
+                    
+                    detalleCostoBaseEl.innerHTML = `
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-info w-100" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#explicaCostosSerigrafia" aria-expanded="false" aria-controls="explicaCostosSerigrafia">
+                                <i class="fas fa-chevron-down"></i> Ver explicación de fórmulas (Serigrafía)
+                            </button>
+                            <div class="collapse" id="explicaCostosSerigrafia">
+                                <div class="alert alert-dark mt-2 p-3 border border-secondary" style="font-size: 0.9rem; border-radius: 8px;">
+                                    <h6 class="text-info fw-bold mb-2"><i class="fas fa-list-ol"></i> EXPLICACIÓN DE FÓRMULAS</h6>
+                                    
+                                    <strong class="text-warning d-block mt-2">1. Lo que le cobras al cliente:</strong>
+                                    El cliente quiere ${cantidad} piezas. Usamos la utilidad <strong>${utilidad}</strong> indicando tu ganancia.<br>
+                                    Cálculo: ${cantidad} x $${costoBaseUnitario.toFixed(2)} (costo base) x ${multiplicadorNum} = <strong class="text-white">$${cobroMaterialCliente.toFixed(2)}</strong> (Cobro Material).<br>
+                                    A esto se le suma OBLIGATORIAMENTE el costo del <strong>Marco ($${COSTO_MARCO})</strong> y la <strong>Impresión ($${costoImpresion})</strong>.<br>
+                                    Subtotal que ve el cliente: <strong>${formatoMoneda(subtotalBrazaletes)}</strong>.
+
+                                    <strong class="text-danger d-block mt-3">2. Lo que tú pagas para producirlo (Costos Internos):</strong>
+                                    Compras ${cantidad} piezas + <strong>10 piezas extras por merma de serigrafía</strong> = <strong>${cantidad + 10} piezas.</strong><br>
+                                    Tus compras: ${cantidad + 10} piezas x $${costoBaseUnitario.toFixed(2)} (costo proveedor) = <strong class="text-white">$${costoBaseInterno.toFixed(2)}</strong>.<br>
+                                    Pagas fijo <strong>$${COSTO_MARCO}</strong> para crear el Marco (Placa).<br>
+                                    Pagas <strong>$${costoImpresion}</strong> al impresor (Fórmula del impresor: Base de $280 que cubre 140 pz, luego sube $20 cada 10 pz extras).<br>
+                                    Gasto total tuyo (Producción): <strong>${formatoMoneda(costoProduccionTotal)}</strong>.
+
+                                    <strong class="text-success d-block mt-3">3. Tu Ganancia Neta (Utilidad Bruta):</strong>
+                                    Restas lo cobrado ($${subtotalBrazaletes.toFixed(2)}) menos lo que gastaste ($${costoProduccionTotal.toFixed(2)}).
+                                    <br>Tu dinero libre: <strong class="fs-5">${formatoMoneda(utilidadBruta)}</strong>
+                                </div>
+                            </div>
+                        </div>`;
+                        
+                    costoBaseTotalEl.textContent = formatoMoneda(costoBaseInterno);
                     costoMarcoEl.textContent = formatoMoneda(COSTO_MARCO);
+                    
+                    const detalleImpresion = document.getElementById('detalleCostoImpresion_brazaletes');
+                    if (detalleImpresion) detalleImpresion.innerHTML = '';
+                    
                     costoImpresionTotalEl.textContent = formatoMoneda(costoImpresion);
                     costoProduccionTotalEl.textContent = formatoMoneda(costoProduccionTotal);
                     utilidadBrutaEl.textContent = formatoMoneda(utilidadBruta);
