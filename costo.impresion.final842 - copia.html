@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Costos Ricoh SP C842</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .print-only { display: none; }
+        @media print {
+            .no-print { display: none; }
+            .print-only { display: block; }
+            body { background: white; }
+        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight italic">RICOH <span class="text-red-600">SP C842</span></h1>
+            <p class="text-slate-500 font-medium text-sm">"Gestión Estratégica de Costos y Precios de Venta"</p>
+        </div>
+        <div class="flex gap-2 no-print">
+            <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-700 transition shadow-lg font-bold">
+                <i class="fas fa-print"></i> Imprimir Tabulador
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Cotizador Rápido -->
+        <section class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden no-print">
+            <div class="bg-slate-900 px-8 py-5 flex items-center gap-3">
+                <div class="bg-red-600 p-2 rounded-lg text-white"><i class="fas fa-calculator"></i></div>
+                <h2 class="font-black text-white uppercase tracking-widest text-sm">Cotizador en Tiempo Real</h2>
+            </div>
+            <div class="p-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Columna de Inputs -->
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase mb-2 tracking-tighter">Cantidad a Producir</label>
+                        <input type="number" id="calc-qty" value="1" min="1" oninput="updateCalculator()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none transition text-2xl font-bold text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase mb-2 tracking-tighter">Variante de Papel (Impacto)</label>
+                        <select id="calc-impact" onchange="updateCalculator()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-semibold text-slate-600">
+                            <option value="0">BAJO: Bond / Adhesivo ($0.00)</option>
+                            <option value="0.15">MEDIO: Opalina / Lustro 200g (+$0.15)</option>
+                            <option value="0.35">ALTO: Sulfatada 300g / Cromacote (+$0.35)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase mb-2 tracking-tighter">Diseño (Saturación de Tóner)</label>
+                        <select id="calc-coverage" onchange="updateCalculator()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-semibold text-slate-600">
+                            <option value="2.080">5% Cobertura: Solo Texto</option>
+                            <option value="6.565">30% Cobertura: Diseño Publicitario</option>
+                            <option value="10.153">50% Cobertura: Fotografía / Revista</option>
+                            <option value="15.535">80% Cobertura: Plasta Saturada</option>
+                            <option value="19.123">100% Cobertura: Fondo Sólido Total</option>
+                        </select>
+                    </div>
+                    <!-- Nuevo apartado: Precio de Maquila -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <label class="block text-xs font-black text-red-600 uppercase mb-2 tracking-tighter italic">¿Aplicar Precio de Maquila?</label>
+                        <select id="calc-maquila" onchange="updateCalculator()" class="w-full p-4 bg-red-50 border-2 border-red-100 rounded-2xl outline-none font-bold text-red-600 focus:border-red-500 transition-all">
+                            <option value="no">No (Precio por Volumen)</option>
+                            <option value="yes">Sí (Precio Maquila Fijo 35%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Columna de Resultados Intermedios -->
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 flex flex-col justify-center text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Costo Neto de Producción</p>
+                    <div class="text-4xl font-black text-slate-800 tracking-tighter" id="unit-cost-display">$0.000</div>
+                    <div class="h-px bg-slate-200 w-full my-6"></div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Utilidad Dinámica</p>
+                    <div class="text-xl font-bold text-red-600" id="margin-display">100%</div>
+                </div>
+
+                <!-- Columna de Precio Final -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-3xl flex flex-col justify-center items-center text-white shadow-2xl">
+                    <p class="text-xs font-black uppercase opacity-60 tracking-widest mb-2">Precio Total Sugerido</p>
+                    <div class="text-6xl font-black mb-2 tracking-tighter" id="grand-total-display">$0.00</div>
+                    <p class="text-sm opacity-80 uppercase font-bold text-[10px]">Por <span id="qty-text" class="text-red-400">1</span> Hoja(s) Impresa(s)</p>
+                    <div class="mt-6 bg-red-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider">Mecánica y Operación Incluida</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabulador Maestro -->
+        <section class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-slate-100 px-8 py-6 border-b-4 border-slate-200 flex justify-between items-center">
+                <h2 class="font-black text-slate-800 uppercase text-lg tracking-widest italic">Tabulador Maestro de Precios de Venta (PVP)</h2>
+                <span class="text-xs font-black text-slate-500 uppercase bg-white px-4 py-2 rounded-full shadow-sm">Precios sugeridos sin papel</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-800 font-black uppercase border-b-2 border-slate-200">
+                        <tr class="text-sm">
+                            <th class="px-8 py-6 border-b min-w-[200px]">Variante Sustrato</th>
+                            <th class="px-4 py-6 border-b bg-yellow-100/50 text-slate-900 text-center">Costo Base</th>
+                            <th class="px-4 py-6 border-b text-center">Maquila (35%)</th>
+                            <th class="px-4 py-6 border-b text-red-600 text-center text-base">1-25 (100%)</th>
+                            <th class="px-4 py-6 border-b text-center">26-80 (85%)</th>
+                            <th class="px-4 py-6 border-b text-center">81-150 (70%)</th>
+                            <th class="px-4 py-6 border-b text-center">151-350 (55%)</th>
+                            <th class="px-4 py-6 border-b text-center">351-500 (45%)</th>
+                            <th class="px-4 py-6 border-b text-center">501+ (38%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="master-table-body" class="text-slate-600"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Guía Visual de Cobertura -->
+        <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 space-y-6">
+            <div class="text-center">
+                <h2 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-2 underline decoration-red-600 decoration-2">Guía Visual de Cobertura de Tóner</h2>
+                <p class="text-[11px] text-slate-400 uppercase tracking-tighter font-bold">Referencia gráfica para determinar la saturación de tinta en el diseño</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                <!-- 5% -->
+                <div class="flex flex-col items-center group">
+                    <div class="w-full aspect-[3/4] bg-white border border-slate-200 rounded-xl mb-3 shadow-sm flex flex-col p-4 space-y-1 overflow-hidden transition-transform group-hover:scale-105 italic text-[8px] text-slate-300">
+                        [Hoja con poco texto]
+                        <div class="w-1/2 h-1 bg-slate-200 rounded mt-2"></div>
+                        <div class="w-1/4 h-1 bg-slate-100 rounded"></div>
+                    </div>
+                    <span class="font-black text-slate-700 text-[10px] uppercase tracking-tighter">5% - Texto Simple</span>
+                </div>
+                <!-- 30% -->
+                <div class="flex flex-col items-center group">
+                    <div class="w-full aspect-[3/4] bg-white border border-slate-200 rounded-xl mb-3 shadow-sm flex flex-col p-3 overflow-hidden transition-transform group-hover:scale-105">
+                        <div class="w-full h-1/4 bg-blue-100 rounded mb-2"></div>
+                        <div class="flex gap-1 mb-2"><div class="w-1/2 h-6 bg-slate-100 rounded"></div><div class="w-1/2 h-6 bg-red-50 rounded"></div></div>
+                        <div class="w-full h-1 bg-slate-200 rounded"></div>
+                    </div>
+                    <span class="font-black text-slate-700 text-[10px] uppercase tracking-tighter">30% - Flyer Color</span>
+                </div>
+                <!-- 50% -->
+                <div class="flex flex-col items-center group">
+                    <div class="w-full aspect-[3/4] bg-white border border-slate-200 rounded-xl mb-3 shadow-sm flex flex-col p-3 space-y-2 overflow-hidden transition-transform group-hover:scale-105">
+                        <div class="w-full h-1/2 bg-gradient-to-br from-purple-200 via-pink-200 to-yellow-100 rounded shadow-inner"></div>
+                        <div class="w-full h-3 bg-red-600 rounded"></div>
+                    </div>
+                    <span class="font-black text-slate-700 text-[10px] uppercase tracking-tighter">50% - Foto Grande</span>
+                </div>
+                <!-- 80% -->
+                <div class="flex flex-col items-center group">
+                    <div class="w-full aspect-[3/4] bg-slate-800 border border-slate-300 rounded-xl mb-3 shadow-md flex flex-col p-3 space-y-3 overflow-hidden transition-transform group-hover:scale-105">
+                        <div class="w-full h-3/4 bg-indigo-900 rounded border border-white/10"></div>
+                        <div class="w-1/2 h-2 bg-yellow-400 rounded"></div>
+                    </div>
+                    <span class="font-black text-slate-700 text-[10px] uppercase tracking-tighter">80% - Plasta Fondo</span>
+                </div>
+                <!-- 100% -->
+                <div class="flex flex-col items-center group">
+                    <div class="w-full aspect-[3/4] bg-red-700 border-2 border-red-900 rounded-xl mb-3 shadow-xl flex flex-col items-center justify-center p-3 overflow-hidden transition-transform group-hover:scale-105">
+                        <i class="fas fa-fill-drip text-white/30 text-4xl"></i>
+                    </div>
+                    <span class="font-black text-slate-700 text-[10px] uppercase tracking-tighter">100% - Sólido Total</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Explicación Profunda -->
+        <section class="no-print space-y-6">
+            <button onclick="toggleExplanationMenu()" class="w-full bg-slate-800 text-white font-black py-6 rounded-3xl flex items-center justify-center gap-4 hover:bg-slate-700 transition-all shadow-md text-lg">
+                <i class="fas fa-microchip"></i> DESGLOSE TÉCNICO Y ANÁLISIS DE COSTOS
+            </button>
+
+            <div id="explanation-menu" class="hidden animate-fadeIn bg-white p-8 rounded-3xl border border-slate-100 shadow-2xl space-y-12 text-slate-700">
+                
+                <!-- Tabla de Insumos Reales (CRECIDA) -->
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 uppercase mb-6 tracking-widest text-center underline decoration-red-600">1. Inventario Detallado de Insumos (Por Hoja)</h3>
+                    <div class="overflow-hidden border-2 border-slate-200 rounded-3xl shadow-sm">
+                        <table class="w-full text-sm md:text-base text-left border-collapse">
+                            <thead class="bg-slate-900 text-white font-black uppercase">
+                                <tr>
+                                    <th class="px-8 py-5 border-b border-slate-700">Componente de Impresión</th>
+                                    <th class="px-6 py-5 border-b border-slate-700 text-center">Inversión Compra</th>
+                                    <th class="px-6 py-5 border-b border-slate-700 text-center">Rendimiento Real</th>
+                                    <th class="px-6 py-5 border-b border-slate-700 text-red-400 text-right">Costo x Hoja (5%)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <!-- Toners -->
+                                <tr><td class="px-8 py-4 font-bold uppercase text-slate-800">Tóner Negro (K)</td><td class="px-6 py-4 text-center font-medium">$3,899.54</td><td class="px-6 py-4 text-center">43,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.090</td></tr>
+                                <tr><td class="px-8 py-4 font-bold uppercase text-cyan-600">Tóner Cian (C)</td><td class="px-6 py-4 text-center font-medium">$6,768.86</td><td class="px-6 py-4 text-center">34,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.200</td></tr>
+                                <tr><td class="px-8 py-4 font-bold uppercase text-pink-600">Tóner Magenta (M)</td><td class="px-6 py-4 text-center font-medium">$6,768.86</td><td class="px-6 py-4 text-center">34,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.200</td></tr>
+                                <tr><td class="px-8 py-4 font-bold uppercase text-yellow-600">Tóner Amarillo (Y)</td><td class="px-6 py-4 text-center font-medium">$6,768.86</td><td class="px-6 py-4 text-center">34,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.200</td></tr>
+                                <!-- Photocoductores -->
+                                <tr class="bg-slate-50"><td class="px-8 py-4 font-bold uppercase text-slate-800">Photoconductor Negro (K)</td><td class="px-6 py-4 text-center font-medium">$5,620.05</td><td class="px-6 py-4 text-center font-bold text-slate-400">60,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.090</td></tr>
+                                <tr class="bg-slate-50"><td class="px-8 py-4 font-bold uppercase text-cyan-600 font-bold">Photoconductor Cian (C)</td><td class="px-6 py-4 text-center font-medium">$10,603.07</td><td class="px-6 py-4 text-center font-bold text-slate-400">60,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.180</td></tr>
+                                <tr class="bg-slate-50"><td class="px-8 py-4 font-bold uppercase text-pink-600 font-bold">Photoconductor Magenta (M)</td><td class="px-6 py-4 text-center font-medium">$10,603.07</td><td class="px-6 py-4 text-center font-bold text-slate-400">60,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.180</td></tr>
+                                <tr class="bg-slate-50"><td class="px-8 py-4 font-bold uppercase text-yellow-600 font-bold">Photoconductor Amarillo (Y)</td><td class="px-6 py-4 text-center font-medium">$10,603.07</td><td class="px-6 py-4 text-center font-bold text-slate-400">60,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.180</td></tr>
+                                <!-- Unidades Fijas -->
+                                <tr><td class="px-8 py-4 font-bold uppercase text-slate-700">Unidad de Transferencia</td><td class="px-6 py-4 text-center font-medium">$5,702.40</td><td class="px-6 py-4 text-center">200,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.030</td></tr>
+                                <tr><td class="px-8 py-4 font-bold uppercase text-slate-700">Unidad de Fusión</td><td class="px-6 py-4 text-center font-medium">$5,399.79</td><td class="px-6 py-4 text-center">160,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.030</td></tr>
+                                <tr><td class="px-8 py-4 font-bold uppercase text-slate-700">Bote Residual / Otros</td><td class="px-6 py-4 text-center font-medium">$2,400.00</td><td class="px-6 py-4 text-center">120,000 pág.</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.020</td></tr>
+                                <!-- Operacion -->
+                                <tr class="bg-slate-50 italic"><td class="px-8 py-4 font-bold uppercase text-slate-600">Mantenimiento Técnico</td><td class="px-6 py-4 text-center">-</td><td class="px-6 py-4 text-center font-bold">Fijo</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.050</td></tr>
+                                <tr class="bg-slate-50 italic"><td class="px-8 py-4 font-bold uppercase text-slate-600">Operador / Sueldo</td><td class="px-6 py-4 text-center">-</td><td class="px-6 py-4 text-center font-bold">Fijo</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.100</td></tr>
+                                <tr class="bg-slate-50 italic"><td class="px-8 py-4 font-bold uppercase text-slate-400">Luz / Energía</td><td class="px-6 py-4 text-center">-</td><td class="px-6 py-4 text-center font-bold">Fijo</td><td class="px-6 py-4 font-black text-slate-900 text-right text-lg">$0.050</td></tr>
+                                <!-- Totales Base (MUY CRECIDOS) -->
+                                <tr class="bg-slate-200 font-black border-t-4 border-slate-800">
+                                    <td class="px-8 py-6 uppercase text-slate-900 text-base">SUBTOTAL GASTO DIRECTO (5% COBERTURA)</td>
+                                    <td colspan="2" class="px-6 py-6 text-center text-slate-500 font-bold italic text-sm">Suma de todos los insumos arriba listados</td>
+                                    <td class="px-6 py-6 text-slate-900 text-right text-2xl font-black">$1.600</td>
+                                </tr>
+                                <tr class="bg-red-50 font-black">
+                                    <td class="px-8 py-6 uppercase text-red-600 text-base">+ 30% MERMA DE SEGURIDAD (ATASCOS/PRUEBAS)</td>
+                                    <td colspan="2" class="px-6 py-6 text-center text-red-300 font-bold italic text-sm">Fondo de protección operativa</td>
+                                    <td class="px-6 py-6 text-red-600 text-right text-2xl font-black">$0.480</td>
+                                </tr>
+                                <tr class="bg-slate-900 text-white font-black">
+                                    <td class="px-8 py-8 uppercase tracking-widest text-lg">COSTO TOTAL BASE POR HOJA (COLOR 5%)</td>
+                                    <td colspan="2" class="px-6 py-8 text-center text-slate-400 font-bold text-sm">PUNTO DE EQUILIBRIO DE PRODUCCIÓN</td>
+                                    <td class="px-6 py-8 text-red-500 text-right text-4xl font-black tracking-tighter shadow-inner">$2.080</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lógica de Porcentajes -->
+                <div class="border-t pt-10 text-[11px]">
+                    <h3 class="text-sm font-black text-slate-800 uppercase mb-8 tracking-widest text-center underline decoration-red-600">2. ¿Cómo calculamos los Factores (x6, x10, x16, x20)?</h3>
+                    <div class="space-y-10">
+                        <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-inner">
+                            <h4 class="font-black text-slate-800 mb-4 uppercase text-xs">A) El Estándar de la Industria (Base 5%)</h4>
+                            <div class="flex flex-col md:flex-row gap-8 items-center">
+                                <div class="flex-1 space-y-4 text-sm font-medium">
+                                    <p class="leading-relaxed text-slate-600">
+                                        Todos los fabricantes de impresoras miden el rendimiento de sus tóners basándose en un <strong>5% de cobertura</strong> de la hoja. Si tu diseño tiene más tinta, gastas proporcionalmente más dinero. El <strong>Factor</strong> es el resultado de dividir la cobertura deseada entre la base de 5%.
+                                    </p>
+                                    <div class="bg-white p-6 rounded-2xl border-2 border-dashed border-slate-300 font-black text-center text-slate-800 italic uppercase">
+                                        Fórmula: Cobertura (%) ÷ 5% = Factor Multiplicador
+                                    </div>
+                                </div>
+                                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 w-full md:w-64 space-y-3 font-bold">
+                                    <div class="flex justify-between text-xs border-b pb-2"><span>30% ÷ 5%</span><span class="text-red-600 font-black">Factor x6</span></div>
+                                    <div class="flex justify-between text-xs border-b pb-2"><span>50% ÷ 5%</span><span class="text-red-600 font-black">Factor x10</span></div>
+                                    <div class="flex justify-between text-xs border-b pb-2"><span>80% ÷ 5%</span><span class="text-red-600 font-black">Factor x16</span></div>
+                                    <div class="flex justify-between text-xs"><span>100% ÷ 5%</span><span class="text-red-600 font-black">Factor x20</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-black text-slate-800 mb-6 uppercase text-xs text-center italic">B) Aplicación por Nivel de Saturación</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <!-- 30% -->
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase">30% Cobertura</span>
+                                    <div class="mt-4 space-y-3">
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">1. Tóner (x6)</div>
+                                        <div class="text-slate-700">$0.69 × 6 = <span class="font-bold">$4.14</span></div>
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">2. Fijos (Sin cambio)</div>
+                                        <div class="text-slate-700 font-medium italic">$0.91 (Mec+Op)</div>
+                                        <div class="pt-2 border-t font-black text-red-600 text-xl tracking-tighter">$6.565</div>
+                                    </div>
+                                </div>
+                                <!-- 50% -->
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase">50% Cobertura</span>
+                                    <div class="mt-4 space-y-3">
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">1. Tóner (x10)</div>
+                                        <div class="text-slate-700">$0.69 × 10 = <span class="font-bold">$6.90</span></div>
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">2. Fijos (Sin cambio)</div>
+                                        <div class="text-slate-700 font-medium italic">$0.91 (Mec+Op)</div>
+                                        <div class="pt-2 border-t font-black text-red-600 text-xl tracking-tighter">$10.153</div>
+                                    </div>
+                                </div>
+                                <!-- 80% -->
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase">80% Cobertura</span>
+                                    <div class="mt-4 space-y-3">
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">1. Tóner (x16)</div>
+                                        <div class="text-slate-700">$0.69 × 16 = <span class="font-bold">$11.04</span></div>
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">2. Fijos (Sin cambio)</div>
+                                        <div class="text-slate-700 font-medium italic">$0.91 (Mec+Op)</div>
+                                        <div class="pt-2 border-t font-black text-red-600 text-xl tracking-tighter">$15.535</div>
+                                    </div>
+                                </div>
+                                <!-- 100% -->
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <span class="bg-slate-800 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase">100% Cobertura</span>
+                                    <div class="mt-4 space-y-3">
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">1. Tóner (x20)</div>
+                                        <div class="text-slate-700">$0.69 × 20 = <span class="font-bold">$13.80</span></div>
+                                        <div class="text-[10px] text-slate-400 uppercase font-black">2. Fijos (Sin cambio)</div>
+                                        <div class="text-slate-700 font-medium italic">$0.91 (Mec+Op)</div>
+                                        <div class="pt-2 border-t font-black text-red-600 text-xl tracking-tighter">$19.123</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impacto de Papel -->
+                <div class="border-t pt-10">
+                    <h3 class="text-sm font-black text-slate-800 uppercase mb-6 tracking-widest text-center underline decoration-red-600">3. Variable de Desgaste (Impacto de Sustrato)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-bold">
+                        <div class="bg-green-50 p-6 rounded-2xl border border-green-200 flex flex-col items-center text-center">
+                            <h4 class="font-black text-xs text-green-800 uppercase mb-2">BAJO (+$0.00)</h4>
+                            <p class="text-[10px] text-green-700 font-medium leading-tight uppercase tracking-widest">Bond / Adhesivos / 75g-90g</p>
+                        </div>
+                        <div class="bg-yellow-50 p-6 rounded-2xl border border-yellow-200 flex flex-col items-center text-center">
+                            <h4 class="font-black text-xs text-yellow-800 uppercase mb-2">MEDIO (+$0.15)</h4>
+                            <p class="text-[10px] text-yellow-700 font-medium leading-tight uppercase tracking-widest">Opalina / Lustro / 200g-250g</p>
+                        </div>
+                        <div class="bg-red-50 p-6 rounded-2xl border border-red-200 flex flex-col items-center text-center">
+                            <h4 class="font-black text-xs text-red-800 uppercase mb-2">ALTO (+$0.35)</h4>
+                            <p class="text-[10px] text-red-700 font-medium leading-tight uppercase tracking-widest">300g / Sulfatadas / Cromacotes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-12 mb-8 text-center text-slate-300 text-[10px] font-black uppercase tracking-widest">
+        <p>© 2024 Ricoh SP C842 - Control de Producción Industrial</p>
+    </footer>
+
+    <script>
+        const rawCosts = {
+            tK: 0.09, tC: 0.20, tM: 0.20, tY: 0.20,
+            pcK: 0.09, pcC: 0.18, pcM: 0.18, pcY: 0.18,
+            transf: 0.03, fusion: 0.03, bote: 0.02,
+            mant: 0.05, luz: 0.05, op: 0.10
+        };
+
+        const coverages = [
+            { name: "5% Cobertura", base: 2.080 },
+            { name: "30% Cobertura", base: 6.565 },
+            { name: "50% Cobertura", base: 10.153 },
+            { name: "80% Cobertura", base: 15.535 },
+            { name: "100% Cobertura", base: 19.123 }
+        ];
+
+        const impacts = [
+            { name: "BAJO", extra: 0.00, desc: "Bond / Adhesivo" },
+            { name: "MEDIO", extra: 0.15, desc: "Opalina / Lustro 200g" },
+            { name: "ALTO", extra: 0.35, desc: "300g / Sulfatada / Cromacote" }
+        ];
+
+        const margins = [
+            { label: "MAQUILA", value: 0.35, min: 1001, max: Infinity },
+            { label: "1-25", value: 1.00, min: 1, max: 25 },
+            { label: "26-80", value: 0.85, min: 26, max: 80 },
+            { label: "81-150", value: 0.70, min: 81, max: 150 },
+            { label: "151-350", value: 0.55, min: 151, max: 350 },
+            { label: "351-500", value: 0.45, min: 351, max: 500 },
+            { label: "501+", value: 0.38, min: 501, max: 1000 }
+        ];
+
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function initMasterTable() {
+            const tbody = document.getElementById('master-table-body');
+            if (!tbody) return;
+            let html = '';
+            coverages.forEach(cov => {
+                html += `
+                    <tr class="bg-slate-800 text-white shadow-inner">
+                        <td colspan="9" class="px-8 py-5 border-l-8 border-red-600">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-fill-drip text-red-500 text-xl"></i>
+                                <span class="font-black uppercase tracking-widest text-base">CATEGORÍA: ${cov.name.toUpperCase()}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                impacts.forEach(imp => {
+                    const costBase = cov.base + imp.extra;
+                    html += `<tr class="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                        <td class="px-8 py-6">
+                            <span class="font-black text-slate-800 uppercase text-xs">${imp.name} IMPACTO</span><br>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${imp.desc}</span>
+                        </td>
+                        <td class="px-4 py-6 font-black bg-yellow-50 text-slate-900 border-r border-yellow-100 text-center text-lg italic">$${costBase.toFixed(3)}</td>
+                        <td class="px-4 py-6 font-bold text-slate-700 text-center text-base">$${(costBase * (1 + 0.35)).toFixed(2)}</td>
+                        ${margins.filter(m => m.label !== "MAQUILA").map(m => {
+                            let textClass = "text-slate-700";
+                            let bgClass = "";
+                            if(m.label === "1-25") {
+                                textClass = "text-red-600 font-black";
+                                bgClass = "bg-red-50/30";
+                            }
+                            return `
+                                <td class="px-4 py-6 font-bold ${textClass} ${bgClass} text-center text-lg">
+                                    $${(costBase * (1 + m.value)).toFixed(2)}
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>`;
+                });
+            });
+            tbody.innerHTML = html;
+        }
+
+        function toggleExplanationMenu() {
+            const menu = document.getElementById('explanation-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function updateCalculator() {
+            const qtyInput = document.getElementById('calc-qty');
+            const impactSelect = document.getElementById('calc-impact');
+            const coverageSelect = document.getElementById('calc-coverage');
+            const maquilaSelect = document.getElementById('calc-maquila');
+
+            if (!qtyInput || !impactSelect || !coverageSelect || !maquilaSelect) return;
+
+            const qty = parseInt(qtyInput.value) || 1;
+            const impact = parseFloat(impactSelect.value);
+            const cov = parseFloat(coverageSelect.value);
+            const isMaquila = maquilaSelect.value === 'yes';
+
+            const costBase = cov + impact;
+            const marginObj = isMaquila 
+                ? margins.find(m => m.label === "MAQUILA")
+                : (margins.find(m => qty >= m.min && qty <= m.max) || margins[0]);
+
+            const priceUnit = costBase * (1 + marginObj.value);
+
+            safeSetText('unit-cost-display', `$${costBase.toFixed(3)}`);
+            safeSetText('margin-display', `${(marginObj.value * 100).toFixed(0)}%`);
+            safeSetText('total-price-display', `$${priceUnit.toFixed(2)}`);
+            safeSetText('grand-total-display', `$${(priceUnit * qty).toFixed(2)}`);
+            safeSetText('qty-text', qty.toString());
+        }
+
+        window.onload = () => {
+            initMasterTable();
+            updateCalculator();
+        };
+    </script>
+</body>
+</html>
