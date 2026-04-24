@@ -28,12 +28,23 @@ function cambiarServicio() {
     const esSublimacion = servicioActual === 'sublimacion';
     const esTransfer = servicioActual === 'transfer';
 
+    const esBordado = servicioActual === 'bordado';
+    const esPlayeras = servicioActual === 'playeras';
+
     document.getElementById('seccion_serigrafia').style.display = esSerigrafia ? 'block' : 'none';
     document.getElementById('seccion_dtf').style.display = esDTF ? 'block' : 'none';
     const secSubli = document.getElementById('seccion_sublimacion');
     if (secSubli) secSubli.style.display = esSublimacion ? 'block' : 'none';
     const secTrans = document.getElementById('seccion_transfer');
     if (secTrans) secTrans.style.display = esTransfer ? 'block' : 'none';
+    const secBordado = document.getElementById('seccion_bordado');
+    if (secBordado) secBordado.style.display = esBordado ? 'block' : 'none';
+
+    // Ocultar sección personalizado y diseño si es solo playeras
+    const cardPers = document.getElementById('card_personalizado');
+    if (cardPers) cardPers.style.display = esPlayeras ? 'none' : 'block';
+    const cardDiseno = document.getElementById('card_diseno');
+    if (cardDiseno) cardDiseno.style.display = esPlayeras ? 'none' : 'block';
 
     // Auto-select and disable inputs
     const tipoTelaEl = document.getElementById('tipo_tela');
@@ -59,6 +70,13 @@ function cambiarServicio() {
         Array.from(tipoTelaEl.options).forEach(opt => {
             if (opt.value === 'poliester') opt.disabled = true;
         });
+    } else if (esBordado || esPlayeras) {
+        tipoTelaEl.value = 'algodon'; // Default sin cargo
+        tipoTelaEl.style.pointerEvents = 'none';
+        tipoTelaEl.style.opacity = '0.7';
+        colorTelaEl.value = 'blanca'; // Default sin cargo
+        colorTelaEl.style.pointerEvents = 'none';
+        colorTelaEl.style.opacity = '0.7';
     } else {
         tipoTelaEl.style.pointerEvents = 'auto';
         tipoTelaEl.style.opacity = '1';
@@ -75,6 +93,9 @@ function cambiarServicio() {
     }
     if (esTransfer && document.querySelectorAll('.transfer-row').length === 0) {
         agregarUbicacionTransfer();
+    }
+    if (esBordado && document.querySelectorAll('.bordado-row').length === 0) {
+        agregarUbicacionBordado();
     }
     
     // Recargar marcas filtradas si cambió el servicio
@@ -288,6 +309,52 @@ function eliminarUbicacionTransfer(id) {
         document.getElementById(`trans_${id}`).remove();
     } else {
         alert('Debe haber por lo menos una ubicación de impresión.');
+    }
+}
+
+// ─────────────────────────────────────────────
+//  GESTIÓN DE UBICACIONES BORDADO
+// ─────────────────────────────────────────────
+let idBordado = 0;
+function agregarUbicacionBordado() {
+    idBordado++;
+    const row = document.createElement('div');
+    row.className = 'bordado-row dtf-row';
+    row.id = `bordado_${idBordado}`;
+    row.innerHTML = `
+        <div class="form-group">
+            <label>Área de bordado</label>
+            <select class="bordado-ubicacion">
+                <option value="" disabled selected>— Selecciona el área —</option>
+                <option value="frente">Frente</option>
+                <option value="espalda">Espalda</option>
+                <option value="escudo">Escudo (Pecho Izquierdo)</option>
+                <option value="manga_izq">Manga Izquierda</option>
+                <option value="manga_der">Manga Derecha</option>
+                <option value="gorra">Gorra (Frente)</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tipo de Bordado</label>
+            <select class="bordado-tipo">
+                <option value="escudo">Escudo Frente Pecho ($45)</option>
+                <option value="logo_grande">Logo Grande ($170)</option>
+            </select>
+        </div>
+        <div class="form-group"></div>
+        <div>
+            <button class="btn btn-red btn-sm" style="margin-top:18px;" onclick="eliminarUbicacionBordado(${idBordado})"><i class="fas fa-trash"></i></button>
+        </div>
+    `;
+    document.getElementById('contenedor_bordado').appendChild(row);
+}
+
+function eliminarUbicacionBordado(id) {
+    if (document.querySelectorAll('.bordado-row').length > 1) {
+        document.getElementById(`bordado_${id}`).remove();
+    } else {
+        alert('Debe haber por lo menos una ubicación de bordado.');
     }
 }
 
@@ -544,6 +611,22 @@ function calcularCotizacion() {
     // ============================================================
     if (servicio === 'transfer') {
         calcularCotizacionTransfer(cantidadBase, tDis, origenPlayeras);
+        return;
+    }
+
+    // ============================================================
+    //  RAMA BORDADO COMO SERVICIO PRINCIPAL
+    // ============================================================
+    if (servicio === 'bordado') {
+        calcularCotizacionBordado(cantidadBase, tDis, origenPlayeras);
+        return;
+    }
+
+    // ============================================================
+    //  RAMA SOLO PLAYERAS
+    // ============================================================
+    if (servicio === 'playeras') {
+        calcularCotizacionPlayeras(cantidadBase, tDis, origenPlayeras);
         return;
     }
 
@@ -2438,4 +2521,354 @@ function generarResumenTransfer(d) {
 
     document.getElementById('resumen_texto').innerText = lineas.join('\n');
     document.getElementById('panel_resumen').style.display = 'block';
+}
+
+// ─────────────────────────────────────────────
+//  CALCULAR COTIZACIÓN SOLO PLAYERAS
+// ─────────────────────────────────────────────
+function calcularCotizacionPlayeras(cantidadBase, tDis, origenPlayeras) {
+    const t = TABULADOR_COSTOS;
+
+    // ── Playeras ──────────────────────────────
+    let costoTotalPlayeras = 0;
+    let costoEnvioPlayeras = 0;
+    let factorUtilidad = 2;
+    const detallePlayeras = [];
+    let infoEnvioPlayeras = null;
+
+    if (origenPlayeras === 'comprar') {
+        if (carritoPlayeras.length === 0) { alert('⚠️ Agrega playeras al carrito.'); return; }
+        const objUtil = t.utilidad_playeras.find(u => cantidadBase <= u.max) || t.utilidad_playeras[t.utilidad_playeras.length - 1];
+        factorUtilidad = objUtil.util;
+
+        carritoPlayeras.forEach(c => {
+            const cantPz = c.cantidad;
+            const precioBase = cantidadBase >= 12 ? c.variante.mayor : c.variante.menor;
+            const precioVenta = precioBase * factorUtilidad;
+            const subtotalRenglon = precioVenta * cantPz;
+            costoTotalPlayeras += subtotalRenglon;
+            detallePlayeras.push({ cantPz, marca: c.marca, modelo: c.modelo, variante: c.variante.nombre, precioBase, factorUtilidad, precioVenta, subtotalRenglon });
+        });
+
+        // Envío playeras (solo si no hay existencia)
+        if (!hayExistencia) {
+            const paquetes = Math.ceil(cantidadBase / 70);
+            costoEnvioPlayeras = paquetes * t.otros.envio_por_70_pz;
+            infoEnvioPlayeras = { paquetes, costoEnvio: costoEnvioPlayeras, tarifa: t.otros.envio_por_70_pz };
+        }
+    } else {
+        alert('⚠️ En "Solo Playeras" debes seleccionar comprarlas del catálogo.');
+        return;
+    }
+
+    // ── Diseño ───────────────────────────────
+    let costoDiseno = 0;
+    if (tDis === 'cliente') costoDiseno = t.otros.diseno_cliente;
+    else if (tDis === 'guardado') costoDiseno = t.otros.diseno_guardado;
+    else costoDiseno = t.otros.diseno_nuevo;
+
+    // ── Totales ──────────────────────────────
+    const costoNetoSinIVA = costoTotalPlayeras + costoEnvioPlayeras + costoDiseno;
+    const montoIVA = costoNetoSinIVA * 0.16;
+    const costoNetoConIVA = costoNetoSinIVA + montoIVA;
+    const unitarioSinIVA = costoNetoSinIVA / cantidadBase;
+    const unitarioConIVA = costoNetoConIVA / cantidadBase;
+
+    // ── Mostrar Totales ──────────────────────
+    document.getElementById('res_subtotal').innerText = `$${costoNetoSinIVA.toFixed(2)}`;
+    document.getElementById('res_iva').innerText = `$${montoIVA.toFixed(2)}`;
+    document.getElementById('res_total_neto').innerText = `$${costoNetoConIVA.toFixed(2)}`;
+    document.getElementById('res_unit_sin').innerText = `$${unitarioSinIVA.toFixed(2)}`;
+    document.getElementById('res_unit_con').innerText = `$${unitarioConIVA.toFixed(2)}`;
+    
+    document.getElementById('panel_resultados').style.display = 'block';
+    document.getElementById('explicacion_detalles').style.display = 'none';
+
+    // Generar texto resumen
+    const lineas = [];
+    lineas.push(`━━━ COTIZACIÓN TEXTIL (SOLO PRENDAS) ━━━`);
+    lineas.push(`📦 Cantidad: ${cantidadBase} prendas`);
+    const playerasTexto = detallePlayeras.map(p => `${p.cantPz}× ${p.marca} ${p.modelo} (${p.variante})`).join(', ');
+    lineas.push(`👕 Playeras: ${playerasTexto}`);
+    if (costoDiseno > 0) lineas.push(`✏️ Diseño: ${document.getElementById('tipo_diseno').options[document.getElementById('tipo_diseno').selectedIndex].text.split('(')[0].trim()}`);
+    lineas.push(`──────────────────────────`);
+    lineas.push(`Subtotal:       $${costoNetoSinIVA.toFixed(2)}`);
+    lineas.push(`IVA 16%:        $${montoIVA.toFixed(2)}`);
+    lineas.push(`Total:          $${costoNetoConIVA.toFixed(2)}`);
+    lineas.push(`Precio c/u:     $${unitarioConIVA.toFixed(2)} (con IVA)`);
+
+    document.getElementById('resumen_texto').innerText = lineas.join('\n');
+    document.getElementById('panel_resumen').style.display = 'block';
+    
+    // Generar desglose en HTML
+    generarDesglosePlayeras({
+        cantidadBase, detallePlayeras, costoTotalPlayeras,
+        hayExistencia, infoEnvioPlayeras, costoEnvioPlayeras,
+        costoDiseno, labelDiseno: document.getElementById('tipo_diseno').options[document.getElementById('tipo_diseno').selectedIndex].text,
+        costoNetoSinIVA, montoIVA, costoNetoConIVA, unitarioSinIVA, unitarioConIVA
+    });
+}
+
+function generarDesglosePlayeras(d) {
+    const sep = `<hr style="border-color:rgba(255,255,255,0.15);margin:10px 0;">`;
+    let html = `<div class="desglose-section">`;
+
+    html += `<h4 class="dg-title">👕 PLAYERAS</h4>`;
+    html += `<p class="dg-note">Fórmula: <code>Precio Proveedor × Factor Utilidad × Cantidad = Subtotal</code></p>`;
+
+    d.detallePlayeras.forEach(p => {
+        html += `<div class="dg-box">`;
+        html += `<b>${p.cantPz}× ${p.marca} — ${p.modelo} (${p.variante})</b>`;
+        html += `<p class="dg-formula">$${p.precioBase} × ×${p.factorUtilidad} = $${p.precioVenta.toFixed(2)}/pieza</p>`;
+        html += `<p class="dg-formula">$${p.precioVenta.toFixed(2)} × ${p.cantPz} pzas = <strong>$${p.subtotalRenglon.toFixed(2)}</strong></p>`;
+        html += `</div>`;
+    });
+    html += `<p class="dg-row dg-sum"><span>Total Playeras:</span><strong>$${d.costoTotalPlayeras.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">🚚 ENVÍO</h4>`;
+    if (d.hayExistencia) {
+        html += `<p class="dg-formula dg-green">✅ Playeras en existencia física. <strong>Costo Envío: $0.00</strong></p>`;
+    } else if (d.infoEnvioPlayeras) {
+        const e = d.infoEnvioPlayeras;
+        html += `<div class="dg-box">`;
+        html += `<b>Paquetes requeridos: ${e.paquetes}</b> (1 paquete cada 70 prendas)`;
+        html += `<p class="dg-formula">${e.paquetes} paquetes × $${e.tarifa} = <strong>$${e.costoEnvio.toFixed(2)}</strong></p>`;
+        html += `</div>`;
+        html += `<p class="dg-row dg-sum"><span>Total Envío:</span><strong>$${e.costoEnvio.toFixed(2)}</strong></p>`;
+    }
+    html += sep;
+
+    if (d.costoDiseno > 0) {
+        html += `<h4 class="dg-title">✏️ DISEÑO</h4>`;
+        html += `<p class="dg-formula">${d.labelDiseno}: <strong>$${d.costoDiseno}</strong></p>`;
+        html += sep;
+    }
+
+    html += `<h4 class="dg-title">📊 RESUMEN FINAL</h4>`;
+    html += `<table class="dg-table">
+        <tr><td>Costo de Playeras</td><td>$${d.costoTotalPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Costo de Envío</td><td>$${d.costoEnvioPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Diseño</td><td>$${d.costoDiseno}</td></tr>
+        <tr class="dg-tr-sub"><td><b>SUBTOTAL sin IVA</b></td><td><b>$${d.costoNetoSinIVA.toFixed(2)}</b></td></tr>
+        <tr><td>IVA 16%: $${d.costoNetoSinIVA.toFixed(2)} × 0.16</td><td>$${d.montoIVA.toFixed(2)}</td></tr>
+        <tr class="dg-tr-total"><td><b>TOTAL con IVA</b></td><td><b>$${d.costoNetoConIVA.toFixed(2)}</b></td></tr>
+    </table>`;
+    html += `</div>`;
+    document.getElementById('explicacion_detalles').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────
+//  CALCULAR COTIZACIÓN BORDADO
+// ─────────────────────────────────────────────
+function calcularCotizacionBordado(cantidadBase, tDis, origenPlayeras) {
+    const t = TABULADOR_COSTOS;
+    
+    // ── Leer ubicaciones Bordado ──────────────────────
+    const rowsBordado = document.querySelectorAll('.bordado-row');
+    if (rowsBordado.length === 0) { alert('⚠️ Agrega al menos una ubicación de bordado.'); return; }
+
+    let costoTotalBordado = 0;
+    const detalleBordado = [];
+
+    for (const row of rowsBordado) {
+        const ubiSel = row.querySelector('.bordado-ubicacion');
+        const tipoSel = row.querySelector('.bordado-tipo');
+        
+        if (!ubiSel.value) { alert('⚠️ Selecciona el área de bordado en todas las ubicaciones.'); return; }
+        
+        const ubiName = ubiSel.options[ubiSel.selectedIndex].text;
+        const tipoBordado = tipoSel.value;
+        const tipoName = tipoSel.options[tipoSel.selectedIndex].text;
+
+        let costoBase = 0;
+        let utilidadMult = 0; // 1.0 = 100%, 0.85 = 85% etc.
+        
+        if (tipoBordado === 'escudo') {
+            costoBase = 45;
+            if (cantidadBase >= 1 && cantidadBase <= 50) utilidadMult = 1.0;
+            else if (cantidadBase >= 51 && cantidadBase <= 100) utilidadMult = 0.85;
+            else if (cantidadBase >= 101 && cantidadBase <= 150) utilidadMult = 0.70;
+            else if (cantidadBase >= 151 && cantidadBase <= 200) utilidadMult = 0.60;
+            else utilidadMult = 0.45;
+        } else if (tipoBordado === 'logo_grande') {
+            costoBase = 170;
+            if (cantidadBase >= 1 && cantidadBase <= 50) utilidadMult = 1.20;
+            else if (cantidadBase >= 51 && cantidadBase <= 100) utilidadMult = 1.0;
+            else utilidadMult = 0.85;
+        }
+        
+        // El factor de venta 
+        const factorVenta = 1 + utilidadMult;
+        const precioUnitario = costoBase * factorVenta;
+        const subtotalUbi = precioUnitario * cantidadBase;
+        
+        costoTotalBordado += subtotalUbi;
+        detalleBordado.push({ ubiName, tipoName, costoBase, utilidadMult, factorVenta, precioUnitario, subtotalUbi });
+    }
+
+    // ── Diseño ───────────────────────────────
+    let costoDiseno = 0;
+    if (tDis === 'cliente') costoDiseno = t.otros.diseno_cliente;
+    else if (tDis === 'guardado') costoDiseno = t.otros.diseno_guardado;
+    else costoDiseno = t.otros.diseno_nuevo;
+
+    // ── Playeras ──────────────────────────────
+    let costoTotalPlayeras = 0;
+    let costoEnvioPlayeras = 0;
+    let numMermas = Math.ceil(cantidadBase / 100) * 5; 
+    let factorUtilidad = 2;
+    const detallePlayeras = [];
+    let infoEnvioPlayeras = null;
+
+    if (origenPlayeras === 'comprar') {
+        if (carritoPlayeras.length === 0) { alert('⚠️ Agrega playeras al carrito antes de calcular.'); return; }
+
+        const objUtil = t.utilidad_playeras.find(u => cantidadBase <= u.max) || t.utilidad_playeras[t.utilidad_playeras.length - 1];
+        factorUtilidad = objUtil.util;
+
+        carritoPlayeras.forEach(c => {
+            const cantPz = c.cantidad;
+            const precioBase = cantidadBase >= 12 ? c.variante.mayor : c.variante.menor;
+            const precioVenta = precioBase * factorUtilidad;
+            const subtotalRenglon = precioVenta * cantPz;
+            costoTotalPlayeras += subtotalRenglon;
+            detallePlayeras.push({ cantPz, marca: c.marca, modelo: c.modelo, variante: c.variante.nombre, precioBase, factorUtilidad, precioVenta, subtotalRenglon });
+        });
+
+        // Merma
+        const precioMermaBase = carritoPlayeras[0].variante.mayor;
+        const costoMerma = precioMermaBase * factorUtilidad * numMermas;
+        costoTotalPlayeras += costoMerma;
+        detallePlayeras._merma = { numMermas, precioMermaBase, factorUtilidad, costoMerma };
+
+        // Envío 
+        if (!hayExistencia) {
+            const paquetes = Math.ceil(cantidadBase / 70);
+            costoEnvioPlayeras = paquetes * t.otros.envio_por_70_pz;
+            infoEnvioPlayeras = { paquetes, costoEnvio: costoEnvioPlayeras, tarifa: t.otros.envio_por_70_pz };
+        }
+    }
+
+    // ── Totales ──────────────────────────────
+    const costoNetoSinIVA = costoTotalBordado + costoTotalPlayeras + costoEnvioPlayeras + costoDiseno;
+    const montoIVA = costoNetoSinIVA * 0.16;
+    const costoNetoConIVA = costoNetoSinIVA + montoIVA;
+    const unitarioSinIVA = costoNetoSinIVA / cantidadBase;
+    const unitarioConIVA = costoNetoConIVA / cantidadBase;
+
+    // ── Mostrar Totales ──────────────────────
+    document.getElementById('res_subtotal').innerText = `$${costoNetoSinIVA.toFixed(2)}`;
+    document.getElementById('res_iva').innerText = `$${montoIVA.toFixed(2)}`;
+    document.getElementById('res_total_neto').innerText = `$${costoNetoConIVA.toFixed(2)}`;
+    document.getElementById('res_unit_sin').innerText = `$${unitarioSinIVA.toFixed(2)}`;
+    document.getElementById('res_unit_con').innerText = `$${unitarioConIVA.toFixed(2)}`;
+    
+    document.getElementById('panel_resultados').style.display = 'block';
+    document.getElementById('explicacion_detalles').style.display = 'none';
+
+    // ── Resumen Whatsapp ─────────────────────
+    const lineas = [];
+    lineas.push(`━━━ COTIZACIÓN TEXTIL (BORDADO) ━━━`);
+    lineas.push(`📦 Cantidad: ${cantidadBase} prendas`);
+    
+    const ubisTexto = detalleBordado.map(b => `${b.ubiName} (${b.tipoName})`).join(' + ');
+    lineas.push(`📍 Bordado: ${ubisTexto}`);
+    
+    let playerasTexto = '';
+    if (origenPlayeras === 'comprar' && detallePlayeras.length > 0) {
+        playerasTexto = detallePlayeras.map(p => `${p.cantPz}× ${p.marca} ${p.modelo} (${p.variante})`).join(', ');
+    } else {
+        playerasTexto = `Cliente envía (+ ${numMermas} pzas merma)`;
+    }
+    lineas.push(`👕 Playeras: ${playerasTexto}`);
+    lineas.push(`✏️ Diseño: ${document.getElementById('tipo_diseno').options[document.getElementById('tipo_diseno').selectedIndex].text.split('(')[0].trim()}`);
+    lineas.push(`──────────────────────────`);
+    lineas.push(`Subtotal:       $${costoNetoSinIVA.toFixed(2)}`);
+    lineas.push(`IVA 16%:        $${montoIVA.toFixed(2)}`);
+    lineas.push(`Total:          $${costoNetoConIVA.toFixed(2)}`);
+    lineas.push(`Precio c/u:     $${unitarioConIVA.toFixed(2)} (con IVA)`);
+
+    document.getElementById('resumen_texto').innerText = lineas.join('\n');
+    document.getElementById('panel_resumen').style.display = 'block';
+
+    // Generar desglose en HTML
+    generarDesgloseBordado({
+        cantidadBase, detalleBordado, costoTotalBordado, origenPlayeras, numMermas,
+        detallePlayeras, factorUtilidad, costoTotalPlayeras,
+        hayExistencia, infoEnvioPlayeras, costoEnvioPlayeras,
+        costoDiseno, labelDiseno: document.getElementById('tipo_diseno').options[document.getElementById('tipo_diseno').selectedIndex].text,
+        costoNetoSinIVA, montoIVA, costoNetoConIVA, unitarioSinIVA, unitarioConIVA
+    });
+}
+
+function generarDesgloseBordado(d) {
+    const sep = `<hr style="border-color:rgba(255,255,255,0.15);margin:10px 0;">`;
+    let html = `<div class="desglose-section">`;
+
+    html += `<h4 class="dg-title">🧵 BORDADO POR UBICACIÓN</h4>`;
+    html += `<p class="dg-note">Fórmula: <code>Costo Base + % Utilidad = Precio Venta</code></p>`;
+
+    d.detalleBordado.forEach(u => {
+        html += `<div class="dg-box">`;
+        html += `<b>📍 ${u.ubiName.toUpperCase()}</b> — ${u.tipoName}`;
+        html += `<p class="dg-formula">Costo: $${u.costoBase} | Utilidad agregada: ${(u.utilidadMult * 100).toFixed(0)}%</p>`;
+        html += `<p class="dg-formula">Venta unitaria: $${u.costoBase} × ${u.factorVenta.toFixed(2)} = $${u.precioUnitario.toFixed(2)}</p>`;
+        html += `<p class="dg-formula">$${u.precioUnitario.toFixed(2)} × ${d.cantidadBase} pzas = <strong>$${u.subtotalUbi.toFixed(2)}</strong></p>`;
+        html += `</div>`;
+    });
+    html += `<p class="dg-row dg-sum"><span>Total Bordado:</span><strong>$${d.costoTotalBordado.toFixed(2)}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">👕 PLAYERAS</h4>`;
+    if (d.origenPlayeras === 'comprar') {
+        d.detallePlayeras.forEach(p => {
+            html += `<div class="dg-box">`;
+            html += `<b>${p.cantPz}× ${p.marca} — ${p.modelo} (${p.variante})</b>`;
+            html += `<p class="dg-formula">$${p.precioBase} × ×${p.factorUtilidad} = $${p.precioVenta.toFixed(2)}/pieza</p>`;
+            html += `<p class="dg-formula">$${p.precioVenta.toFixed(2)} × ${p.cantPz} pzas = <strong>$${p.subtotalRenglon.toFixed(2)}</strong></p>`;
+            html += `</div>`;
+        });
+        if (d.detallePlayeras._merma) {
+            const m = d.detallePlayeras._merma;
+            html += `<div class="dg-box dg-warning">`;
+            html += `<b>🔄 MERMA OPERATIVA</b> — 5 prendas por cada 100 pedidas`;
+            html += `<p class="dg-formula">$${m.precioMermaBase} × ×${m.factorUtilidad} × ${m.numMermas} mermas = <strong>$${m.costoMerma.toFixed(2)}</strong></p>`;
+            html += `</div>`;
+        }
+        html += `<p class="dg-row dg-sum"><span>Total Playeras:</span><strong>$${d.costoTotalPlayeras.toFixed(2)}</strong></p>`;
+
+        html += sep;
+        html += `<h4 class="dg-title">🚚 ENVÍO</h4>`;
+        if (d.hayExistencia) {
+            html += `<p class="dg-formula dg-green">✅ Playeras en existencia física. <strong>Costo Envío: $0.00</strong></p>`;
+        } else if (d.infoEnvioPlayeras) {
+            const e = d.infoEnvioPlayeras;
+            html += `<div class="dg-box">`;
+            html += `<b>Paquetes requeridos: ${e.paquetes}</b> (1 paquete cada 70 prendas)`;
+            html += `<p class="dg-formula">${e.paquetes} paquetes × $${e.tarifa} = <strong>$${e.costoEnvio.toFixed(2)}</strong></p>`;
+            html += `</div>`;
+            html += `<p class="dg-row dg-sum"><span>Total Envío:</span><strong>$${e.costoEnvio.toFixed(2)}</strong></p>`;
+        }
+    } else {
+        html += `<p class="dg-formula dg-green">✅ Cliente envía playeras. Costo = $0</p>`;
+    }
+    html += sep;
+
+    html += `<h4 class="dg-title">✏️ DISEÑO</h4>`;
+    html += `<p class="dg-formula">${d.labelDiseno}: <strong>$${d.costoDiseno}</strong></p>`;
+    html += sep;
+
+    html += `<h4 class="dg-title">📊 RESUMEN FINAL</h4>`;
+    html += `<table class="dg-table">
+        <tr><td>Bordado Neto</td><td>$${d.costoTotalBordado.toFixed(2)}</td></tr>
+        <tr><td>Costo de Playeras</td><td>$${d.costoTotalPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Costo de Envío</td><td>$${d.costoEnvioPlayeras.toFixed(2)}</td></tr>
+        <tr><td>Diseño</td><td>$${d.costoDiseno}</td></tr>
+        <tr class="dg-tr-sub"><td><b>SUBTOTAL sin IVA</b></td><td><b>$${d.costoNetoSinIVA.toFixed(2)}</b></td></tr>
+        <tr><td>IVA 16%: $${d.costoNetoSinIVA.toFixed(2)} × 0.16</td><td>$${d.montoIVA.toFixed(2)}</td></tr>
+        <tr class="dg-tr-total"><td><b>TOTAL con IVA</b></td><td><b>$${d.costoNetoConIVA.toFixed(2)}</b></td></tr>
+    </table>`;
+    html += `</div>`;
+    document.getElementById('explicacion_detalles').innerHTML = html;
 }
