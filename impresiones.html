@@ -193,6 +193,31 @@ input::placeholder{color:#78716c;font-weight:400}
       <p class="hint"><strong>Nota:</strong> Si el cliente NO envía diseño, o es revista/fotos, selecciona <strong>100%</strong>. Si es documento mixto con texto, usa 50% u 80%.</p>
     </div>
 
+    <!-- 6. LAMINADO -->
+    <div style="margin-bottom:14px; background: rgba(106, 17, 203, 0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(106, 17, 203, 0.1);">
+      <label style="color: var(--accent); font-weight: 700;">✨ LAMINADO (Opcional)</label>
+      
+      <div class="grid2" style="margin-bottom:8px">
+        <div>
+          <label>🖨️ Frente</label>
+          <div class="radio-group" id="laminadoFrenteGroup">
+            <label class="radio-opt selected" onclick="selectRadio('laminadoFrente','no',this); checkReversoLaminado()"><input type="radio" name="laminadoFrente" value="no" checked> 🚫 No lleva</label>
+            <label class="radio-opt" onclick="selectRadio('laminadoFrente','brillante',this); checkReversoLaminado()"><input type="radio" name="laminadoFrente" value="brillante"> ✨ Brillante</label>
+            <label class="radio-opt" onclick="selectRadio('laminadoFrente','mate',this); checkReversoLaminado()"><input type="radio" name="laminadoFrente" value="mate"> 🌫️ Mate</label>
+          </div>
+        </div>
+        <div id="laminadoReversoSection" style="display:none;">
+          <label>🔄 Reverso</label>
+          <div class="radio-group" id="laminadoReversoGroup">
+            <label class="radio-opt selected" onclick="selectRadio('laminadoReverso','no',this)"><input type="radio" name="laminadoReverso" value="no" checked> 🚫 Solo 1 lado</label>
+            <label class="radio-opt" onclick="selectRadio('laminadoReverso','brillante',this)"><input type="radio" name="laminadoReverso" value="brillante"> ✨ Brillante</label>
+            <label class="radio-opt" onclick="selectRadio('laminadoReverso','mate',this)"><input type="radio" name="laminadoReverso" value="mate"> 🌫️ Mate</label>
+          </div>
+        </div>
+      </div>
+      <p class="hint"><strong>Nota:</strong> Mínimo de cobro $250.00 aunque el cálculo sea menor.</p>
+    </div>
+
     <!-- 7. CORTES EXTRAS -->
     <div style="margin-bottom:14px">
       <label>✂️ 7. Cortes Extras</label>
@@ -445,7 +470,7 @@ function filtrarPapeles(){
     }
   });
 
-  // Ocultar reverso si la categoría es adhesivo (solo impresión por un lado)
+// Ocultar reverso si la categoría es adhesivo (solo impresión por un lado)
   const reversoSection = document.getElementById('reversoSection');
   if(reversoSection){
     if(cat === 'adhesivo'){
@@ -462,6 +487,18 @@ function filtrarPapeles(){
   }
 }
 
+function checkReversoLaminado() {
+    const lamFrente = getRadio('laminadoFrente');
+    const lamReversoSection = document.getElementById('laminadoReversoSection');
+    if (lamFrente && lamFrente !== 'no') {
+        lamReversoSection.style.display = '';
+    } else {
+        lamReversoSection.style.display = 'none';
+        const lamRevNo = document.querySelector('[name="laminadoReverso"][value="no"]');
+        if(lamRevNo){ selectRadio('laminadoReverso', 'no', lamRevNo.closest('.radio-opt')); }
+    }
+}
+
 
 
 // ============================================================
@@ -474,6 +511,8 @@ function agregarPartida(){
   const reverso = getRadio('reverso');
   const papelId = document.getElementById('papel').value;
   const cobertura = getRadio('cobertura');
+  const laminadoFrente = getRadio('laminadoFrente') || 'no';
+  const laminadoReverso = getRadio('laminadoReverso') || 'no';
   const diseno = parseFloat(document.getElementById('diseno').value)||0;
   const tipoCorte = getRadio('tipoCorte') || 'no';
   const cortes = tipoCorte === 'guillotina' ? (parseInt(document.getElementById('cortes').value)||0) : 0;
@@ -491,7 +530,7 @@ function agregarPartida(){
     alert(`⚠️ El papel "${papel.name}" no se puede imprimir en tamaño ${NOMBRES_TAMANO[tamano]||tamano}. Elige otro papel u otro tamaño.`);
     return;
   }
-  partidas.push({cantidad,tamano,frente,reverso,papelId,cobertura,diseno,tipoCorte,cortes,maquila,papelNombre:papel.name});
+  partidas.push({cantidad,tamano,frente,reverso,papelId,cobertura,laminadoFrente,laminadoReverso,diseno,tipoCorte,cortes,maquila,papelNombre:papel.name});
   renderPartidas();
   document.getElementById('partidasContainer').style.display='';
   
@@ -507,11 +546,16 @@ function agregarPartida(){
   document.getElementById('cortes').value='';
   document.getElementById('diseno').value='0';
   document.querySelectorAll('.radio-opt').forEach(el=>{
-    if(el.querySelector('input').name !== 'maquila') {
+    if(el.querySelector('input').name !== 'maquila' && el.querySelector('input').name !== 'laminadoFrente' && el.querySelector('input').name !== 'laminadoReverso') {
       el.classList.remove('selected');
       el.querySelector('input').checked=false;
     }
   });
+  
+  // Reset Laminado a No
+  const lamFrenteNo = document.querySelector('[name="laminadoFrente"][value="no"]');
+  if(lamFrenteNo) selectRadio('laminadoFrente', 'no', lamFrenteNo.closest('.radio-opt'));
+  checkReversoLaminado();
 }
 
 function renderPartidas(){
@@ -540,10 +584,11 @@ function renderPartidas(){
           <span style="color:var(--text);font-weight:600">Papel Pliego:</span> ${papel.name} (Costo $${(papel||{}).costo.toFixed(2)} ÷ salen ${calc.hojasPorPliego} piezas. Costo pieza neta = $${calc.costoHojaBruta.toFixed(4)}).<br>
           <span style="color:var(--text);font-weight:600">Costo Hoja Comercial:</span> $${calc.costoHojaBruta.toFixed(4)} × util. ${calc.multPapel} = <strong>$${calc.costoHojaFinal.toFixed(4)}</strong>/hoja.<br>
           <span style="color:var(--text);font-weight:600">Detalle Consumo Venta:</span> ${p.cantidad} hojas utilizadas × $${calc.costoHojaFinal.toFixed(4)} ${calc.corteExtra>0?' + $'+calc.corteExtra+'(corte)':''} = <strong>$${calc.costoPapel.toFixed(2)}</strong><br>
+          ${calc.costoTotalLaminado > 0 ? `<span style="color:var(--accent);font-weight:600">✨ Laminado:</span> ${calc.detalleLaminado} = <strong>$${calc.costoTotalLaminado.toFixed(2)}</strong><br>` : ''}
           ${p.tipoCorte==='guillotina' && p.cortes>0?`<span style="color:var(--text);font-weight:600">Cortes de Guillotina:</span> ${calc.detalleCorte} = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
           ${p.tipoCorte==='registro'?`<span style="color:var(--text);font-weight:600">Corte a Registro:</span> ${calc.detalleCorte} = <strong>$${calc.costoCortes.toFixed(2)}</strong><br>`:''}
           ${calc.costoDiseno>0?`<span style="color:var(--text);font-weight:600">Diseño:</span> $${calc.costoDiseno.toFixed(2)}<br>`:''}
-          <span style="color:var(--text);font-weight:600;font-size:0.85rem">Total Partida:</span> $${calc.costoImpFrente.toFixed(2)} + ${p.reverso!=='no'?'$'+calc.costoImpReverso.toFixed(2)+' + ':''}$${calc.costoPapel.toFixed(2)}${calc.costoCortes>0?' + $'+calc.costoCortes.toFixed(2):''}${calc.costoDiseno>0?' + $'+calc.costoDiseno.toFixed(2):''} = <strong style="color:var(--success);font-size:0.85rem">$${calc.subtotal.toFixed(2)}</strong>
+          <span style="color:var(--text);font-weight:600;font-size:0.85rem">Total Partida:</span> $${calc.costoImpFrente.toFixed(2)} + ${p.reverso!=='no'?'$'+calc.costoImpReverso.toFixed(2)+' + ':''}$${calc.costoPapel.toFixed(2)}${calc.costoTotalLaminado>0?' + $'+calc.costoTotalLaminado.toFixed(2):''}${calc.costoCortes>0?' + $'+calc.costoCortes.toFixed(2):''}${calc.costoDiseno>0?' + $'+calc.costoDiseno.toFixed(2):''} = <strong style="color:var(--success);font-size:0.85rem">$${calc.subtotal.toFixed(2)}</strong>
         </p>
       </div>`;
     }
@@ -556,7 +601,7 @@ function renderPartidas(){
           <strong>${p.cantidad} imp. ${tamNom}</strong><br>
           <span class="badge ${badgeFr}">${frenteTxt}</span>
           <span class="badge ${p.reverso==='no'?'badge-bn':'badge-ambos'}">${reversoTxt}</span><br>
-          ${papel.name} · ${p.cobertura}% · ${p.maquila==='si'?'<span style="color:var(--warning)">Maquila</span>':'Normal'} ${p.tipoCorte==='guillotina'&&p.cortes>0?`· <span style="color:var(--accent)">✂️ +${p.cortes} cortes</span>`:''}${p.tipoCorte==='registro'?`· <span style="color:var(--accent)">🎯 Corte Reg.</span>`:''}
+          ${papel.name} · ${p.cobertura}% · ${p.maquila==='si'?'<span style="color:var(--warning)">Maquila</span>':'Normal'} ${calc && calc.costoTotalLaminado>0 ? `· <span style="color:var(--accent)">✨ Laminado</span>`:''} ${p.tipoCorte==='guillotina'&&p.cortes>0?`· <span style="color:var(--accent)">✂️ +${p.cortes} cortes</span>`:''}${p.tipoCorte==='registro'?`· <span style="color:var(--accent)">🎯 Corte Reg.</span>`:''}
           ${calc?`<br><span style="color:var(--success);font-weight:700">$${calc.subtotal.toFixed(2)}</span> total · <span style="color:var(--accent2)">$${calc.unitario.toFixed(2)}</span> c/u`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -602,6 +647,7 @@ function realizarCotizacion(){
       <div class="result-row"><span class="result-label">🖨️ Impresión Frente (${frenteTxt})</span><span class="result-value">$${fMil(calc.costoImpFrente)}</span></div>
       ${p.reverso!=='no'?`<div class="result-row"><span class="result-label">🖨️ Impresión Reverso (${reversoTxt.replace('REVERSO ','').replace(' A ','/')})</span><span class="result-value">$${fMil(calc.costoImpReverso)}</span></div>`:''}
       <div class="result-row"><span class="result-label">📄 Papel (${p.papelNombre})</span><span class="result-value">$${fMil(calc.costoPapel)}</span></div>
+      ${calc.costoTotalLaminado>0?`<div class="result-row"><span class="result-label">✨ Laminado (${calc.detalleLaminado})</span><span class="result-value">$${fMil(calc.costoTotalLaminado)}</span></div>`:''}
       ${calc.costoCortes>0?`<div class="result-row"><span class="result-label">✂️ Corte (${p.tipoCorte==='registro'?'Registro':'Guillotina'})</span><span class="result-value">$${fMil(calc.costoCortes)}</span></div>`:''}
       ${calc.costoDiseno>0?`<div class="result-row"><span class="result-label">🎨 Diseño</span><span class="result-value">$${fMil(calc.costoDiseno)}</span></div>`:''}
       <div class="result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
@@ -615,9 +661,10 @@ function realizarCotizacion(){
     const emojiFrente = p.frente==='color'?'🎨':'⬛';
     const textActCorte = p.tipoCorte==='registro' ? '\n🎯 CON CORTE A REGISTRO' : (p.tipoCorte==='guillotina' && p.cortes>0 ? `\n✂️ CORTE A LA MEDIDA QUE SOLICITA` : '');
     const textCostoDiseno = calc.costoDiseno > 0 ? `\n🎨 COSTO DISEÑO: $${fMil(calc.costoDiseno)}` : '';
+    const textLaminado = calc.costoTotalLaminado > 0 ? `\n✨ LAMINADO: ${calc.detalleLaminado.toUpperCase()}` : '';
     
     // Per user request, removing the cost of cuts and the old unitario sin iva line
-    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${fMil(p.cantidad)} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}${textActCorte}${textCostoDiseno}\n\n`;
+    clienteTexto += `📌 PARTIDA ${i+1}:\n🖨️ ${fMil(p.cantidad)} IMPRESIONES TAMAÑO ${tamShow}\n${emojiFrente} ${frenteTxt} FRENTE${p.reverso!=='no'?', '+reversoTxt:''}\n📄 ${papel.name.toUpperCase()} ${cobertDesc}${textLaminado}${textActCorte}${textCostoDiseno}\n\n`;
   });
 
   const iva = totalGeneral * 0.16;
