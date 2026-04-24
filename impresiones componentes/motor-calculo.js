@@ -45,13 +45,27 @@ window.getPrecioImp = function(modo, impacto, cobertura, cantidad, maquila){
 const getRangoKey = window.getRangoKey;
 const getPrecioImp = window.getPrecioImp;
 
+window.getCostoLaminado = function(tipo, tamanoBase, cantidad) {
+    if (!costosLaminado[tipo] || !costosLaminado[tipo][tamanoBase]) return 0;
+    const rangos = costosLaminado[tipo][tamanoBase];
+    for (const r of rangos) {
+        if (cantidad >= r.min && cantidad <= r.max) return r.costo;
+    }
+    return rangos[rangos.length - 1].costo;
+};
+const getCostoLaminado = window.getCostoLaminado;
+
 function calcularPartida(p){
   const papel = getPapelById(p.papelId);
   if(!papel) return null;
-  const {cantidad, tamano, frente, reverso, cobertura, maquila} = p;
+  const {cantidad, tamano, frente, reverso, cobertura, maquila, laminadoFrente, laminadoReverso} = p;
   const multImp = MULT_IMP[tamano]||1;
   const multPapel = MULT_PAPEL[tamano]||2;
-  const corteExtra = CORTE_EXTRA[tamano]||0;
+  let corteExtra = CORTE_EXTRA[tamano]||0;
+  // Ajuste especial solicitado: Oficio $100 publico, $50 maquila
+  if(tamano === 'oficio') {
+    corteExtra = (maquila === 'si') ? 50 : 100;
+  }
   const ambosLados = reverso !== 'no';
   
   // Calcular cantidad total de clics (Frente + Reverso) para bracket de precio, agrupando por factor de tamaño
@@ -120,13 +134,29 @@ function calcularPartida(p){
   }
 
   // Diseño
-  const costoDiseno = p.diseno;
+  // Laminado
+  let costoTotalLaminado = 0;
+  let detalleLaminado = 'Sin laminado';
+  let costoLamFrentePorPieza = 0;
+  let costoLamReversoPorPieza = 0;
 
-  const subtotal = costoImpFrente + costoImpReverso + costoPapel + costoCortes + costoDiseno;
+  if (laminadoFrente && laminadoFrente !== 'no') {
+      costoLamFrentePorPieza = getCostoLaminado(laminadoFrente, tamano, cantidad);
+      if (laminadoReverso && laminadoReverso !== 'no') {
+          costoLamReversoPorPieza = getCostoLaminado(laminadoReverso, tamano, cantidad);
+      }
+      const costoLamCalculado = (costoLamFrentePorPieza + costoLamReversoPorPieza) * cantidad;
+      costoTotalLaminado = Math.max(costoLamCalculado, LAMINADO_MINIMO);
+      detalleLaminado = `Frente ${laminadoFrente} ($${costoLamFrentePorPieza.toFixed(2)}/pz)` + 
+                        (laminadoReverso && laminadoReverso !== 'no' ? `, Reverso ${laminadoReverso} ($${costoLamReversoPorPieza.toFixed(2)}/pz)` : `, sin reverso`);
+  }
+
+  const subtotal = costoImpFrente + costoImpReverso + costoPapel + costoCortes + costoDiseno + costoTotalLaminado;
   const unitario = subtotal / cantidad;
 
   return {
     costoImpFrente, costoImpReverso, costoPapel, costoCortes, detalleCorte, costoDiseno,
+    costoTotalLaminado, detalleLaminado, costoLamFrentePorPieza, costoLamReversoPorPieza,
     subtotal, unitario, pliegos, hojasPorPliego,
     precioImpFrente, precioImpReverso, 
     precioNormalFrente, precioNormalReverso, clicksAContar,

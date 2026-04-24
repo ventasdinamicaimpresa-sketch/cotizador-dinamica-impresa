@@ -103,3 +103,24 @@ const TABLA_IMP = window.TABLA_IMP;
 const MULT_IMP = window.MULT_IMP;
 const MULT_PAPEL = window.MULT_PAPEL;
 const CORTE_EXTRA = window.CORTE_EXTRA;
+
+window.costosLaminado = {
+    'brillante': {
+        'carta': [{ min: 1, max: 50, costo: 4.00 }, { min: 51, max: 100, costo: 3.80 }, { min: 101, max: 150, costo: 3.50 }, { min: 151, max: 200, costo: 3.30 }, { min: 201, max: 500, costo: 3.00 }, { min: 501, max: Infinity, costo: 2.80 }],
+        'oficio': [{ min: 1, max: 50, costo: 5.40 }, { min: 51, max: 100, costo: 5.13 }, { min: 101, max: 150, costo: 4.725 }, { min: 151, max: 200, costo: 4.455 }, { min: 201, max: 500, costo: 4.05 }, { min: 501, max: Infinity, costo: 3.78 }],
+        'doblecarta': [{ min: 1, max: 50, costo: 8.00 }, { min: 51, max: 100, costo: 7.60 }, { min: 101, max: 150, costo: 7.00 }, { min: 151, max: 200, costo: 6.60 }, { min: 201, max: 500, costo: 6.00 }, { min: 501, max: Infinity, costo: 5.60 }],
+        '30x45': [{ min: 1, max: 50, costo: 10.00 }, { min: 51, max: 100, costo: 9.50 }, { min: 101, max: 150, costo: 8.75 }, { min: 151, max: 200, costo: 8.25 }, { min: 201, max: 500, costo: 7.50 }, { min: 501, max: Infinity, costo: 7.00 }],
+        '32x50': [{ min: 1, max: 50, costo: 14.00 }, { min: 51, max: 100, costo: 13.30 }, { min: 101, max: 150, costo: 12.25 }, { min: 151, max: 200, costo: 11.55 }, { min: 201, max: 500, costo: 10.50 }, { min: 501, max: Infinity, costo: 9.80 }]
+    },
+    'mate': {
+        'carta': [{ min: 1, max: 50, costo: 4.60 }, { min: 51, max: 100, costo: 4.37 }, { min: 101, max: 150, costo: 4.025 }, { min: 151, max: 200, costo: 3.795 }, { min: 201, max: 500, costo: 3.45 }, { min: 501, max: Infinity, costo: 3.22 }],
+        'oficio': [{ min: 1, max: 50, costo: 6.21 }, { min: 51, max: 100, costo: 5.8995 }, { min: 101, max: 150, costo: 5.43375 }, { min: 151, max: 200, costo: 5.12325 }, { min: 201, max: 500, costo: 4.6575 }, { min: 501, max: Infinity, costo: 4.347 }],
+        'doblecarta': [{ min: 1, max: 50, costo: 9.20 }, { min: 51, max: 100, costo: 8.74 }, { min: 101, max: 150, costo: 8.05 }, { min: 151, max: 200, costo: 7.59 }, { min: 201, max: 500, costo: 6.90 }, { min: 501, max: Infinity, costo: 6.44 }],
+        '30x45': [{ min: 1, max: 50, costo: 11.50 }, { min: 51, max: 100, costo: 10.925 }, { min: 101, max: 150, costo: 10.0625 }, { min: 151, max: 200, costo: 9.4875 }, { min: 201, max: 500, costo: 8.625 }, { min: 501, max: Infinity, costo: 8.05 }],
+        '32x50': [{ min: 1, max: 50, costo: 16.10 }, { min: 51, max: 100, costo: 15.295 }, { min: 101, max: 150, costo: 14.0875 }, { min: 151, max: 200, costo: 13.2825 }, { min: 201, max: 500, costo: 12.075 }, { min: 501, max: Infinity, costo: 11.27 }]
+    }
+};
+
+window.LAMINADO_MINIMO = 250;
+const costosLaminado = window.costosLaminado;
+const LAMINADO_MINIMO = window.LAMINADO_MINIMO;
