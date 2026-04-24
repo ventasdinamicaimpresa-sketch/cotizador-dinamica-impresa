@@ -46,8 +46,12 @@ const getRangoKey = window.getRangoKey;
 const getPrecioImp = window.getPrecioImp;
 
 window.getCostoLaminado = function(tipo, tamanoBase, cantidad) {
-    if (!costosLaminado[tipo] || !costosLaminado[tipo][tamanoBase]) return 0;
-    const rangos = costosLaminado[tipo][tamanoBase];
+    let tb = tamanoBase;
+    if (tb === 'doble-carta') tb = 'doblecarta';
+    if (tb === 'doble-oficio' || tb === 'oficio') tb = 'oficio';
+    
+    if (!costosLaminado[tipo] || !costosLaminado[tipo][tb]) return 0;
+    const rangos = costosLaminado[tipo][tb];
     for (const r of rangos) {
         if (cantidad >= r.min && cantidad <= r.max) return r.costo;
     }
