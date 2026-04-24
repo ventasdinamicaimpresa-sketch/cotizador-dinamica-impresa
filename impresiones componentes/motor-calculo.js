@@ -138,6 +138,7 @@ function calcularPartida(p){
   }
 
   // Diseño
+  const costoDiseno = p.diseno || 0;
   // Laminado
   let costoTotalLaminado = 0;
   let detalleLaminado = 'Sin laminado';
