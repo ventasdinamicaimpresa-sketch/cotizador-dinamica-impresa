@@ -338,8 +338,8 @@ function agregarUbicacionBordado() {
         <div class="form-group">
             <label>Tipo de Bordado</label>
             <select class="bordado-tipo">
-                <option value="escudo">Escudo Frente Pecho ($45)</option>
-                <option value="logo_grande">Logo Grande ($170)</option>
+                <option value="escudo">Escudo Frente Pecho</option>
+                <option value="logo_grande">Logo Grande</option>
             </select>
         </div>
         <div class="form-group"></div>
